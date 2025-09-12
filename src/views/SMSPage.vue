@@ -1,28 +1,28 @@
 <template>
   <Layout title="Envoi de SMS">
         <!-- Actions -->
-        <div class="mb-4 flex justify-between items-center">
-          <div class="flex space-x-3">
-            <button @click="showQuickSendModal = true" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-sm font-medium transition-colors">
-              <font-awesome-icon icon="sms" class="mr-2" />
+        <div class="mb-4 flex flex-col md:flex-row md:justify-between md:items-center space-y-3 md:space-y-0">
+          <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+            <button @click="showQuickSendModal = true" class="bg-blue-500 hover:bg-blue-600 text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-colors">
+              <font-awesome-icon icon="sms" class="mr-1 md:mr-2" />
               Nouveau SMS
             </button>
-            <button @click="manageTemplates" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 text-sm font-medium transition-colors">
-              <font-awesome-icon icon="edit" class="mr-2" />
+            <button @click="manageTemplates" class="bg-purple-500 hover:bg-purple-600 text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-colors">
+              <font-awesome-icon icon="edit" class="mr-1 md:mr-2" />
               Gérer modèles
             </button>
           </div>
           
-          <div class="flex items-center space-x-3">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
             <div class="relative">
               <input
                 type="text"
                 placeholder="Rechercher un SMS..."
-                class="w-64 px-4 py-2 pl-10 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                class="w-full sm:w-64 px-3 md:px-4 py-2 pl-8 md:pl-10 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
               />
-              <font-awesome-icon icon="search" class="absolute left-3 top-2.5 text-gray-400" />
+              <font-awesome-icon icon="search" class="absolute left-2 md:left-3 top-2.5 text-gray-400 text-sm" />
             </div>
-            <select class="px-3 py-2 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <select class="px-2 md:px-3 py-2 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
               <option>Tous les SMS</option>
               <option>Envoyés</option>
               <option>En attente</option>
@@ -32,7 +32,7 @@
         </div>
 
         <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
           <MetricCard
             :title="'SMS envoyés'"
             :value="smsStats.totalSent.toString()"
@@ -95,8 +95,8 @@
                   <label class="block text-sm font-medium text-gray-700 mb-2">Destinataire</label>
                   <select v-model="selectedPatient" @change="updateMessageWithRecipient" class="w-full px-3 py-2 border-2 border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="">Sélectionner un patient</option>
-                    <option v-for="patient in patients" :key="patient.id" :value="patient.id">
-                      {{ patient.name }} - {{ patient.phone }}
+                    <option v-for="patient in patients" :key="patient.uuid" :value="patient.uuid">
+                      {{ patient.firstname }} {{ patient.lastname }} - {{ patient.phone1 }}
                     </option>
                   </select>
                 </div>
@@ -256,16 +256,16 @@ const updateMessageFromTemplate = () => {
       
       // Remplacer les variables si un patient est sélectionné
       if (selectedPatient.value) {
-        const patient = patients.value.find(p => p.id === selectedPatient.value)
+        const patient = patients.value.find(p => p.uuid === selectedPatient.value)
         if (patient) {
           // Remplacer les variables avec crochets
-          message = message.replace(/\[nom\]/g, patient.name)
-          message = message.replace(/\[prénom\]/g, patient.name.split(' ')[0])
-          message = message.replace(/\[téléphone\]/g, patient.phone)
+          message = message.replace(/\[nom\]/g, `${patient.firstname} ${patient.lastname}`)
+          message = message.replace(/\[prénom\]/g, patient.firstname)
+          message = message.replace(/\[téléphone\]/g, patient.phone1)
           message = message.replace(/\[email\]/g, patient.email)
           
           // Remplacer les variables avec accolades doubles
-          message = message.replace(/\{\{patientName\}\}/g, patient.name)
+          message = message.replace(/\{\{patientName\}\}/g, `${patient.firstname} ${patient.lastname}`)
           message = message.replace(/\{\{appointmentDate\}\}/g, sendDate.value || 'la date sélectionnée')
           message = message.replace(/\{\{appointmentTime\}\}/g, sendTime.value || 'l\'heure sélectionnée')
         }
@@ -282,17 +282,17 @@ const updateMessageWithRecipient = () => {
     updateMessageFromTemplate()
   } else if (selectedPatient.value && messageText.value) {
     // Si un patient est sélectionné mais pas de modèle, on peut personnaliser le message existant
-    const patient = patients.value.find(p => p.id === selectedPatient.value)
+    const patient = patients.value.find(p => p.uuid === selectedPatient.value)
     if (patient) {
       let message = messageText.value
       // Remplacer les variables avec crochets
-      message = message.replace(/\[nom\]/g, patient.name)
-      message = message.replace(/\[prénom\]/g, patient.name.split(' ')[0])
-      message = message.replace(/\[téléphone\]/g, patient.phone)
+      message = message.replace(/\[nom\]/g, `${patient.firstname} ${patient.lastname}`)
+      message = message.replace(/\[prénom\]/g, patient.firstname)
+      message = message.replace(/\[téléphone\]/g, patient.phone1)
       message = message.replace(/\[email\]/g, patient.email)
       
       // Remplacer les variables avec accolades doubles
-      message = message.replace(/\{\{patientName\}\}/g, patient.name)
+      message = message.replace(/\{\{patientName\}\}/g, `${patient.firstname} ${patient.lastname}`)
       message = message.replace(/\{\{appointmentDate\}\}/g, sendDate.value || 'la date sélectionnée')
       message = message.replace(/\{\{appointmentTime\}\}/g, sendTime.value || 'l\'heure sélectionnée')
       
@@ -308,16 +308,16 @@ const sendSMS = () => {
     return
   }
 
-  const patient = patients.value.find(p => p.id === selectedPatient.value)
+  const patient = patients.value.find(p => p.uuid === selectedPatient.value)
   if (!patient) {
     alert('Patient non trouvé')
     return
   }
 
   const smsData: Omit<SMS, 'id' | 'status' | 'sentAt'> = {
-    recipientId: patient.id,
-    recipientName: patient.name,
-    recipientPhone: patient.phone,
+    recipientId: patient.uuid,
+    recipientName: `${patient.firstname} ${patient.lastname}`,
+    recipientPhone: patient.phone1,
     message: messageText.value.trim(),
     type: (selectedTemplate.value ? messageTemplates.value.find(t => t.id === selectedTemplate.value)?.type || 'Personnalisé' : 'Personnalisé') as 'Rappel RDV' | 'Annulation' | 'Report' | 'Confirmation' | 'Personnalisé',
     templateId: selectedTemplate.value || undefined
@@ -332,7 +332,7 @@ const sendSMS = () => {
   
   // Afficher une notification
   if (window.showNotification) {
-    window.showNotification('success', 'SMS envoyé', `SMS envoyé à ${patient.name} avec succès`)
+    window.showNotification('success', 'SMS envoyé', `SMS envoyé à ${patient.firstname} ${patient.lastname} avec succès`)
   }
 }
 

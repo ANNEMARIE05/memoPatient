@@ -1,14 +1,14 @@
 <template>
   <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
-    <div class="p-4">
-      <div class="flex items-center justify-between mb-3">
+    <div class="p-2 md:p-4">
+      <div class="flex items-center justify-between mb-2 md:mb-3">
         <div class="flex items-center">
-          <div :class="iconBgClass" class="w-10 h-10 flex items-center justify-center">
-            <font-awesome-icon :icon="icon" :class="iconClass" class="text-lg" />
+          <div :class="iconBgClass" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+            <font-awesome-icon :icon="icon" :class="iconClass" class="text-sm md:text-lg" />
           </div>
-          <div class="ml-3">
+          <div class="ml-2 md:ml-3">
             <h3 class="text-xs font-medium text-gray-600">{{ title }}</h3>
-            <p class="text-xl font-bold text-gray-900">{{ value }}</p>
+            <p class="text-lg md:text-xl font-bold text-gray-900">{{ value }}</p>
           </div>
         </div>
         <div v-if="change" class="text-right">
@@ -16,12 +16,12 @@
             <font-awesome-icon :icon="changeIcon" class="mr-1" />
             {{ change }}
           </div>
-          <p class="text-xs text-gray-500 mt-1">vs semaine dernière</p>
+          <p class="text-xs text-gray-500 mt-1 hidden sm:block">vs semaine dernière</p>
         </div>
       </div>
       
       <!-- Mini Chart -->
-      <div v-if="chartData && chartData.length > 0" class="h-8 flex items-end space-x-1">
+      <div v-if="chartData && chartData.length > 0" class="h-6 md:h-8 flex items-end space-x-0.5 md:space-x-1">
         <div 
           v-for="(bar, index) in chartData" 
           :key="index"

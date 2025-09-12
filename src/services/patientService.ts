@@ -1,198 +1,195 @@
-export interface Patient {
-  id: string
-  name: string
-  age: number
-  gender: 'M' | 'F'
-  phone: string
-  email: string
-  address: string
-  dateOfBirth: string
-  lastVisit: string
-  status: 'Actif' | 'Inactif'
-  medicalHistory: string[]
-  allergies: string[]
-  emergencyContact: {
-    name: string
-    phone: string
-    relationship: string
-  }
-  createdAt: string
-  updatedAt: string
-}
-
-export interface PatientStats {
-  total: number
-  active: number
-  inactive: number
-  newThisMonth: number
-  genderDistribution: {
-    male: number
-    female: number
-  }
-  ageGroups: {
-    '0-18': number
-    '19-35': number
-    '36-55': number
-    '55+': number
-  }
-}
+import type { Patient, PaginationParams, PaginatedResponse, PatientStats } from '../types/global'
 
 class PatientService {
   private patients: Patient[] = [
     {
-      id: 'P001',
-      name: 'Marie Dubois',
-      age: 45,
-      gender: 'F',
-      phone: '06 12 34 56 78',
+      uuid: '550e8400-e29b-41d4-a716-446655440001',
+      firstname: 'Marie',
+      lastname: 'Dubois',
+      birthdate: '1979-03-15',
+      sexe: 'F',
+      genre: 'Féminin',
+      phone1: '06 12 34 56 78',
+      phone2: '06 98 76 54 32',
       email: 'marie.dubois@email.com',
-      address: '123 Rue de la Paix, Paris',
-      dateOfBirth: '1979-03-15',
-      lastVisit: '2024-12-15',
-      status: 'Actif',
-      medicalHistory: ['Hypertension', 'Diabète type 2'],
-      allergies: ['Pénicilline'],
-      emergencyContact: {
-        name: 'Pierre Dubois',
-        phone: '06 98 76 54 32',
-        relationship: 'Époux'
-      },
-      createdAt: '2024-01-15',
-      updatedAt: '2024-12-15'
+      adresse: '123 Rue de la Paix, Paris',
+      created_at: '2024-01-15T10:00:00Z',
+      updated_at: '2024-12-15T10:00:00Z',
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     },
     {
-      id: 'P002',
-      name: 'Jean Martin',
-      age: 32,
-      gender: 'M',
-      phone: '06 23 45 67 89',
+      uuid: '550e8400-e29b-41d4-a716-446655440002',
+      firstname: 'Jean',
+      lastname: 'Martin',
+      birthdate: '1992-07-22',
+      sexe: 'M',
+      genre: 'Masculin',
+      phone1: '06 23 45 67 89',
+      phone2: '06 87 65 43 21',
       email: 'jean.martin@email.com',
-      address: '456 Avenue des Champs, Lyon',
-      dateOfBirth: '1992-07-22',
-      lastVisit: '2024-12-10',
-      status: 'Actif',
-      medicalHistory: ['Asthme'],
-      allergies: ['Aucune'],
-      emergencyContact: {
-        name: 'Sophie Martin',
-        phone: '06 87 65 43 21',
-        relationship: 'Épouse'
-      },
-      createdAt: '2024-02-20',
-      updatedAt: '2024-12-10'
+      adresse: '456 Avenue des Champs, Lyon',
+      created_at: '2024-02-20T14:30:00Z',
+      updated_at: '2024-12-10T14:30:00Z',
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     },
     {
-      id: 'P003',
-      name: 'Sophie Laurent',
-      age: 28,
-      gender: 'F',
-      phone: '06 34 56 78 90',
+      uuid: '550e8400-e29b-41d4-a716-446655440003',
+      firstname: 'Sophie',
+      lastname: 'Laurent',
+      birthdate: '1996-11-08',
+      sexe: 'F',
+      genre: 'Féminin',
+      phone1: '06 34 56 78 90',
+      phone2: '06 76 54 32 10',
       email: 'sophie.laurent@email.com',
-      address: '789 Boulevard Saint-Germain, Marseille',
-      dateOfBirth: '1996-11-08',
-      lastVisit: '2024-12-08',
-      status: 'Actif',
-      medicalHistory: ['Migraines'],
-      allergies: ['Aspirine'],
-      emergencyContact: {
-        name: 'Michel Laurent',
-        phone: '06 76 54 32 10',
-        relationship: 'Père'
-      },
-      createdAt: '2024-03-10',
-      updatedAt: '2024-12-08'
+      adresse: '789 Boulevard Saint-Germain, Marseille',
+      created_at: '2024-03-10T09:15:00Z',
+      updated_at: '2024-12-08T09:15:00Z',
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     },
     {
-      id: 'P004',
-      name: 'Pierre Moreau',
-      age: 55,
-      gender: 'M',
-      phone: '06 45 67 89 01',
+      uuid: '550e8400-e29b-41d4-a716-446655440004',
+      firstname: 'Pierre',
+      lastname: 'Moreau',
+      birthdate: '1969-05-12',
+      sexe: 'M',
+      genre: 'Masculin',
+      phone1: '06 45 67 89 01',
+      phone2: '06 65 43 21 09',
       email: 'pierre.moreau@email.com',
-      address: '321 Rue de Rivoli, Toulouse',
-      dateOfBirth: '1969-05-12',
-      lastVisit: '2024-12-05',
-      status: 'Inactif',
-      medicalHistory: ['Cholestérol élevé', 'Problèmes cardiaques'],
-      allergies: ['Crustacés'],
-      emergencyContact: {
-        name: 'Claire Moreau',
-        phone: '06 65 43 21 09',
-        relationship: 'Épouse'
-      },
-      createdAt: '2024-01-05',
-      updatedAt: '2024-12-05'
+      adresse: '321 Rue de Rivoli, Toulouse',
+      created_at: '2024-01-05T16:45:00Z',
+      updated_at: '2024-12-05T16:45:00Z',
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     },
     {
-      id: 'P005',
-      name: 'Claire Bernard',
-      age: 41,
-      gender: 'F',
-      phone: '06 56 78 90 12',
+      uuid: '550e8400-e29b-41d4-a716-446655440005',
+      firstname: 'Claire',
+      lastname: 'Bernard',
+      birthdate: '1983-09-30',
+      sexe: 'F',
+      genre: 'Féminin',
+      phone1: '06 56 78 90 12',
+      phone2: '06 54 32 10 98',
       email: 'claire.bernard@email.com',
-      address: '654 Place Bellecour, Nice',
-      dateOfBirth: '1983-09-30',
-      lastVisit: '2024-12-12',
-      status: 'Actif',
-      medicalHistory: ['Arthrite'],
-      allergies: ['Latex'],
-      emergencyContact: {
-        name: 'Thomas Bernard',
-        phone: '06 54 32 10 98',
-        relationship: 'Époux'
-      },
-      createdAt: '2024-02-15',
-      updatedAt: '2024-12-12'
+      adresse: '654 Place Bellecour, Nice',
+      created_at: '2024-02-15T11:30:00Z',
+      updated_at: '2024-12-12T11:30:00Z',
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     },
     {
-      id: 'P006',
-      name: 'Michel Durand',
-      age: 67,
-      gender: 'M',
-      phone: '06 67 89 01 23',
+      uuid: '550e8400-e29b-41d4-a716-446655440006',
+      firstname: 'Michel',
+      lastname: 'Durand',
+      birthdate: '1957-12-03',
+      sexe: 'M',
+      genre: 'Masculin',
+      phone1: '06 67 89 01 23',
+      phone2: '06 43 21 09 87',
       email: 'michel.durand@email.com',
-      address: '987 Rue de la République, Bordeaux',
-      dateOfBirth: '1957-12-03',
-      lastVisit: '2024-12-03',
-      status: 'Actif',
-      medicalHistory: ['Diabète type 1', 'Hypertension', 'Problèmes rénaux'],
-      allergies: ['Pénicilline', 'Sulfamides'],
-      emergencyContact: {
-        name: 'Françoise Durand',
-        phone: '06 43 21 09 87',
-        relationship: 'Épouse'
-      },
-      createdAt: '2024-01-20',
-      updatedAt: '2024-12-03'
+      adresse: '987 Rue de la République, Bordeaux',
+      created_at: '2024-01-20T08:20:00Z',
+      updated_at: '2024-12-03T08:20:00Z',
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     }
   ]
+
+  // Méthode pour obtenir tous les patients avec pagination
+  getPatients(params: PaginationParams): PaginatedResponse<Patient> {
+    let filteredPatients = [...this.patients]
+    
+    // Recherche
+    if (params.search) {
+      const searchLower = params.search.toLowerCase()
+      filteredPatients = filteredPatients.filter(patient =>
+        `${patient.firstname} ${patient.lastname}`.toLowerCase().includes(searchLower) ||
+        patient.uuid.toLowerCase().includes(searchLower) ||
+        patient.phone1.includes(params.search!) ||
+        patient.email.toLowerCase().includes(searchLower) ||
+        patient.adresse.toLowerCase().includes(searchLower)
+      )
+    }
+    
+    // Filtres
+    if (params.filters) {
+      if (params.filters.sexe) {
+        filteredPatients = filteredPatients.filter(p => p.sexe === params.filters!.sexe)
+      }
+      if (params.filters.genre) {
+        filteredPatients = filteredPatients.filter(p => p.genre === params.filters!.genre)
+      }
+    }
+    
+    // Tri
+    if (params.sortBy) {
+      filteredPatients.sort((a, b) => {
+        const aValue = this.getNestedValue(a, params.sortBy!)
+        const bValue = this.getNestedValue(b, params.sortBy!)
+        
+        if (aValue < bValue) return params.sortOrder === 'desc' ? 1 : -1
+        if (aValue > bValue) return params.sortOrder === 'desc' ? -1 : 1
+        return 0
+      })
+    }
+    
+    // Pagination
+    const total = filteredPatients.length
+    const totalPages = Math.ceil(total / params.limit)
+    const startIndex = (params.page - 1) * params.limit
+    const endIndex = startIndex + params.limit
+    const paginatedData = filteredPatients.slice(startIndex, endIndex)
+    
+    return {
+      data: paginatedData,
+      pagination: {
+        page: params.page,
+        limit: params.limit,
+        total,
+        totalPages,
+        hasNext: params.page < totalPages,
+        hasPrev: params.page > 1
+      }
+    }
+  }
 
   getAllPatients(): Patient[] {
     return this.patients
   }
 
-  getPatientById(id: string): Patient | undefined {
-    return this.patients.find(patient => patient.id === id)
+  getPatientById(uuid: string): Patient | undefined {
+    return this.patients.find(patient => patient.uuid === uuid)
   }
 
   getPatientsStats(): PatientStats {
     const total = this.patients.length
-    const active = this.patients.filter(p => p.status === 'Actif').length
-    const inactive = this.patients.filter(p => p.status === 'Inactif').length
+    const active = this.patients.length // Tous actifs par défaut
+    const inactive = 0
     
     // Patients nouveaux ce mois (simulation)
     const newThisMonth = 89
     
     const genderDistribution = {
-      male: this.patients.filter(p => p.gender === 'M').length,
-      female: this.patients.filter(p => p.gender === 'F').length
+      male: this.patients.filter(p => p.sexe === 'M').length,
+      female: this.patients.filter(p => p.sexe === 'F').length
     }
     
     const ageGroups = {
-      '0-18': this.patients.filter(p => p.age <= 18).length,
-      '19-35': this.patients.filter(p => p.age >= 19 && p.age <= 35).length,
-      '36-55': this.patients.filter(p => p.age >= 36 && p.age <= 55).length,
-      '55+': this.patients.filter(p => p.age > 55).length
+      '0-18': this.patients.filter(p => this.calculateAge(p.birthdate) <= 18).length,
+      '19-35': this.patients.filter(p => {
+        const age = this.calculateAge(p.birthdate)
+        return age >= 19 && age <= 35
+      }).length,
+      '36-55': this.patients.filter(p => {
+        const age = this.calculateAge(p.birthdate)
+        return age >= 36 && age <= 55
+      }).length,
+      '55+': this.patients.filter(p => this.calculateAge(p.birthdate) > 55).length
     }
 
     return {
@@ -205,31 +202,34 @@ class PatientService {
     }
   }
 
-  addPatient(patient: Omit<Patient, 'id' | 'createdAt' | 'updatedAt'>): Patient {
+  addPatient(patientData: Omit<Patient, 'uuid' | 'created_at' | 'updated_at' | 'created_user' | 'updated_user'>): Patient {
     const newPatient: Patient = {
-      ...patient,
-      id: `P${String(this.patients.length + 1).padStart(3, '0')}`,
-      createdAt: new Date().toISOString().split('T')[0],
-      updatedAt: new Date().toISOString().split('T')[0]
+      ...patientData,
+      uuid: this.generateUUID(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     }
     this.patients.push(newPatient)
     return newPatient
   }
 
-  updatePatient(id: string, updates: Partial<Patient>): Patient | null {
-    const index = this.patients.findIndex(p => p.id === id)
+  updatePatient(uuid: string, updates: Partial<Patient>): Patient | null {
+    const index = this.patients.findIndex(p => p.uuid === uuid)
     if (index === -1) return null
     
     this.patients[index] = {
       ...this.patients[index],
       ...updates,
-      updatedAt: new Date().toISOString().split('T')[0]
+      updated_at: new Date().toISOString(),
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     }
     return this.patients[index]
   }
 
-  deletePatient(id: string): boolean {
-    const index = this.patients.findIndex(p => p.id === id)
+  deletePatient(uuid: string): boolean {
+    const index = this.patients.findIndex(p => p.uuid === uuid)
     if (index === -1) return false
     
     this.patients.splice(index, 1)
@@ -239,11 +239,34 @@ class PatientService {
   searchPatients(query: string): Patient[] {
     const lowercaseQuery = query.toLowerCase()
     return this.patients.filter(patient =>
-      patient.name.toLowerCase().includes(lowercaseQuery) ||
-      patient.id.toLowerCase().includes(lowercaseQuery) ||
-      patient.phone.includes(query) ||
-      patient.email.toLowerCase().includes(lowercaseQuery)
+      `${patient.firstname} ${patient.lastname}`.toLowerCase().includes(lowercaseQuery) ||
+      patient.uuid.toLowerCase().includes(lowercaseQuery) ||
+      patient.phone1.includes(query) ||
+      patient.email.toLowerCase().includes(lowercaseQuery) ||
+      patient.adresse.toLowerCase().includes(lowercaseQuery)
     )
+  }
+
+  // Méthodes utilitaires
+  private calculateAge(birthdate: string): number {
+    const today = new Date()
+    const birth = new Date(birthdate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const monthDiff = today.getMonth() - birth.getMonth()
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    
+    return age
+  }
+
+  private generateUUID(): string {
+    return '550e8400-e29b-41d4-a716-' + Math.random().toString(36).substr(2, 12).padStart(12, '0')
+  }
+
+  private getNestedValue(obj: any, path: string): any {
+    return path.split('.').reduce((o, p) => o && o[p], obj)
   }
 }
 

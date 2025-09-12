@@ -1,257 +1,216 @@
-export interface User {
-  id: string
-  username: string
-  email: string
-  firstName: string
-  lastName: string
-  role: 'admin' | 'doctor' | 'nurse' | 'receptionist'
-  permissions: Permission[]
-  isActive: boolean
-  lastLogin?: string
-  createdAt: string
-  updatedAt: string
-}
+import type { User, PaginationParams, PaginatedResponse } from '../types/global'
 
-export interface Permission {
-  id: string
-  name: string
-  description: string
-  resource: 'patients' | 'medical_records' | 'appointments' | 'sms' | 'users' | 'reports'
-  action: 'read' | 'write' | 'delete' | 'admin'
-}
-
-export interface UserRole {
-  id: string
-  name: string
-  description: string
-  permissions: Permission[]
+export interface UserStats {
+  total: number
+  active: number
+  admins: number
+  newThisMonth: number
 }
 
 class UserService {
-  private permissions: Permission[] = [
-    // Patients permissions
-    { id: 'P001', name: 'Voir les patients', description: 'Consulter la liste des patients', resource: 'patients', action: 'read' },
-    { id: 'P002', name: 'Ajouter des patients', description: 'Créer de nouveaux patients', resource: 'patients', action: 'write' },
-    { id: 'P003', name: 'Modifier les patients', description: 'Modifier les informations des patients', resource: 'patients', action: 'write' },
-    { id: 'P004', name: 'Supprimer les patients', description: 'Supprimer des patients', resource: 'patients', action: 'delete' },
-    
-    // Medical records permissions
-    { id: 'M001', name: 'Voir les dossiers médicaux', description: 'Consulter les dossiers médicaux', resource: 'medical_records', action: 'read' },
-    { id: 'M002', name: 'Modifier les dossiers', description: 'Modifier les dossiers médicaux', resource: 'medical_records', action: 'write' },
-    
-    // Appointments permissions
-    { id: 'A001', name: 'Voir les rendez-vous', description: 'Consulter les rendez-vous', resource: 'appointments', action: 'read' },
-    { id: 'A002', name: 'Gérer les rendez-vous', description: 'Créer et modifier les rendez-vous', resource: 'appointments', action: 'write' },
-    
-    // SMS permissions
-    { id: 'S001', name: 'Envoyer des SMS', description: 'Envoyer des messages SMS', resource: 'sms', action: 'write' },
-    { id: 'S002', name: 'Voir l\'historique SMS', description: 'Consulter l\'historique des SMS', resource: 'sms', action: 'read' },
-    
-    // Users permissions
-    { id: 'U001', name: 'Gérer les utilisateurs', description: 'Créer et modifier les utilisateurs', resource: 'users', action: 'admin' },
-    
-    // Reports permissions
-    { id: 'R001', name: 'Voir les rapports', description: 'Consulter les rapports et statistiques', resource: 'reports', action: 'read' },
-    { id: 'R002', name: 'Exporter les données', description: 'Exporter les données en format CSV/PDF', resource: 'reports', action: 'write' }
-  ]
-
-  private roles: UserRole[] = [
-    {
-      id: 'admin',
-      name: 'Administrateur',
-      description: 'Accès complet à toutes les fonctionnalités',
-      permissions: this.permissions
-    },
-    {
-      id: 'doctor',
-      name: 'Médecin',
-      description: 'Accès aux patients, dossiers médicaux et rendez-vous',
-      permissions: this.permissions.filter(p => 
-        ['patients', 'medical_records', 'appointments'].includes(p.resource)
-      )
-    },
-    {
-      id: 'nurse',
-      name: 'Infirmière',
-      description: 'Accès limité aux patients et dossiers médicaux',
-      permissions: this.permissions.filter(p => 
-        p.resource === 'patients' && p.action === 'read' ||
-        p.resource === 'medical_records' && p.action === 'read' ||
-        p.resource === 'appointments' && p.action === 'read'
-      )
-    },
-    {
-      id: 'receptionist',
-      name: 'Réceptionniste',
-      description: 'Accès aux patients, rendez-vous et SMS',
-      permissions: this.permissions.filter(p => 
-        ['patients', 'appointments', 'sms'].includes(p.resource) && p.action !== 'admin'
-      )
-    }
-  ]
-
   private users: User[] = [
     {
-      id: 'U001',
-      username: 'admin',
+      uuid: '550e8400-e29b-41d4-a716-446655440000',
+      firstname: 'Admin',
+      lastname: 'Système',
       email: 'admin@memopatient.com',
-      firstName: 'Administrateur',
-      lastName: 'Système',
-      role: 'admin',
-      permissions: this.roles.find(r => r.id === 'admin')?.permissions || [],
-      isActive: true,
-      lastLogin: '2024-12-15T10:30:00',
-      createdAt: '2024-01-01',
-      updatedAt: '2024-12-15'
+      password: 'admin123',
+      otp: '123456',
+      profil: 'Administrateur',
+      phone1: '06 00 00 00 00',
+      phone2: '06 00 00 00 01',
+      sexe: 'M',
+      genre: 'Masculin',
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-12-15T10:00:00Z',
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     },
     {
-      id: 'U002',
-      username: 'dr.martin',
-      email: 'dr.martin@memopatient.com',
-      firstName: 'Dr. Jean',
-      lastName: 'Martin',
-      role: 'doctor',
-      permissions: this.roles.find(r => r.id === 'doctor')?.permissions || [],
-      isActive: true,
-      lastLogin: '2024-12-15T09:15:00',
-      createdAt: '2024-01-15',
-      updatedAt: '2024-12-15'
-    },
-    {
-      id: 'U003',
-      username: 'inf.sophie',
-      email: 'sophie.laurent@memopatient.com',
-      firstName: 'Sophie',
-      lastName: 'Laurent',
-      role: 'nurse',
-      permissions: this.roles.find(r => r.id === 'nurse')?.permissions || [],
-      isActive: true,
-      lastLogin: '2024-12-14T16:45:00',
-      createdAt: '2024-02-01',
-      updatedAt: '2024-12-14'
-    },
-    {
-      id: 'U004',
-      username: 'rec.marie',
+      uuid: '550e8400-e29b-41d4-a716-446655440010',
+      firstname: 'Dr. Marie',
+      lastname: 'Dubois',
       email: 'marie.dubois@memopatient.com',
-      firstName: 'Marie',
-      lastName: 'Dubois',
-      role: 'receptionist',
-      permissions: this.roles.find(r => r.id === 'receptionist')?.permissions || [],
-      isActive: true,
-      lastLogin: '2024-12-15T08:30:00',
-      createdAt: '2024-02-15',
-      updatedAt: '2024-12-15'
+      password: 'medecin123',
+      otp: '654321',
+      profil: 'Médecin',
+      phone1: '06 11 11 11 11',
+      phone2: '06 11 11 11 12',
+      sexe: 'F',
+      genre: 'Féminin',
+      created_at: '2024-01-15T08:00:00Z',
+      updated_at: '2024-12-15T10:00:00Z',
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
+    },
+    {
+      uuid: '550e8400-e29b-41d4-a716-446655440011',
+      firstname: 'Sophie',
+      lastname: 'Martin',
+      email: 'sophie.martin@memopatient.com',
+      password: 'secretaire123',
+      otp: '789012',
+      profil: 'Secrétaire',
+      phone1: '06 22 22 22 22',
+      phone2: '06 22 22 22 23',
+      sexe: 'F',
+      genre: 'Féminin',
+      created_at: '2024-02-01T09:00:00Z',
+      updated_at: '2024-12-15T10:00:00Z',
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
+    },
+    {
+      uuid: '550e8400-e29b-41d4-a716-446655440012',
+      firstname: 'Dr. Pierre',
+      lastname: 'Durand',
+      email: 'pierre.durand@memopatient.com',
+      password: 'medecin456',
+      otp: '345678',
+      profil: 'Médecin',
+      phone1: '06 33 33 33 33',
+      phone2: '06 33 33 33 34',
+      sexe: 'M',
+      genre: 'Masculin',
+      created_at: '2024-03-01T10:00:00Z',
+      updated_at: '2024-12-15T10:00:00Z',
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     }
   ]
 
-  private currentUser: User | null = null
+  // Méthode pour obtenir tous les utilisateurs avec pagination
+  getUsers(params: PaginationParams): PaginatedResponse<User> {
+    let filteredUsers = [...this.users]
+    
+    // Recherche
+    if (params.search) {
+      const searchLower = params.search.toLowerCase()
+      filteredUsers = filteredUsers.filter(user =>
+        `${user.firstname} ${user.lastname}`.toLowerCase().includes(searchLower) ||
+        user.uuid.toLowerCase().includes(searchLower) ||
+        user.email.toLowerCase().includes(searchLower) ||
+        user.phone1.includes(params.search!)
+      )
+    }
+    
+    // Filtres
+    if (params.filters) {
+      if (params.filters.profil) {
+        filteredUsers = filteredUsers.filter(u => u.profil === params.filters!.profil)
+      }
+    }
+    
+    // Tri
+    if (params.sortBy) {
+      filteredUsers.sort((a, b) => {
+        const aValue = this.getNestedValue(a, params.sortBy!)
+        const bValue = this.getNestedValue(b, params.sortBy!)
+        
+        if (aValue < bValue) return params.sortOrder === 'desc' ? 1 : -1
+        if (aValue > bValue) return params.sortOrder === 'desc' ? -1 : 1
+        return 0
+      })
+    }
+    
+    // Pagination
+    const total = filteredUsers.length
+    const totalPages = Math.ceil(total / params.limit)
+    const startIndex = (params.page - 1) * params.limit
+    const endIndex = startIndex + params.limit
+    const paginatedData = filteredUsers.slice(startIndex, endIndex)
+    
+    return {
+      data: paginatedData,
+      pagination: {
+        page: params.page,
+        limit: params.limit,
+        total,
+        totalPages,
+        hasNext: params.page < totalPages,
+        hasPrev: params.page > 1
+      }
+    }
+  }
 
   getAllUsers(): User[] {
     return this.users
   }
 
-  getUserById(id: string): User | undefined {
-    return this.users.find(user => user.id === id)
+  getUserById(uuid: string): User | undefined {
+    return this.users.find(user => user.uuid === uuid)
   }
 
-  getCurrentUser(): User | null {
-    return this.currentUser
-  }
+  getUsersStats(): UserStats {
+    const total = this.users.length
+    const active = this.users.length // Tous actifs par défaut
+    const admins = this.users.filter(u => u.profil === 'Administrateur').length
+    const newThisMonth = this.users.filter(u => {
+      const userDate = new Date(u.created_at)
+      const now = new Date()
+      return userDate.getMonth() === now.getMonth() && userDate.getFullYear() === now.getFullYear()
+    }).length
 
-  setCurrentUser(user: User): void {
-    this.currentUser = user
-    localStorage.setItem('currentUser', JSON.stringify(user))
-  }
-
-  login(username: string, password: string): User | null {
-    // Simulation d'authentification
-    const user = this.users.find(u => u.username === username && u.isActive)
-    if (user) {
-      user.lastLogin = new Date().toISOString()
-      this.setCurrentUser(user)
-      return user
+    return {
+      total,
+      active,
+      admins,
+      newThisMonth
     }
-    return null
   }
 
-  logout(): void {
-    this.currentUser = null
-    localStorage.removeItem('currentUser')
-    localStorage.removeItem('isAuthenticated')
-  }
-
-  hasPermission(user: User, resource: string, action: string): boolean {
-    return user.permissions.some(permission => 
-      permission.resource === resource && permission.action === action
-    )
-  }
-
-  canAccess(user: User, resource: string, action: string): boolean {
-    if (user.role === 'admin') return true
-    return this.hasPermission(user, resource, action)
-  }
-
-  getAllRoles(): UserRole[] {
-    return this.roles
-  }
-
-  getRoleById(id: string): UserRole | undefined {
-    return this.roles.find(role => role.id === id)
-  }
-
-  getAllPermissions(): Permission[] {
-    return this.permissions
-  }
-
-  addUser(userData: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'permissions'>): User {
-    const role = this.getRoleById(userData.role)
+  addUser(userData: Omit<User, 'uuid' | 'created_at' | 'updated_at' | 'created_user' | 'updated_user'>): User {
     const newUser: User = {
       ...userData,
-      id: `U${String(this.users.length + 1).padStart(3, '0')}`,
-      permissions: role?.permissions || [],
-      createdAt: new Date().toISOString().split('T')[0],
-      updatedAt: new Date().toISOString().split('T')[0]
+      uuid: this.generateUUID(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      created_user: '550e8400-e29b-41d4-a716-446655440000',
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     }
     this.users.push(newUser)
     return newUser
   }
 
-  updateUser(id: string, updates: Partial<User>): User | null {
-    const index = this.users.findIndex(u => u.id === id)
+  updateUser(uuid: string, updates: Partial<User>): User | null {
+    const index = this.users.findIndex(u => u.uuid === uuid)
     if (index === -1) return null
     
     this.users[index] = {
       ...this.users[index],
       ...updates,
-      updatedAt: new Date().toISOString().split('T')[0]
+      updated_at: new Date().toISOString(),
+      updated_user: '550e8400-e29b-41d4-a716-446655440000'
     }
     return this.users[index]
   }
 
-  deleteUser(id: string): boolean {
-    const index = this.users.findIndex(u => u.id === id)
+  deleteUser(uuid: string): boolean {
+    const index = this.users.findIndex(u => u.uuid === uuid)
     if (index === -1) return false
     
     this.users.splice(index, 1)
     return true
   }
 
-  // Initialiser l'utilisateur actuel depuis le localStorage
-  initCurrentUser(): void {
-    const storedUser = localStorage.getItem('currentUser')
-    if (storedUser) {
-      try {
-        this.currentUser = JSON.parse(storedUser)
-      } catch (error) {
-        console.error('Erreur lors du parsing de l\'utilisateur stocké:', error)
-        localStorage.removeItem('currentUser')
-      }
-    }
+  searchUsers(query: string): User[] {
+    const lowercaseQuery = query.toLowerCase()
+    return this.users.filter(user =>
+      `${user.firstname} ${user.lastname}`.toLowerCase().includes(lowercaseQuery) ||
+      user.uuid.toLowerCase().includes(lowercaseQuery) ||
+      user.email.toLowerCase().includes(lowercaseQuery) ||
+      user.phone1.includes(query)
+    )
+  }
+
+  // Méthodes utilitaires
+  private generateUUID(): string {
+    return '550e8400-e29b-41d4-a716-' + Math.random().toString(36).substr(2, 12).padStart(12, '0')
+  }
+
+  private getNestedValue(obj: any, path: string): any {
+    return path.split('.').reduce((o, p) => o && o[p], obj)
   }
 }
 
 export const userService = new UserService()
-
-// Initialiser l'utilisateur actuel au démarrage
-userService.initCurrentUser()

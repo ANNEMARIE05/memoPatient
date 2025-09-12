@@ -1,14 +1,14 @@
 <template>
   <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
-    <div class="p-4">
+    <div class="p-2 md:p-4">
       <!-- Header -->
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-3 md:mb-4">
         <div>
-          <h3 class="text-base font-semibold text-gray-900">{{ title }}</h3>
+          <h3 class="text-sm md:text-base font-semibold text-gray-900">{{ title }}</h3>
           <p v-if="subtitle" class="text-xs text-gray-600 mt-1">{{ subtitle }}</p>
         </div>
         <div v-if="total" class="text-right">
-          <p class="text-lg font-bold text-gray-900">{{ total }}</p>
+          <p class="text-sm md:text-lg font-bold text-gray-900">{{ total }}</p>
           <div v-if="change" :class="changeClass" class="flex items-center text-xs">
             <font-awesome-icon :icon="changeIcon" class="mr-1" />
             {{ change }}
@@ -17,7 +17,7 @@
       </div>
 
       <!-- Chart Area -->
-      <div class="h-32 flex items-end justify-between space-x-1">
+      <div class="h-24 md:h-32 flex items-end justify-between space-x-0.5 md:space-x-1">
         <div 
           v-for="(bar, index) in chartData" 
           :key="index"
@@ -29,9 +29,9 @@
       </div>
 
       <!-- Legend -->
-      <div v-if="legend" class="flex items-center justify-center mt-3 space-x-4">
+      <div v-if="legend" class="flex items-center justify-center mt-2 md:mt-3 space-x-2 md:space-x-4">
         <div v-for="item in legend" :key="item.label" class="flex items-center">
-          <div :class="item.color" class="w-2 h-2 rounded-full mr-2"></div>
+          <div :class="item.color" class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full mr-1 md:mr-2"></div>
           <span class="text-xs text-gray-600">{{ item.label }}</span>
         </div>
       </div>

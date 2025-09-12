@@ -1,31 +1,31 @@
 <template>
-  <Layout title="Gestion des patients">
+  <Layout title="Gestion des utilisateurs">
     <div class="space-y-6">
       <!-- Statistiques -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <MetricCard
-          title="Total patients"
-          :value="patientStats.total.toString()"
+          title="Total utilisateurs"
+          :value="userStats.total.toString()"
           icon="users"
           icon-color="blue"
         />
         <MetricCard
-          title="Patients actifs"
-          :value="patientStats.active.toString()"
+          title="Utilisateurs actifs"
+          :value="userStats.active.toString()"
           icon="user-check"
           icon-color="green"
         />
         <MetricCard
-          title="Nouveaux ce mois"
-          :value="patientStats.newThisMonth.toString()"
-          icon="user-plus"
+          title="Administrateurs"
+          :value="userStats.admins.toString()"
+          icon="user-shield"
           icon-color="purple"
         />
         <MetricCard
-          title="Femmes"
-          :value="patientStats.genderDistribution.female.toString()"
-          icon="female"
-          icon-color="pink"
+          title="Nouveaux ce mois"
+          :value="userStats.newThisMonth.toString()"
+          icon="user-plus"
+          icon-color="orange"
         />
       </div>
 
@@ -33,9 +33,9 @@
       <div class="bg-white shadow rounded-lg p-6">
         <div class="mb-4 flex flex-col md:flex-row md:justify-between md:items-center space-y-3 md:space-y-0">
           <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-            <button @click="openAddPatientModal" class="bg-blue-500 hover:bg-blue-600 text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-colors">
+            <button @click="openAddUserModal" class="bg-blue-500 hover:bg-blue-600 text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-colors">
               <font-awesome-icon icon="user-plus" class="mr-1 md:mr-2" />
-              Nouveau patient
+              Nouvel utilisateur
             </button>
           </div>
           <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
@@ -44,35 +44,35 @@
                 v-model="searchQuery"
                 @input="onSearchChange"
                 type="text"
-                placeholder="Rechercher un patient..."
+                placeholder="Rechercher un utilisateur..."
                 class="pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-64"
               />
               <font-awesome-icon icon="search" class="absolute left-2 md:left-3 top-2.5 text-gray-400 text-sm" />
             </div>
-            <select v-model="selectedGenre" @change="loadPatients" class="px-2 md:px-3 py-2 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
-              <option value="">Tous les patients</option>
-              <option value="Masculin">Masculin</option>
-              <option value="Féminin">Féminin</option>
+            <select v-model="selectedProfile" @change="loadUsers" class="px-2 md:px-3 py-2 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+              <option value="">Tous les profils</option>
+              <option value="Administrateur">Administrateur</option>
+              <option value="Médecin">Médecin</option>
+              <option value="Secrétaire">Secrétaire</option>
             </select>
           </div>
         </div>
 
-        <!-- Tableau des patients -->
+        <!-- Tableau des utilisateurs -->
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Âge</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dernière visite</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profil</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <tr v-for="patient in patients" :key="patient.uuid" class="hover:bg-gray-50">
+              <tr v-for="user in users" :key="user.uuid" class="hover:bg-gray-50">
                 <td class="px-4 py-3">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10">
@@ -81,15 +81,14 @@
                       </div>
                     </div>
                     <div>
-                      <p class="text-sm font-medium text-gray-900">{{ patient.firstname }} {{ patient.lastname }}</p>
-                      <p class="text-xs text-gray-500">{{ patient.uuid.substring(0, 8) }}...</p>
+                      <p class="text-sm font-medium text-gray-900">{{ user.firstname }} {{ user.lastname }}</p>
+                      <p class="text-xs text-gray-500">{{ user.uuid.substring(0, 8) }}...</p>
                     </div>
                   </div>
                 </td>
-                <td class="px-4 py-3 text-sm text-gray-900">{{ calculateAge(patient.birthdate) }} ans</td>
-                <td class="px-4 py-3 text-sm text-gray-900">{{ patient.phone1 }}</td>
-                <td class="px-4 py-3 text-sm text-gray-900">{{ patient.email }}</td>
-                <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(patient.updated_at) }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900">{{ user.email }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900">{{ user.profil }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900">{{ user.phone1 }}</td>
                 <td class="px-4 py-3">
                   <span class="bg-green-100 text-green-800 px-2 py-1 text-xs font-medium rounded-full">
                     Actif
@@ -97,13 +96,13 @@
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex space-x-2">
-                    <button @click="viewPatient(patient)" class="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails">
+                    <button @click="viewUser(user)" class="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails">
                       <font-awesome-icon icon="eye" />
                     </button>
-                    <button @click="editPatient(patient)" class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
+                    <button @click="editUser(user)" class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
                       <font-awesome-icon icon="edit" />
                     </button>
-                    <button @click="deletePatient(patient)" class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
+                    <button @click="deleteUser(user)" class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
                       <font-awesome-icon icon="trash" />
                     </button>
                   </div>
@@ -128,64 +127,45 @@
 import Layout from '../components/Layout.vue'
 import MetricCard from '../components/MetricCard.vue'
 import PaginationComponent from '../components/PaginationComponent.vue'
-import { patientService } from '../services/patientService'
-import type { Patient, PatientStats } from '../types/global'
+import { userService } from '../services/userService'
+import type { User, UserStats } from '../types/global'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-
 import type { PaginationParams, PaginatedResponse } from '../types/global'
 
 const router = useRouter()
 
 // Variables réactives pour la pagination
-const patients = ref<Patient[]>([])
-const pagination = ref<PaginatedResponse<Patient>['pagination'] | null>(null)
+const users = ref<User[]>([])
+const pagination = ref<PaginatedResponse<User>['pagination'] | null>(null)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const searchQuery = ref('')
-const selectedGenre = ref('')
+const selectedProfile = ref('')
 const searchTimeout = ref<number | null>(null)
 
 // Statistiques
-const patientStats = computed(() => patientService.getPatientsStats())
-
-// Fonctions utilitaires
-const calculateAge = (birthdate: string): number => {
-  const today = new Date()
-  const birth = new Date(birthdate)
-  let age = today.getFullYear() - birth.getFullYear()
-  const monthDiff = today.getMonth() - birth.getMonth()
-  
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--
-  }
-  
-  return age
-}
-
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString('fr-FR')
-}
+const userStats = computed(() => userService.getUsersStats())
 
 // Fonctions de pagination
-const loadPatients = () => {
+const loadUsers = () => {
   const params: PaginationParams = {
     page: currentPage.value,
     limit: pageSize.value,
     search: searchQuery.value || undefined,
-    filters: selectedGenre.value ? { genre: selectedGenre.value } : undefined,
+    filters: selectedProfile.value ? { profil: selectedProfile.value } : undefined,
     sortBy: 'firstname',
     sortOrder: 'asc'
   }
   
-  const response = patientService.getPatients(params)
-  patients.value = response.data
+  const response = userService.getUsers(params)
+  users.value = response.data
   pagination.value = response.pagination
 }
 
 const onPageChange = (page: number) => {
   currentPage.value = page
-  loadPatients()
+  loadUsers()
 }
 
 const onSearchChange = () => {
@@ -196,46 +176,46 @@ const onSearchChange = () => {
   
   searchTimeout.value = setTimeout(() => {
     currentPage.value = 1 // Reset à la première page lors de la recherche
-    loadPatients()
+    loadUsers()
   }, 500)
 }
 
 // Fonctions CRUD
-const viewPatient = (patient: Patient) => {
-  router.push(`/patients/${patient.uuid}`)
+const viewUser = (user: User) => {
+  router.push(`/users/${user.uuid}`)
 }
 
-const editPatient = (patient: Patient) => {
-  router.push(`/patients/${patient.uuid}/edit`)
+const editUser = (user: User) => {
+  router.push(`/users/${user.uuid}/edit`)
 }
 
-const deletePatient = (patient: Patient) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le patient ${patient.firstname} ${patient.lastname} ?`)) {
-    const success = patientService.deletePatient(patient.uuid)
+const deleteUser = (user: User) => {
+  if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.firstname} ${user.lastname} ?`)) {
+    const success = userService.deleteUser(user.uuid)
     if (success && window.showNotification) {
-      window.showNotification('success', 'Patient supprimé', `${patient.firstname} ${patient.lastname} a été supprimé avec succès`)
-      loadPatients() // Recharger la liste
+      window.showNotification('success', 'Utilisateur supprimé', `${user.firstname} ${user.lastname} a été supprimé avec succès`)
+      loadUsers() // Recharger la liste
     }
   }
 }
 
-const openAddPatientModal = () => {
+const openAddUserModal = () => {
   // Vérifier qu'on n'est pas sur une page complémentaire
   if (currentPage.value !== 1) {
     currentPage.value = 1
-    loadPatients()
+    loadUsers()
   }
-  router.push('/patients/create')
+  router.push('/users/create')
 }
 
 // Watchers
-watch(selectedGenre, () => {
+watch(selectedProfile, () => {
   currentPage.value = 1
-  loadPatients()
+  loadUsers()
 })
 
 // Lifecycle
 onMounted(() => {
-  loadPatients()
+  loadUsers()
 })
 </script>

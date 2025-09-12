@@ -1,59 +1,69 @@
 <template>
   <Layout title="Tableau de bord">
+    <!-- Modale de confirmation de déconnexion -->
+    <ConfirmModal
+      :is-visible="showLogoutModal"
+      title="Confirmer la déconnexion"
+      message="Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à nouveau au système."
+      confirm-text="Se déconnecter"
+      cancel-text="Annuler"
+      @confirm="confirmLogout"
+      @cancel="cancelLogout"
+    />
         <!-- Top Row - Metric Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <!-- Total Patients -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-xs font-medium text-gray-600 mb-1">Total Patients</p>
+                  <p class="text-sm font-medium text-gray-600 mb-1">Total Patients</p>
                   <p class="text-2xl font-bold text-gray-900">{{ patientStats.total }}</p>
                 </div>
                 <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <font-awesome-icon icon="bed" class="text-purple-600 text-lg" />
+                  <font-awesome-icon icon="users" class="text-purple-600 text-lg" />
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Available Staff -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <!-- Total Users -->
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-xs font-medium text-gray-600 mb-1">SMS envoyés</p>
-                  <p class="text-2xl font-bold text-gray-900">{{ smsStats.totalSent }}</p>
+                  <p class="text-sm font-medium text-gray-600 mb-1">Utilisateurs</p>
+                  <p class="text-lg md:text-2xl font-bold text-gray-900">{{ userStats.total }}</p>
                 </div>
                 <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <font-awesome-icon icon="sms" class="text-blue-600 text-lg" />
+                  <font-awesome-icon icon="user-friends" class="text-blue-600 text-lg" />
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Avg Treatment Costs -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <!-- Appointments Today -->
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-xs font-medium text-gray-600 mb-1">Nouveaux patients</p>
-                  <p class="text-2xl font-bold text-gray-900">{{ patientStats.newThisMonth }}</p>
+                  <p class="text-sm font-medium text-gray-600 mb-1">RDV Aujourd'hui</p>
+                  <p class="text-lg md:text-2xl font-bold text-gray-900">{{ appointmentStats.today }}</p>
                 </div>
-                <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                  <font-awesome-icon icon="user-plus" class="text-orange-600 text-lg" />
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <font-awesome-icon icon="calendar-check" class="text-green-600 text-lg" />
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Available Cars -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <!-- SMS Delivery Rate -->
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-xs font-medium text-gray-600 mb-1">Taux de livraison SMS</p>
-                  <p class="text-2xl font-bold text-gray-900">{{ smsStats.deliveryRate }}%</p>
+                  <p class="text-sm font-medium text-gray-600 mb-1">Taux de livraison SMS</p>
+                  <p class="text-lg md:text-2xl font-bold text-gray-900">{{ smsStats.deliveryRate }}%</p>
                 </div>
                 <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
                   <font-awesome-icon icon="check-circle" class="text-pink-600 text-lg" />
@@ -66,11 +76,11 @@
         <!-- Middle Row - Charts -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           <!-- Outpatients vs Inpatients Trend -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4">
               <div class="flex items-center justify-between mb-6">
                 <h3 class="text-lg font-semibold text-gray-900">Tendance Patients externes vs internes</h3>
-                <select class="px-3 py-1 border border-gray-300 rounded-none bg-white text-sm">
+                <select class="px-3 py-1 border border-gray-300 rounded bg-white text-sm">
                   <option>Afficher par mois</option>
                   <option>Afficher par semaine</option>
                   <option>Afficher par jour</option>
@@ -81,10 +91,10 @@
               <div class="h-64 flex items-end justify-between space-x-2 mb-4">
                 <div v-for="(month, index) in monthlyData" :key="index" class="flex flex-col items-center space-y-2">
                   <div class="flex flex-col space-y-1">
-                    <div :style="{ height: `${month.inpatients}px` }" class="w-8 bg-teal-500 rounded-t"></div>
-                    <div :style="{ height: `${month.outpatients}px` }" class="w-8 bg-purple-500 rounded-b"></div>
+                    <div :style="{ height: `${month.inpatients * 0.7}px` }" class="w-8 bg-teal-500 rounded-t"></div>
+                    <div :style="{ height: `${month.outpatients * 0.7}px` }" class="w-8 bg-purple-500 rounded-b"></div>
                   </div>
-                  <span class="text-xs text-gray-600">{{ month.label }}</span>
+                  <span class="text-sm text-gray-600">{{ month.label }}</span>
                 </div>
               </div>
 
@@ -103,7 +113,7 @@
           </div>
 
           <!-- Patients by Gender -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4">
               <h3 class="text-lg font-semibold text-gray-900 mb-6">Patients par genre</h3>
               
@@ -176,11 +186,11 @@
         <!-- Bottom Row - Data Panels -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <!-- Time Admitted -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4">
               <div class="flex items-center justify-between mb-6">
                 <h3 class="text-lg font-semibold text-gray-900">Heure d'admission</h3>
-                <select class="px-3 py-1 border border-gray-300 rounded-none bg-white text-sm">
+                <select class="px-3 py-1 border border-gray-300 rounded bg-white text-sm">
                   <option>Aujourd'hui</option>
                   <option>Cette semaine</option>
                   <option>Ce mois</option>
@@ -190,15 +200,15 @@
               <!-- Line Chart -->
               <div class="h-32 flex items-end justify-between">
                 <div v-for="(hour, index) in admissionHours" :key="index" class="flex flex-col items-center">
-                  <div class="w-8 bg-orange-500 rounded-t mb-2" :style="{ height: `${hour.value}px` }"></div>
-                  <span class="text-xs text-gray-600">{{ hour.label }}</span>
+                  <div class="w-8 bg-orange-500 rounded-t mb-2" :style="{ height: `${hour.value * 0.7}px` }"></div>
+                  <span class="text-sm text-gray-600">{{ hour.label }}</span>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Patients By Division -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4">
               <h3 class="text-lg font-semibold text-gray-900 mb-6">Patients par division</h3>
               
@@ -217,7 +227,7 @@
           </div>
 
           <!-- Calendrier -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4">
               <h3 class="text-lg font-semibold text-gray-900 mb-4">Calendrier</h3>
               
@@ -234,7 +244,7 @@
                 </div>
                 
                 <!-- Calendar Grid -->
-                <div class="grid grid-cols-7 gap-1 text-xs">
+                <div class="grid grid-cols-7 gap-1 text-sm">
                   <div class="text-center text-gray-500 py-1">L</div>
                   <div class="text-center text-gray-500 py-1">M</div>
                   <div class="text-center text-gray-500 py-1">M</div>
@@ -259,7 +269,7 @@
         <!-- Section Activités récentes et Alertes -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
           <!-- Activités récentes -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4 border-b border-gray-200">
               <h3 class="text-lg font-semibold text-gray-900">Activités récentes</h3>
             </div>
@@ -271,7 +281,7 @@
                   </div>
                   <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-900">{{ activity.description }}</p>
-                    <p class="text-xs text-gray-500">{{ activity.time }}</p>
+                    <p class="text-sm text-gray-500">{{ activity.time }}</p>
                   </div>
                 </div>
               </div>
@@ -279,37 +289,83 @@
           </div>
 
           <!-- Alertes importantes -->
-          <div class="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
+          <div class="bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div class="p-4 border-b border-gray-200">
               <h3 class="text-lg font-semibold text-gray-900">Alertes importantes</h3>
             </div>
             <div class="p-4">
               <div class="space-y-4">
-                <div v-for="alert in importantAlerts" :key="alert.id" class="flex items-start space-x-3">
+                <div v-for="alert in importantAlerts" :key="alert.id" class="flex items-start space-x-2 md:space-x-3">
                   <div :class="alert.type === 'warning' ? 'bg-yellow-100' : alert.type === 'error' ? 'bg-red-100' : 'bg-blue-100'" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
                     <font-awesome-icon :icon="alert.icon" :class="alert.type === 'warning' ? 'text-yellow-600' : alert.type === 'error' ? 'text-red-600' : 'text-blue-600'" class="text-sm" />
                   </div>
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-gray-900">{{ alert.title }}</p>
-                    <p class="text-xs text-gray-500">{{ alert.description }}</p>
+                    <p class="text-sm text-gray-500">{{ alert.description }}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
   </Layout>
 </template>
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
-import { patientService, type PatientStats } from '../services/patientService'
+import ConfirmModal from '../components/ConfirmModal.vue'
+import { patientService } from '../services/patientService'
+import type { PatientStats } from '../types/global'
 import { smsService, type SMSStats } from '../services/smsService'
-import { computed } from 'vue'
+import { userService } from '../services/userService'
+import { appointmentService } from '../services/appointmentService'
+import type { AppointmentStats } from '../types/global'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// État de la modale de déconnexion
+const showLogoutModal = ref(false)
+
+// Fonction pour gérer la déconnexion
+const handleLogout = () => {
+  localStorage.removeItem('isAuthenticated')
+  localStorage.removeItem('user')
+  
+  // Show logout notification
+  if (window.showNotification) {
+    window.showNotification('info', 'Déconnexion', 'Vous avez été déconnecté avec succès')
+  }
+  
+  router.push('/login')
+}
+
+// Fonction pour afficher la modale de déconnexion
+const openLogoutModal = () => {
+  showLogoutModal.value = true
+}
+
+// Fonction pour confirmer la déconnexion
+const confirmLogout = () => {
+  showLogoutModal.value = false
+  handleLogout()
+}
+
+// Fonction pour annuler la déconnexion
+const cancelLogout = () => {
+  showLogoutModal.value = false
+}
+
+// Exposer la fonction pour déconnexion directe depuis la sidebar
+;(window as any).openLogoutModal = openLogoutModal
 
 // Récupération des statistiques réelles
 const patientStats = computed(() => patientService.getPatientsStats())
 const smsStats = computed(() => smsService.getSMSStats())
+const userStats = computed(() => userService.getUsersStats())
+const appointmentStats = computed(() => appointmentService.getAppointmentsStats())
 
 // Calculs pour le graphique par genre
 const circumference = 251.2 // 2 * π * 40

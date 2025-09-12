@@ -1,9 +1,9 @@
 <template>
-  <header class="bg-white border-b-2 border-gray-200 px-6 py-4">
+  <header class="bg-white border-b border-gray-200 px-4 py-3">
     <div class="flex items-center justify-between">
       <!-- Page Title -->
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
+        <h1 class="text-xl font-bold text-gray-900">{{ title }}</h1>
         <p v-if="subtitle" class="text-sm text-gray-600 mt-1">{{ subtitle }}</p>
       </div>
 
@@ -12,8 +12,8 @@
 
         <!-- User Menu -->
         <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 bg-gray-300 flex items-center justify-center">
-            <font-awesome-icon icon="user" class="text-gray-600" />
+          <div class="w-8 h-8 bg-gray-200 flex items-center justify-center rounded-full">
+            <font-awesome-icon icon="user" class="text-gray-600 text-sm" />
           </div>
           <span class="text-sm font-medium text-gray-700">{{ user.name }}</span>
         </div>
@@ -25,12 +25,12 @@
             :key="button.label"
             @click="button.action"
             :class="[
-              'px-4 py-2 text-sm font-medium transition-colors',
+              'px-4 py-2 text-sm font-medium transition-colors rounded-lg',
               button.type === 'primary' ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
             ]"
           >
             <font-awesome-icon v-if="button.icon" :icon="button.icon" class="mr-2" />
-            {{ button.label }}
+            <span>{{ button.label }}</span>
           </button>
         </div>
       </div>
@@ -38,12 +38,12 @@
 
     <!-- Tabs -->
     <div v-if="tabs.length > 0" class="mt-4">
-      <nav class="flex space-x-8">
+      <nav class="flex space-x-8 overflow-x-auto">
         <button
           v-for="tab in tabs"
           :key="tab.name"
           :class="[
-            'pb-2 text-sm font-medium border-b-2 transition-colors',
+            'pb-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap',
             activeTab === tab.name
               ? 'border-blue-500 text-blue-600'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'

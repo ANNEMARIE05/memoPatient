@@ -1,173 +1,243 @@
 <template>
-  <Layout title="Dossiers médicaux">
-        <!-- Actions -->
-        <div class="mb-4 flex justify-between items-center">
-          <div class="flex space-x-3">
-            <button @click="showAddRecordModal = true" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-sm font-medium transition-colors">
-              <font-awesome-icon icon="folder-plus" class="mr-2" />
+  <Layout title="Gestion des dossiers médicaux">
+    <div class="space-y-6">
+      <!-- Statistiques -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <MetricCard
+          title="Total dossiers"
+          :value="folderStats.totalFolders.toString()"
+          icon="folder"
+          icon-color="blue"
+        />
+        <MetricCard
+          title="Dossiers ce mois"
+          :value="folderStats.foldersThisMonth.toString()"
+          icon="folder-plus"
+          icon-color="green"
+        />
+        <MetricCard
+          title="Dossiers actifs"
+          :value="folderStats.activeFolders.toString()"
+          icon="folder-open"
+          icon-color="purple"
+        />
+        <MetricCard
+          title="Dossiers archivés"
+          :value="folderStats.archivedFolders.toString()"
+          icon="archive"
+          icon-color="orange"
+        />
+      </div>
+
+      <!-- Actions et filtres -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <div class="mb-4 flex flex-col md:flex-row md:justify-between md:items-center space-y-3 md:space-y-0">
+          <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+            <button @click="openAddFolderModal" class="bg-blue-500 hover:bg-blue-600 text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-colors">
+              <font-awesome-icon icon="folder-plus" class="mr-1 md:mr-2" />
               Nouveau dossier
             </button>
-            <button @click="bulkActions" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 text-sm font-medium transition-colors">
-              <font-awesome-icon icon="tasks" class="mr-2" />
-              Actions groupées
-            </button>
           </div>
-          
-          <div class="flex items-center space-x-3">
+          <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
             <div class="relative">
               <input
+                v-model="searchQuery"
+                @input="onSearchChange"
                 type="text"
                 placeholder="Rechercher un dossier..."
-                class="w-64 px-4 py-2 pl-10 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                class="pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-64"
               />
-              <font-awesome-icon icon="search" class="absolute left-3 top-2.5 text-gray-400" />
+              <font-awesome-icon icon="search" class="absolute left-2 md:left-3 top-2.5 text-gray-400 text-sm" />
             </div>
-            <select class="px-3 py-2 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <option>Tous les dossiers</option>
-              <option>Actifs</option>
-              <option>Archivés</option>
+            <select v-model="selectedStatus" @change="loadFolders" class="px-2 md:px-3 py-2 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+              <option value="">Tous les statuts</option>
+              <option value="1">Actif</option>
+              <option value="2">Archivé</option>
+              <option value="3">Fermé</option>
             </select>
           </div>
         </div>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <MetricCard
-            :title="'Dossiers actifs'"
-            :value="recordStats.totalRecords.toString()"
-            icon="folder-medical"
-            icon-color="blue"
-          />
-          <MetricCard
-            :title="'Consultations'"
-            :value="recordStats.consultations.toString()"
-            icon="stethoscope"
-            icon-color="green"
-          />
-          <MetricCard
-            :title="'Prescriptions'"
-            :value="recordStats.prescriptions.toString()"
-            icon="pills"
-            icon-color="orange"
-          />
-          <MetricCard
-            :title="'Résultats labo'"
-            :value="recordStats.labResults.toString()"
-            icon="archive"
-            icon-color="red"
-          />
+        <!-- Tableau des dossiers médicaux -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° Dossier</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diagnostic</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Traitement</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date création</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr v-for="folder in medicalFolders" :key="folder.uuid" class="hover:bg-gray-50">
+                <td class="px-4 py-3">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                      <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <font-awesome-icon icon="folder" class="text-green-600" />
+                      </div>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">{{ folder.num_folder }}</p>
+                      <p class="text-xs text-gray-500">{{ folder.uuid.substring(0, 8) }}...</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-900">Patient {{ folder.patient_uuid.substring(0, 8) }}...</td>
+                <td class="px-4 py-3 text-sm text-gray-900">{{ getDiagnosisText(folder.diagnose_uuid) }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900">{{ folder.traitement }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(folder.created_at) }}</td>
+                <td class="px-4 py-3">
+                  <span :class="getStatusClass(folder.statut)" 
+                        class="px-2 py-1 text-xs font-medium rounded-full">
+                    {{ getStatusText(folder.statut) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex space-x-2">
+                    <button @click="viewFolder(folder)" class="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails">
+                      <font-awesome-icon icon="eye" />
+                    </button>
+                    <button @click="editFolder(folder)" class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
+                      <font-awesome-icon icon="edit" />
+                    </button>
+                    <button @click="deleteFolder(folder)" class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
+                      <font-awesome-icon icon="trash" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <!-- Table des dossiers -->
-        <div class="bg-white border border-gray-200 shadow-sm">
-          <div class="p-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Liste des dossiers médicaux</h3>
-          </div>
-          
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Dossier</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Diagnostic</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Traitement</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Médecin</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date création</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200">
-                <tr v-for="record in medicalRecords" :key="record.id" class="hover:bg-gray-50">
-                  <td class="px-4 py-3">
-                    <span class="text-sm font-medium text-gray-900">{{ record.id }}</span>
-                  </td>
-                  <td class="px-4 py-3">
-                    <div class="flex items-center">
-                      <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                        <font-awesome-icon icon="user" class="text-blue-600 text-sm" />
-                      </div>
-                      <div>
-                        <p class="text-sm font-medium text-gray-900">{{ record.patientName }}</p>
-                        <p class="text-xs text-gray-500">{{ record.patientId }}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900">{{ record.diagnosis || '-' }}</td>
-                  <td class="px-4 py-3 text-sm text-gray-900">{{ record.treatment || '-' }}</td>
-                  <td class="px-4 py-3 text-sm text-gray-900">{{ record.doctor }}</td>
-                  <td class="px-4 py-3 text-sm text-gray-900">{{ new Date(record.date).toLocaleDateString() }}</td>
-                  <td class="px-4 py-3">
-                    <span class="bg-blue-100 text-blue-800 px-2 py-1 text-xs font-medium rounded-full">
-                      {{ record.recordType }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-3">
-                    <div class="flex space-x-2">
-                      <button @click="viewRecord(record)" class="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails">
-                        <font-awesome-icon icon="eye" />
-                      </button>
-                      <button @click="editRecord(record)" class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
-                        <font-awesome-icon icon="edit" />
-                      </button>
-                      <button @click="deleteRecord(record)" class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
-                        <font-awesome-icon icon="trash" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <!-- Pagination -->
+        <PaginationComponent
+          v-if="pagination && pagination.totalPages > 1"
+          :pagination="pagination"
+          @page-change="onPageChange"
+        />
+      </div>
+    </div>
   </Layout>
 </template>
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
 import MetricCard from '../components/MetricCard.vue'
-import { medicalRecordService, type MedicalRecord, type MedicalRecordStats } from '../services/medicalRecordService'
-import { computed, ref } from 'vue'
+import PaginationComponent from '../components/PaginationComponent.vue'
+import { medicalFolderService } from '../services/medicalFolderService'
+import type { MedicalFolder, MedicalFolderStats } from '../types/global'
+import { computed, ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import type { PaginationParams, PaginatedResponse } from '../types/global'
 
-// Récupération des données des dossiers médicaux
-const medicalRecords = computed(() => medicalRecordService.getAllRecords())
-const recordStats = computed(() => medicalRecordService.getRecordsStats())
+const router = useRouter()
 
-// Variables réactives
-const showAddRecordModal = ref(false)
+// Variables réactives pour la pagination
+const medicalFolders = ref<MedicalFolder[]>([])
+const pagination = ref<PaginatedResponse<MedicalFolder>['pagination'] | null>(null)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const searchQuery = ref('')
+const selectedStatus = ref('')
+const searchTimeout = ref<number | null>(null)
+
+// Statistiques
+const folderStats = computed(() => medicalFolderService.getMedicalFoldersStats())
+
+// Fonctions utilitaires
+const formatDate = (dateString: string): string => {
+  return new Date(dateString).toLocaleDateString('fr-FR')
+}
+
+const getDiagnosisText = (diagnoseUuid: string): string => {
+  const diagnosis = medicalFolderService.getDiagnosisById(diagnoseUuid)
+  return diagnosis ? diagnosis.libelle : 'Diagnostic non trouvé'
+}
+
+// Fonctions de pagination
+const loadFolders = () => {
+  const params: PaginationParams = {
+    page: currentPage.value,
+    limit: pageSize.value,
+    search: searchQuery.value || undefined,
+    filters: selectedStatus.value ? { statut: parseInt(selectedStatus.value) } : undefined,
+    sortBy: 'created_at',
+    sortOrder: 'desc'
+  }
+  
+  const response = medicalFolderService.getMedicalFolders(params)
+  medicalFolders.value = response.data
+  pagination.value = response.pagination
+}
+
+const onPageChange = (page: number) => {
+  currentPage.value = page
+  loadFolders()
+}
+
+const onSearchChange = () => {
+  // Debounce de la recherche
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value)
+  }
+  
+  searchTimeout.value = setTimeout(() => {
+    currentPage.value = 1 // Reset à la première page lors de la recherche
+    loadFolders()
+  }, 500)
+}
 
 // Fonctions CRUD
-const viewRecord = (record: MedicalRecord) => {
-  if (window.showNotification) {
-    window.showNotification('info', 'Détails dossier', `Affichage des détails pour ${record.diagnosis}`)
-  }
+const viewFolder = (folder: MedicalFolder) => {
+  router.push(`/medical-records/${folder.uuid}`)
 }
 
-const editRecord = (record: MedicalRecord) => {
-  if (window.showNotification) {
-    window.showNotification('info', 'Modification', `Modification du dossier ${record.diagnosis}`)
-  }
+const editFolder = (folder: MedicalFolder) => {
+  router.push(`/medical-records/${folder.uuid}/edit`)
 }
 
-const deleteRecord = (record: MedicalRecord) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le dossier ${record.diagnosis} ?`)) {
-    const success = medicalRecordService.deleteRecord(record.id)
+const deleteFolder = (folder: MedicalFolder) => {
+  if (confirm(`Êtes-vous sûr de vouloir supprimer le dossier ${folder.num_folder} ?`)) {
+    const success = medicalFolderService.deleteMedicalFolder(folder.uuid)
     if (success && window.showNotification) {
-      window.showNotification('success', 'Dossier supprimé', `${record.diagnosis} a été supprimé avec succès`)
+      window.showNotification('success', 'Dossier supprimé', `${folder.num_folder} a été supprimé avec succès`)
+      loadFolders() // Recharger la liste
     }
   }
 }
 
-const exportRecords = () => {
-  if (window.showNotification) {
-    window.showNotification('info', 'Export', 'Export des dossiers en cours...')
+const openAddFolderModal = () => {
+  // Vérifier qu'on n'est pas sur une page complémentaire
+  if (currentPage.value !== 1) {
+    currentPage.value = 1
+    loadFolders()
   }
+  router.push('/medical-records/create')
 }
 
-const bulkActions = () => {
-  if (window.showNotification) {
-    window.showNotification('info', 'Actions groupées', 'Fonctionnalité d\'actions groupées en cours de développement...')
-  }
+// Fonctions pour les statuts
+const getStatusText = (statut: number): string => {
+  return medicalFolderService.getStatusText(statut)
 }
+
+const getStatusClass = (statut: number): string => {
+  return medicalFolderService.getStatusClass(statut)
+}
+
+// Watchers
+watch(selectedStatus, () => {
+  currentPage.value = 1
+  loadFolders()
+})
+
+// Lifecycle
+onMounted(() => {
+  loadFolders()
+})
 </script>
