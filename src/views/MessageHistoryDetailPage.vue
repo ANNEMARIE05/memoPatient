@@ -59,9 +59,9 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
               <span :class="[
                 'inline-flex px-3 py-1 text-sm font-semibold rounded-full',
-                messageHistoryService.getStatusClass(message.status)
+                messageHistoryService.getStatusClass(message.status || '')
               ]">
-                {{ messageHistoryService.getStatusText(message.status) }}
+                {{ messageHistoryService.getStatusText(message.status || '') }}
               </span>
             </div>
             <div>
@@ -89,19 +89,19 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Créé le</label>
-              <p class="text-sm text-gray-900">{{ messageHistoryService.formatDate(message.createdAt) }}</p>
+              <p class="text-sm text-gray-900">{{ messageHistoryService.formatDate(message.createdAt as Date || null) }}</p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Modifié le</label>
-              <p class="text-sm text-gray-900">{{ messageHistoryService.formatDate(message.updatedAt) }}</p>
+              <p class="text-sm text-gray-900">{{ messageHistoryService.formatDate(message.updatedAt as Date || null) }}</p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Envoyé le</label>
-              <p class="text-sm text-gray-900">{{ messageHistoryService.formatDate(message.sentAt) }}</p>
+              <p class="text-sm text-gray-900">{{ messageHistoryService.formatDate(message.sentAt || null) }}</p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Livré le</label>
-              <p class="text-sm text-gray-900">{{ messageHistoryService.formatDate(message.deliveredAt) }}</p>
+              <p class="text-sm text-gray-900">{{ messageHistoryService.formatDate(message.deliveredAt || null) }}</p>
             </div>
           </div>
         </div>
@@ -142,12 +142,12 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
 import { messageHistoryService } from '../services/messageHistoryService'
-import type { MessageSend } from '../types/global'
+import type { ExtendedMessageSend } from '../types/global'
 
 const route = useRoute()
 const router = useRouter()
 
-const message = ref<MessageSend | null>(null)
+const message = ref<ExtendedMessageSend | null>(null)
 const loading = ref(false)
 
 // Charger le message

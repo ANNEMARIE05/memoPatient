@@ -190,7 +190,7 @@ const previewMessage = computed(() => {
 // Charger les données du modèle en mode édition
 onMounted(async () => {
   if (isEdit.value && route.params.uuid) {
-    const template = messageTemplateService.getMessageTemplateById(route.params.uuid as string)
+    const template = messageTemplateService.getTemplateById(route.params.uuid as string)
     if (template) {
       form.value = {
         name: template.name || '',
@@ -234,7 +234,8 @@ const handleSubmit = async () => {
         description: form.value.description,
         content: form.value.content,
         maxLength: form.value.maxLength,
-        status: form.value.status
+        status: form.value.status,
+        active: form.value.status === 'active'
       })
       
       if (newTemplate) {

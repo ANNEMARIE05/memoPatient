@@ -206,7 +206,10 @@ const handleSubmit = async () => {
       }
     } else {
       // Mode création
-      const newFolder = medicalFolderService.addMedicalFolder(form.value)
+      const newFolder = medicalFolderService.addMedicalFolder({
+        ...form.value,
+        num_folder: `MF-${Date.now()}`
+      })
       
       if (newFolder) {
         if (window.showNotification) {

@@ -158,16 +158,16 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span :class="[
                     'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                    messageHistoryService.getStatusClass(message.status)
+                    messageHistoryService.getStatusClass(message.status || '')
                   ]">
-                    {{ messageHistoryService.getStatusText(message.status) }}
+                    {{ messageHistoryService.getStatusText(message.status || '') }}
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ messageHistoryService.formatDate(message.sentAt) }}
+                  {{ messageHistoryService.formatDate(message.sentAt || null) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ messageHistoryService.formatDate(message.deliveredAt) }}
+                  {{ messageHistoryService.formatDate(message.deliveredAt || null) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {{ message.errorMessage || '-' }}
@@ -220,12 +220,12 @@ import { useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
 import PaginationComponent from '../components/PaginationComponent.vue'
 import { messageHistoryService } from '../services/messageHistoryService'
-import type { MessageSend, MessageHistoryStats, PaginationParams } from '../types/global'
+import type { ExtendedMessageSend, MessageHistoryStats, PaginationParams } from '../types/global'
 
 const router = useRouter()
 
 // État réactif
-const messageHistory = ref<MessageSend[]>([])
+const messageHistory = ref<ExtendedMessageSend[]>([])
 const messageHistoryStats = ref<MessageHistoryStats>({
   totalMessages: 0,
   sentToday: 0,
@@ -237,7 +237,9 @@ const pagination = ref({
   page: 1,
   limit: 10,
   total: 0,
-  totalPages: 0
+  totalPages: 0,
+  hasNext: false,
+  hasPrev: false
 })
 const loading = ref(false)
 const searchQuery = ref('')
@@ -318,7 +320,7 @@ const sortBy = (field: string) => {
 }
 
 // Actions
-const viewMessage = (message: MessageSend) => {
+const viewMessage = (message: ExtendedMessageSend) => {
   router.push(`/message-history/${message.uuid}`)
 }
 

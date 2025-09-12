@@ -1,24 +1,4 @@
-import type { PaginationParams, PaginatedResponse } from '../types/global'
-
-export interface Profile {
-  id: string
-  name: string
-  code: string
-  description: string
-  permissions: string[]
-  status: string
-  userCount: number
-  active: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface ProfileStats {
-  total: number
-  active: number
-  admins: number
-  doctors: number
-}
+import type { PaginationParams, PaginatedResponse, Profile, ProfileStats } from '../types/global'
 
 class ProfileService {
   private profiles: Profile[] = [
@@ -161,6 +141,8 @@ class ProfileService {
     return {
       total,
       active,
+      inactive: total - active,
+      usersWithProfile: this.profiles.reduce((sum, profile) => sum + profile.userCount, 0),
       admins,
       doctors
     }

@@ -165,4 +165,94 @@ export interface MedicalFolderStats {
   labResults: number
 }
 
+// Types pour les profils
+export interface Profile {
+  id: string
+  name: string
+  code: string
+  description: string
+  permissions: string[]
+  status: string
+  userCount: number
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ProfileStats {
+  total: number
+  active: number
+  inactive: number
+  usersWithProfile: number
+  admins: number
+  doctors: number
+}
+
+// Types pour les modèles de messages
+export interface MessageTemplate {
+  uuid: string
+  name: string
+  messageType: string
+  description: string
+  content: string
+  maxLength: number
+  status: string
+  active: boolean
+  createdAt: string
+  updatedAt: string
+  createdUser: string
+  updatedUser: string
+}
+
+export interface MessageTemplateStats {
+  total: number
+  active: number
+  inactive: number
+  usedThisMonth: number
+  appointments: number
+  reminders: number
+}
+
+// Types pour l'historique des messages
+export interface MessageHistoryStats {
+  totalMessages: number
+  sentToday: number
+  deliveredToday: number
+  failedToday: number
+  pendingToday: number
+}
+
+// Types pour les utilisateurs
+export interface UserStats {
+  total: number
+  active: number
+  inactive: number
+  newThisMonth: number
+  admins: number
+}
+
+// Extension du type MessageSend pour inclure les propriétés manquantes
+export interface ExtendedMessageSend {
+  uuid: string
+  appointment_uuid: string
+  message_type_uuid: string
+  send_date: string
+  content: string
+  statut: number
+  created_at: string
+  updated_at: string
+  // Propriétés étendues pour l'interface utilisateur
+  patientUuid?: string
+  phoneNumber?: string
+  status?: string
+  deliveryStatus?: string
+  sentAt?: Date
+  deliveredAt?: Date
+  errorMessage?: string | null
+  messageTypeUuid?: string
+  messageModelUuid?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
 export {}

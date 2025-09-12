@@ -1,11 +1,4 @@
-import type { User, PaginationParams, PaginatedResponse } from '../types/global'
-
-export interface UserStats {
-  total: number
-  active: number
-  admins: number
-  newThisMonth: number
-}
+import type { User, PaginationParams, PaginatedResponse, UserStats } from '../types/global'
 
 class UserService {
   private users: User[] = [
@@ -154,8 +147,9 @@ class UserService {
     return {
       total,
       active,
-      admins,
-      newThisMonth
+      inactive: total - active,
+      newThisMonth,
+      admins
     }
   }
 

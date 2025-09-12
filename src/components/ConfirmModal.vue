@@ -77,14 +77,14 @@ const props = withDefaults(defineProps<Props>(), {
   closeOnBackdrop: true
 })
 
-defineEmits<{
+const emit = defineEmits<{
   confirm: []
   cancel: []
 }>()
 
 const handleBackdropClick = () => {
   if (props.closeOnBackdrop) {
-    $emit('cancel')
+    emit('cancel')
   }
 }
 </script>

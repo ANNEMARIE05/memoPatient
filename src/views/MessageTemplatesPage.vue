@@ -88,24 +88,19 @@
                     </div>
                   </div>
                 </td>
-                <td class="px-4 py-3 text-sm text-gray-900">{{ template.type }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900">{{ template.messageType }}</td>
                 <td class="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">{{ template.content }}</td>
                 <td class="px-4 py-3 text-sm text-gray-900">
                   <div class="flex flex-wrap gap-1">
-                    <span v-for="variable in template.variables.slice(0, 2)" :key="variable" 
-                          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {{ variable }}
-                    </span>
-                    <span v-if="template.variables.length > 2" 
-                          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                      +{{ template.variables.length - 2 }}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Variables disponibles
                     </span>
                   </div>
                 </td>
                 <td class="px-4 py-3">
-                  <span :class="template.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" 
+                  <span :class="template.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" 
                         class="px-2 py-1 text-xs font-medium rounded-full">
-                    {{ template.active ? 'Actif' : 'Inactif' }}
+                    {{ template.status === 'active' ? 'Actif' : 'Inactif' }}
                   </span>
                 </td>
                 <td class="px-4 py-3">
@@ -159,7 +154,7 @@ const selectedType = ref('')
 const searchTimeout = ref<number | null>(null)
 
 // Statistiques
-const templateStats = computed(() => messageTemplateService.getTemplatesStats())
+const templateStats = computed(() => messageTemplateService.getTemplateStats())
 
 // Fonctions de pagination
 const loadTemplates = () => {
@@ -172,7 +167,7 @@ const loadTemplates = () => {
     sortOrder: 'asc'
   }
   
-  const response = messageTemplateService.getTemplates(params)
+  const response = messageTemplateService.getTemplatesWithPagination(params)
   templates.value = response.data
   pagination.value = response.pagination
 }
@@ -205,7 +200,7 @@ const editTemplate = (template: MessageTemplate) => {
 
 const deleteTemplate = (template: MessageTemplate) => {
   if (confirm(`Êtes-vous sûr de vouloir supprimer le modèle ${template.name} ?`)) {
-    const success = messageTemplateService.deleteTemplate(template.uuid)
+    const success = messageTemplateService.deleteMessageTemplate(template.uuid)
     if (success && window.showNotification) {
       window.showNotification('success', 'Modèle supprimé', `${template.name} a été supprimé avec succès`)
       loadTemplates() // Recharger la liste

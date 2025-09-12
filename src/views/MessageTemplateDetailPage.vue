@@ -227,7 +227,7 @@ const template = ref<MessageTemplate | undefined>()
 // Charger les données du modèle
 onMounted(() => {
   if (route.params.uuid) {
-    template.value = messageTemplateService.getMessageTemplateById(route.params.uuid as string)
+    template.value = messageTemplateService.getTemplateById(route.params.uuid as string) || undefined
     if (!template.value) {
       if (window.showNotification) {
         window.showNotification('error', 'Erreur', 'Modèle de message non trouvé')

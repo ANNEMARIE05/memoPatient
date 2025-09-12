@@ -199,7 +199,7 @@ const groupedPermissions = computed(() => {
   
   const groups: Record<string, string[]> = {}
   
-  profile.value.permissions.forEach(permission => {
+  profile.value.permissions.forEach((permission: string) => {
     const [category] = permission.split('.')
     if (!groups[category]) {
       groups[category] = []

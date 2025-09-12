@@ -1,24 +1,4 @@
-import type { PaginationParams, PaginatedResponse } from '../types/global'
-
-export interface MessageTemplate {
-  uuid: string
-  name: string
-  messageType: string
-  description?: string
-  content: string
-  maxLength?: number
-  status: string
-  active: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface MessageTemplateStats {
-  total: number
-  active: number
-  appointments: number
-  reminders: number
-}
+import type { PaginationParams, PaginatedResponse, MessageTemplate, MessageTemplateStats } from '../types/global'
 
 class MessageTemplateService {
   private templates: MessageTemplate[] = [
@@ -32,7 +12,9 @@ class MessageTemplateService {
       status: 'active',
       active: true,
       createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-12-15T10:00:00Z'
+      updatedAt: '2024-12-15T10:00:00Z',
+      createdUser: 'admin',
+      updatedUser: 'admin'
     },
     {
       uuid: 'TMP002',
@@ -44,175 +26,164 @@ class MessageTemplateService {
       status: 'active',
       active: true,
       createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-12-15T10:00:00Z'
+      updatedAt: '2024-12-15T10:00:00Z',
+      createdUser: 'admin',
+      updatedUser: 'admin'
     },
     {
       uuid: 'TMP003',
       name: 'Annulation rendez-vous',
       messageType: 'annulation',
       description: 'Modèle pour annuler un rendez-vous',
-      content: 'Bonjour {patient_name}, nous vous informons que votre rendez-vous du {appointment_date} à {appointment_time} a été annulé. Nous vous contacterons pour reprogrammer. {clinic_name}',
+      content: 'Bonjour {patient_name}, nous vous informons que votre rendez-vous du {appointment_date} à {appointment_time} a été annulé. Nous vous recontacterons pour reprogrammer. {clinic_name}',
       maxLength: 160,
       status: 'active',
       active: true,
       createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-12-15T10:00:00Z'
+      updatedAt: '2024-12-15T10:00:00Z',
+      createdUser: 'admin',
+      updatedUser: 'admin'
     },
     {
       uuid: 'TMP004',
       name: 'Information générale',
       messageType: 'information',
       description: 'Modèle pour les informations générales',
-      content: 'Bonjour {patient_name}, nous vous informons que {custom_message}. Cordialement, l\'équipe de {clinic_name}.',
+      content: 'Bonjour {patient_name}, nous vous informons que {message_content}. Cordialement, l\'équipe de {clinic_name}.',
       maxLength: 160,
       status: 'active',
       active: true,
       createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-12-15T10:00:00Z'
+      updatedAt: '2024-12-15T10:00:00Z',
+      createdUser: 'admin',
+      updatedUser: 'admin'
     },
     {
       uuid: 'TMP005',
-      name: 'Message d\'urgence',
+      name: 'Urgence',
       messageType: 'urgence',
-      description: 'Modèle pour les messages urgents',
-      content: 'URGENT - {patient_name}, {custom_message}. Contactez-nous immédiatement au {clinic_phone}. {clinic_name}',
+      description: 'Modèle pour les messages d\'urgence',
+      content: 'URGENT - Bonjour {patient_name}, nous vous contactons concernant votre rendez-vous. Merci de nous rappeler au plus vite. {clinic_name}',
       maxLength: 160,
-      status: 'active',
-      active: true,
+      status: 'inactive',
+      active: false,
       createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-12-15T10:00:00Z'
+      updatedAt: '2024-12-15T10:00:00Z',
+      createdUser: 'admin',
+      updatedUser: 'admin'
     }
   ]
-
-  // Méthode pour obtenir tous les modèles avec pagination
-  getTemplates(params: PaginationParams): PaginatedResponse<MessageTemplate> {
-    let filteredTemplates = [...this.templates]
-    
-    // Recherche
-    if (params.search) {
-      const searchLower = params.search.toLowerCase()
-      filteredTemplates = filteredTemplates.filter(template =>
-        template.name.toLowerCase().includes(searchLower) ||
-        template.content.toLowerCase().includes(searchLower) ||
-        template.messageType.toLowerCase().includes(searchLower)
-      )
-    }
-    
-    // Filtres
-    if (params.filters) {
-      if (params.filters.messageType) {
-        filteredTemplates = filteredTemplates.filter(t => t.messageType === params.filters!.messageType)
-      }
-      if (params.filters.status) {
-        filteredTemplates = filteredTemplates.filter(t => t.status === params.filters!.status)
-      }
-    }
-    
-    // Tri
-    if (params.sortBy) {
-      filteredTemplates.sort((a, b) => {
-        const aValue = this.getNestedValue(a, params.sortBy!)
-        const bValue = this.getNestedValue(b, params.sortBy!)
-        
-        if (aValue < bValue) return params.sortOrder === 'desc' ? 1 : -1
-        if (aValue > bValue) return params.sortOrder === 'desc' ? -1 : 1
-        return 0
-      })
-    }
-    
-    // Pagination
-    const total = filteredTemplates.length
-    const totalPages = Math.ceil(total / params.limit)
-    const startIndex = (params.page - 1) * params.limit
-    const endIndex = startIndex + params.limit
-    const paginatedData = filteredTemplates.slice(startIndex, endIndex)
-    
-    return {
-      data: paginatedData,
-      pagination: {
-        page: params.page,
-        limit: params.limit,
-        total,
-        totalPages,
-        hasNext: params.page < totalPages,
-        hasPrev: params.page > 1
-      }
-    }
-  }
 
   getAllTemplates(): MessageTemplate[] {
     return this.templates
   }
 
-  getTemplateById(uuid: string): MessageTemplate | undefined {
-    return this.templates.find(template => template.uuid === uuid)
+  getTemplateById(uuid: string): MessageTemplate | null {
+    return this.templates.find(template => template.uuid === uuid) || null
   }
 
-  getTemplatesStats(): MessageTemplateStats {
-    const total = this.templates.length
-    const active = this.templates.filter(t => t.active).length
-    const appointments = this.templates.filter(t => t.messageType === 'rappel' || t.messageType === 'confirmation').length
-    const reminders = this.templates.filter(t => t.messageType === 'rappel').length
+  getTemplatesWithPagination(params: PaginationParams): PaginatedResponse<MessageTemplate> {
+    const {
+      page = 1,
+      limit = 10,
+      search = '',
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = params
+
+    let filteredTemplates = [...this.templates]
+
+    // Recherche
+    if (search) {
+      const searchLower = search.toLowerCase()
+      filteredTemplates = filteredTemplates.filter(template =>
+        template.name.toLowerCase().includes(searchLower) ||
+        template.description.toLowerCase().includes(searchLower) ||
+        template.messageType.toLowerCase().includes(searchLower)
+      )
+    }
+
+    // Tri
+    filteredTemplates.sort((a, b) => {
+      let aValue = a[sortBy as keyof MessageTemplate]
+      let bValue = b[sortBy as keyof MessageTemplate]
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1
+      } else {
+        return aValue < bValue ? 1 : -1
+      }
+    })
+
+    // Pagination
+    const startIndex = (page - 1) * limit
+    const endIndex = startIndex + limit
+    const paginatedTemplates = filteredTemplates.slice(startIndex, endIndex)
 
     return {
-      total,
-      active,
-      appointments,
-      reminders
+      data: paginatedTemplates,
+      pagination: {
+        page,
+        limit,
+        total: filteredTemplates.length,
+        totalPages: Math.ceil(filteredTemplates.length / limit),
+        hasNext: page < Math.ceil(filteredTemplates.length / limit),
+        hasPrev: page > 1
+      }
     }
   }
 
-  addTemplate(templateData: Omit<MessageTemplate, 'uuid' | 'active' | 'createdAt' | 'updatedAt'>): MessageTemplate {
+  addMessageTemplate(templateData: Omit<MessageTemplate, 'uuid' | 'createdAt' | 'updatedAt' | 'createdUser' | 'updatedUser'>): MessageTemplate | null {
     const newTemplate: MessageTemplate = {
       ...templateData,
-      uuid: `TMP${String(this.templates.length + 1).padStart(3, '0')}`,
-      active: templateData.status === 'active',
+      uuid: `TMP${Date.now()}`,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      createdUser: 'current-user',
+      updatedUser: 'current-user'
     }
+
     this.templates.push(newTemplate)
     return newTemplate
   }
 
-  updateTemplate(uuid: string, updates: Partial<MessageTemplate>): MessageTemplate | null {
-    const index = this.templates.findIndex(t => t.uuid === uuid)
-    if (index === -1) return null
-    
-    this.templates[index] = {
-      ...this.templates[index],
-      ...updates,
-      active: updates.status === 'active' ? true : this.templates[index].active,
-      updatedAt: new Date().toISOString()
+  updateMessageTemplate(uuid: string, updates: Partial<MessageTemplate>): MessageTemplate | null {
+    const index = this.templates.findIndex(template => template.uuid === uuid)
+    if (index !== -1) {
+      this.templates[index] = {
+        ...this.templates[index],
+        ...updates,
+        updatedAt: new Date().toISOString(),
+        updatedUser: 'current-user'
+      }
+      return this.templates[index]
     }
-    return this.templates[index]
+    return null
   }
 
-  deleteTemplate(uuid: string): boolean {
-    const index = this.templates.findIndex(t => t.uuid === uuid)
-    if (index === -1) return false
-    
-    this.templates.splice(index, 1)
-    return true
+  deleteMessageTemplate(uuid: string): boolean {
+    const index = this.templates.findIndex(template => template.uuid === uuid)
+    if (index !== -1) {
+      this.templates.splice(index, 1)
+      return true
+    }
+    return false
   }
 
-  searchTemplates(query: string): MessageTemplate[] {
-    const lowercaseQuery = query.toLowerCase()
-    return this.templates.filter(template =>
-      template.name.toLowerCase().includes(lowercaseQuery) ||
-      template.content.toLowerCase().includes(lowercaseQuery) ||
-      template.messageType.toLowerCase().includes(lowercaseQuery)
-    )
-  }
+  getTemplateStats(): MessageTemplateStats {
+    const active = this.templates.filter(t => t.active).length
+    const inactive = this.templates.filter(t => !t.active).length
+    const appointments = this.templates.filter(t => t.messageType === 'rappel' || t.messageType === 'confirmation').length
+    const reminders = this.templates.filter(t => t.messageType === 'rappel').length
 
-  // Alias pour la compatibilité
-  getMessageTemplateById = this.getTemplateById
-  addMessageTemplate = this.addTemplate
-  updateMessageTemplate = this.updateTemplate
-  deleteMessageTemplate = this.deleteTemplate
-
-  // Méthodes utilitaires
-  private getNestedValue(obj: any, path: string): any {
-    return path.split('.').reduce((o, p) => o && o[p], obj)
+    return {
+      total: this.templates.length,
+      active,
+      inactive,
+      usedThisMonth: Math.floor(this.templates.length * 0.7),
+      appointments,
+      reminders
+    }
   }
 }
 

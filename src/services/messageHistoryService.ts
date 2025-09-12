@@ -1,22 +1,20 @@
-import type { MessageSend, PaginationParams, PaginatedResponse } from '../types/global'
-
-// Interface pour les statistiques des historiques
-export interface MessageHistoryStats {
-  totalMessages: number
-  sentToday: number
-  deliveredToday: number
-  failedToday: number
-  pendingToday: number
-}
+import type { ExtendedMessageSend, PaginationParams, PaginatedResponse, MessageHistoryStats } from '../types/global'
 
 // Mock data pour les historiques de messages
-const mockMessageHistory: MessageSend[] = [
+const mockMessageHistory: ExtendedMessageSend[] = [
   {
     uuid: 'msg-001',
+    appointment_uuid: 'appt-001',
+    message_type_uuid: 'type-001',
+    send_date: '2024-01-15T14:30:00Z',
+    content: 'Rappel de votre rendez-vous demain à 14h30',
+    statut: 1,
+    created_at: '2024-01-15T14:25:00Z',
+    updated_at: '2024-01-15T14:31:00Z',
+    // Propriétés étendues pour l'interface utilisateur
     patientUuid: 'pat-001',
     messageTypeUuid: 'type-001',
     messageModelUuid: 'model-001',
-    content: 'Rappel de votre rendez-vous demain à 14h30',
     phoneNumber: '+33123456789',
     sentAt: new Date('2024-01-15T14:30:00Z'),
     deliveredAt: new Date('2024-01-15T14:31:00Z'),
@@ -28,10 +26,17 @@ const mockMessageHistory: MessageSend[] = [
   },
   {
     uuid: 'msg-002',
+    appointment_uuid: 'appt-002',
+    message_type_uuid: 'type-002',
+    send_date: '2024-01-15T10:15:00Z',
+    content: 'Votre prescription est prête à être récupérée',
+    statut: 1,
+    created_at: '2024-01-15T10:10:00Z',
+    updated_at: '2024-01-15T10:16:00Z',
+    // Propriétés étendues pour l'interface utilisateur
     patientUuid: 'pat-002',
     messageTypeUuid: 'type-002',
     messageModelUuid: 'model-002',
-    content: 'Votre prescription est prête à être récupérée',
     phoneNumber: '+33123456790',
     sentAt: new Date('2024-01-15T10:15:00Z'),
     deliveredAt: new Date('2024-01-15T10:16:00Z'),
@@ -43,13 +48,20 @@ const mockMessageHistory: MessageSend[] = [
   },
   {
     uuid: 'msg-003',
+    appointment_uuid: 'appt-003',
+    message_type_uuid: 'type-001',
+    send_date: '2024-01-15T08:00:00Z',
+    content: 'Rappel de votre rendez-vous aujourd\'hui à 16h00',
+    statut: 0,
+    created_at: '2024-01-15T07:55:00Z',
+    updated_at: '2024-01-15T08:00:00Z',
+    // Propriétés étendues pour l'interface utilisateur
     patientUuid: 'pat-003',
     messageTypeUuid: 'type-001',
     messageModelUuid: 'model-003',
-    content: 'Rappel de votre rendez-vous aujourd\'hui à 16h00',
     phoneNumber: '+33123456791',
     sentAt: new Date('2024-01-15T08:00:00Z'),
-    deliveredAt: null,
+    deliveredAt: undefined,
     status: 'pending',
     deliveryStatus: 'pending',
     errorMessage: null,
@@ -58,39 +70,53 @@ const mockMessageHistory: MessageSend[] = [
   },
   {
     uuid: 'msg-004',
+    appointment_uuid: 'appt-004',
+    message_type_uuid: 'type-003',
+    send_date: '2024-01-14T16:30:00Z',
+    content: 'Votre rendez-vous a été annulé pour cause de maladie du médecin',
+    statut: -1,
+    created_at: '2024-01-14T16:25:00Z',
+    updated_at: '2024-01-14T16:30:00Z',
+    // Propriétés étendues pour l'interface utilisateur
     patientUuid: 'pat-004',
     messageTypeUuid: 'type-003',
     messageModelUuid: 'model-004',
-    content: 'Résultats de vos analyses sont disponibles',
     phoneNumber: '+33123456792',
-    sentAt: new Date('2024-01-14T15:45:00Z'),
-    deliveredAt: null,
+    sentAt: new Date('2024-01-14T16:30:00Z'),
+    deliveredAt: undefined,
     status: 'failed',
     deliveryStatus: 'failed',
     errorMessage: 'Numéro invalide',
-    createdAt: new Date('2024-01-14T15:40:00Z'),
-    updatedAt: new Date('2024-01-14T15:45:00Z')
+    createdAt: new Date('2024-01-14T16:25:00Z'),
+    updatedAt: new Date('2024-01-14T16:30:00Z')
   },
   {
     uuid: 'msg-005',
+    appointment_uuid: 'appt-005',
+    message_type_uuid: 'type-001',
+    send_date: '2024-01-14T14:00:00Z',
+    content: 'Confirmation de votre rendez-vous pour demain à 09h00',
+    statut: 1,
+    created_at: '2024-01-14T13:55:00Z',
+    updated_at: '2024-01-14T14:01:00Z',
+    // Propriétés étendues pour l'interface utilisateur
     patientUuid: 'pat-005',
-    messageTypeUuid: 'type-002',
+    messageTypeUuid: 'type-001',
     messageModelUuid: 'model-005',
-    content: 'Rendez-vous confirmé pour le 20 janvier à 9h00',
     phoneNumber: '+33123456793',
-    sentAt: new Date('2024-01-14T11:30:00Z'),
-    deliveredAt: new Date('2024-01-14T11:31:00Z'),
+    sentAt: new Date('2024-01-14T14:00:00Z'),
+    deliveredAt: new Date('2024-01-14T14:01:00Z'),
     status: 'delivered',
     deliveryStatus: 'success',
     errorMessage: null,
-    createdAt: new Date('2024-01-14T11:25:00Z'),
-    updatedAt: new Date('2024-01-14T11:31:00Z')
+    createdAt: new Date('2024-01-14T13:55:00Z'),
+    updatedAt: new Date('2024-01-14T14:01:00Z')
   }
 ]
 
 export const messageHistoryService = {
   // Récupérer les historiques de messages avec pagination
-  getMessageHistory(params: PaginationParams = {}): PaginatedResponse<MessageSend> {
+  getMessageHistory(params: PaginationParams = { page: 1, limit: 10 }): PaginatedResponse<ExtendedMessageSend> {
     const {
       page = 1,
       limit = 10,
@@ -107,7 +133,7 @@ export const messageHistoryService = {
       const searchLower = search.toLowerCase()
       filteredMessages = filteredMessages.filter(message =>
         message.content.toLowerCase().includes(searchLower) ||
-        message.phoneNumber.includes(search) ||
+        (message.phoneNumber && message.phoneNumber.includes(search)) ||
         message.uuid.toLowerCase().includes(searchLower)
       )
     }
@@ -132,8 +158,8 @@ export const messageHistoryService = {
         aValue = a.status
         bValue = b.status
       } else {
-        aValue = (a as any)[sortBy] || ''
-        bValue = (b as any)[sortBy] || ''
+        aValue = a[sortBy as keyof ExtendedMessageSend]
+        bValue = b[sortBy as keyof ExtendedMessageSend]
       }
 
       if (sortOrder === 'asc') {
@@ -154,13 +180,15 @@ export const messageHistoryService = {
         page,
         limit,
         total: filteredMessages.length,
-        totalPages: Math.ceil(filteredMessages.length / limit)
+        totalPages: Math.ceil(filteredMessages.length / limit),
+        hasNext: page < Math.ceil(filteredMessages.length / limit),
+        hasPrev: page > 1
       }
     }
   },
 
   // Récupérer un historique de message par UUID
-  getMessageHistoryById(uuid: string): MessageSend | null {
+  getMessageHistoryById(uuid: string): ExtendedMessageSend | null {
     return mockMessageHistory.find(msg => msg.uuid === uuid) || null
   },
 
@@ -208,27 +236,7 @@ export const messageHistoryService = {
     }
   },
 
-  // Obtenir le statut en texte
-  getStatusText(status: string): string {
-    const statusMap: Record<string, string> = {
-      'delivered': 'Livré',
-      'pending': 'En attente',
-      'failed': 'Échec'
-    }
-    return statusMap[status] || status
-  },
-
-  // Obtenir la classe CSS du statut
-  getStatusClass(status: string): string {
-    const classMap: Record<string, string> = {
-      'delivered': 'bg-green-100 text-green-800',
-      'pending': 'bg-yellow-100 text-yellow-800',
-      'failed': 'bg-red-100 text-red-800'
-    }
-    return classMap[status] || 'bg-gray-100 text-gray-800'
-  },
-
-  // Formater la date
+  // Utilitaires pour l'affichage
   formatDate(date: Date | null): string {
     if (!date) return '-'
     return new Intl.DateTimeFormat('fr-FR', {
@@ -237,6 +245,26 @@ export const messageHistoryService = {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit'
-    }).format(date)
+    }).format(new Date(date))
+  },
+
+  getStatusText(status: string): string {
+    const statusMap: Record<string, string> = {
+      'delivered': 'Livré',
+      'pending': 'En attente',
+      'failed': 'Échec',
+      'sent': 'Envoyé'
+    }
+    return statusMap[status] || status
+  },
+
+  getStatusClass(status: string): string {
+    const classMap: Record<string, string> = {
+      'delivered': 'bg-green-100 text-green-800',
+      'pending': 'bg-yellow-100 text-yellow-800',
+      'failed': 'bg-red-100 text-red-800',
+      'sent': 'bg-blue-100 text-blue-800'
+    }
+    return classMap[status] || 'bg-gray-100 text-gray-800'
   }
 }
