@@ -40,14 +40,17 @@ import { computed } from 'vue'
 interface Props {
   title: string
   value: string | number
-  change: string
-  changeType: 'increase' | 'decrease'
+  change?: string
+  changeType?: 'increase' | 'decrease'
   icon: string
   iconColor: string
-  chartData: number[]
+  chartData?: number[]
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  changeType: 'increase',
+  chartData: () => []
+})
 
 const iconBgClass = computed(() => {
   const colorMap: Record<string, string> = {

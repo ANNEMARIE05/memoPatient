@@ -138,23 +138,23 @@ const recordStats = computed(() => medicalRecordService.getRecordsStats())
 const showAddRecordModal = ref(false)
 
 // Fonctions CRUD
-const viewRecord = (record) => {
+const viewRecord = (record: MedicalRecord) => {
   if (window.showNotification) {
-    window.showNotification('info', 'Détails dossier', `Affichage des détails pour ${record.title}`)
+    window.showNotification('info', 'Détails dossier', `Affichage des détails pour ${record.diagnosis}`)
   }
 }
 
-const editRecord = (record) => {
+const editRecord = (record: MedicalRecord) => {
   if (window.showNotification) {
-    window.showNotification('info', 'Modification', `Modification du dossier ${record.title}`)
+    window.showNotification('info', 'Modification', `Modification du dossier ${record.diagnosis}`)
   }
 }
 
-const deleteRecord = (record) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le dossier ${record.title} ?`)) {
+const deleteRecord = (record: MedicalRecord) => {
+  if (confirm(`Êtes-vous sûr de vouloir supprimer le dossier ${record.diagnosis} ?`)) {
     const success = medicalRecordService.deleteRecord(record.id)
     if (success && window.showNotification) {
-      window.showNotification('success', 'Dossier supprimé', `${record.title} a été supprimé avec succès`)
+      window.showNotification('success', 'Dossier supprimé', `${record.diagnosis} a été supprimé avec succès`)
     }
   }
 }

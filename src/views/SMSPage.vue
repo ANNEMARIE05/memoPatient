@@ -314,12 +314,12 @@ const sendSMS = () => {
     return
   }
 
-  const smsData = {
+  const smsData: Omit<SMS, 'id' | 'status' | 'sentAt'> = {
     recipientId: patient.id,
     recipientName: patient.name,
     recipientPhone: patient.phone,
     message: messageText.value.trim(),
-    type: selectedTemplate.value ? messageTemplates.value.find(t => t.id === selectedTemplate.value)?.type || 'Personnalisé' : 'Personnalisé',
+    type: (selectedTemplate.value ? messageTemplates.value.find(t => t.id === selectedTemplate.value)?.type || 'Personnalisé' : 'Personnalisé') as 'Rappel RDV' | 'Annulation' | 'Report' | 'Confirmation' | 'Personnalisé',
     templateId: selectedTemplate.value || undefined
   }
 
@@ -337,20 +337,20 @@ const sendSMS = () => {
 }
 
 // Fonctions supplémentaires
-const viewSMS = (sms) => {
+const viewSMS = (sms: SMS) => {
   if (window.showNotification) {
     window.showNotification('info', 'Détails SMS', `Affichage des détails pour ${sms.recipientName}`)
   }
 }
 
-const resendSMS = (sms) => {
+const resendSMS = (sms: SMS) => {
   const success = smsService.resendSMS(sms.id)
   if (success && window.showNotification) {
     window.showNotification('info', 'SMS renvoyé', `SMS renvoyé à ${sms.recipientName}`)
   }
 }
 
-const deleteSMS = (sms) => {
+const deleteSMS = (sms: SMS) => {
   if (confirm(`Êtes-vous sûr de vouloir supprimer ce SMS ?`)) {
     if (window.showNotification) {
       window.showNotification('success', 'SMS supprimé', `SMS supprimé avec succès`)

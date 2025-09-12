@@ -218,19 +218,19 @@ const patientStats = computed(() => patientService.getPatientsStats())
 // Variables réactives pour les modales
 const showAddPatientModal = ref(false)
 const showEditPatientModal = ref(false)
-const selectedPatient = ref(null)
+const selectedPatient = ref<Patient | null>(null)
 
 // Nouveau patient
 const newPatient = ref({
   name: '',
-  age: null,
+  age: null as number | null,
   phone: '',
   email: '',
   address: '',
-  gender: 'M',
+  gender: 'M' as 'M' | 'F',
   dateOfBirth: '',
-  medicalHistory: [],
-  allergies: [],
+  medicalHistory: [] as string[],
+  allergies: [] as string[],
   emergencyContact: {
     name: '',
     phone: '',
@@ -239,19 +239,19 @@ const newPatient = ref({
 })
 
 // Fonctions CRUD
-const viewPatient = (patient) => {
+const viewPatient = (patient: Patient) => {
   // Ici on pourrait rediriger vers une page de détails
   if (window.showNotification) {
     window.showNotification('info', 'Détails patient', `Affichage des détails pour ${patient.name}`)
   }
 }
 
-const editPatient = (patient) => {
+const editPatient = (patient: Patient) => {
   selectedPatient.value = { ...patient }
   showEditPatientModal.value = true
 }
 
-const deletePatient = (patient) => {
+const deletePatient = (patient: Patient) => {
   if (confirm(`Êtes-vous sûr de vouloir supprimer le patient ${patient.name} ?`)) {
     const success = patientService.deletePatient(patient.id)
     if (success && window.showNotification) {
@@ -261,8 +261,9 @@ const deletePatient = (patient) => {
 }
 
 const addPatient = () => {
-  const patientData = {
+  const patientData: Omit<Patient, 'id' | 'createdAt' | 'updatedAt'> = {
     ...newPatient.value,
+    age: newPatient.value.age || 0,
     status: 'Actif',
     lastVisit: new Date().toISOString().split('T')[0]
   }
