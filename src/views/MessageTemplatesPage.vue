@@ -1,33 +1,6 @@
 <template>
   <Layout title="Modèles de messages">
     <div class="space-y-6">
-      <!-- Statistiques -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <MetricCard
-          title="Total modèles"
-          :value="templateStats.total.toString()"
-          icon="comment-dots"
-          icon-color="blue"
-        />
-        <MetricCard
-          title="Modèles actifs"
-          :value="templateStats.active.toString()"
-          icon="check-circle"
-          icon-color="green"
-        />
-        <MetricCard
-          title="Rendez-vous"
-          :value="templateStats.appointments.toString()"
-          icon="calendar"
-          icon-color="purple"
-        />
-        <MetricCard
-          title="Rappels"
-          :value="templateStats.reminders.toString()"
-          icon="bell"
-          icon-color="orange"
-        />
-      </div>
 
       <!-- Actions et filtres -->
       <div class="bg-white shadow rounded-lg p-6">
@@ -67,14 +40,34 @@
               <tr>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contenu</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variables</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <tr v-for="template in templates" :key="template.uuid" class="hover:bg-gray-50">
+              <!-- Indicateur de chargement -->
+              <tr v-if="loading" class="bg-gray-50">
+                <td colspan="4" class="px-4 py-8 text-center">
+                  <div class="flex items-center justify-center space-x-2">
+                    <font-awesome-icon icon="spinner" class="animate-spin text-blue-600" />
+                    <span class="text-gray-600">Chargement des modèles...</span>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Message si aucun résultat -->
+              <tr v-else-if="!loading && templates.length === 0" class="bg-gray-50">
+                <td colspan="4" class="px-4 py-8 text-center">
+                  <div class="text-gray-500">
+                    <font-awesome-icon icon="inbox" class="text-4xl mb-2" />
+                    <p>Aucun modèle trouvé</p>
+                    <p class="text-sm">Essayez de modifier vos critères de recherche</p>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Données des modèles -->
+              <tr v-else v-for="template in templates" :key="template.uuid" class="hover:bg-gray-50">
                 <td class="px-4 py-3">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10">
@@ -89,14 +82,6 @@
                   </div>
                 </td>
                 <td class="px-4 py-3 text-sm text-gray-900">{{ template.messageType }}</td>
-                <td class="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">{{ template.content }}</td>
-                <td class="px-4 py-3 text-sm text-gray-900">
-                  <div class="flex flex-wrap gap-1">
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      Variables disponibles
-                    </span>
-                  </div>
-                </td>
                 <td class="px-4 py-3">
                   <span :class="template.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" 
                         class="px-2 py-1 text-xs font-medium rounded-full">
@@ -104,29 +89,17 @@
                   </span>
                 </td>
                 <td class="px-4 py-3">
-                  <div class="flex space-x-2">
-                    <button @click="viewTemplate(template)" class="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails">
-                      <font-awesome-icon icon="eye" />
-                    </button>
-                    <button @click="editTemplate(template)" class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
-                      <font-awesome-icon icon="edit" />
-                    </button>
-                    <button @click="deleteTemplate(template)" class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
-                      <font-awesome-icon icon="trash" />
-                    </button>
-                  </div>
+                  <ActionButtons
+                    @view="viewTemplate(template)"
+                    @edit="editTemplate(template)"
+                    @delete="deleteTemplate(template)"
+                  />
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Pagination -->
-        <PaginationComponent
-          v-if="pagination && pagination.totalPages > 1"
-          :pagination="pagination"
-          @page-change="onPageChange"
-        />
       </div>
     </div>
   </Layout>
@@ -134,13 +107,13 @@
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
-import MetricCard from '../components/MetricCard.vue'
-import PaginationComponent from '../components/PaginationComponent.vue'
+import ActionButtons from '../components/ActionButtons.vue'
 import { messageTemplateService } from '../services/messageTemplateService'
-import type { MessageTemplate, MessageTemplateStats } from '../types/global'
+import type { MessageTemplate } from '../types/global'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { PaginationParams, PaginatedResponse } from '../types/global'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 
@@ -152,28 +125,43 @@ const pageSize = ref(10)
 const searchQuery = ref('')
 const selectedType = ref('')
 const searchTimeout = ref<number | null>(null)
+const loading = ref(false)
 
-// Statistiques
-const templateStats = computed(() => messageTemplateService.getTemplateStats())
 
 // Fonctions de pagination
-const loadTemplates = () => {
-  const params: PaginationParams = {
-    page: currentPage.value,
-    limit: pageSize.value,
-    search: searchQuery.value || undefined,
-    filters: selectedType.value ? { type: selectedType.value } : undefined,
-    sortBy: 'name',
-    sortOrder: 'asc'
+const loadTemplates = async () => {
+  loading.value = true
+  try {
+    const params: PaginationParams = {
+      page: currentPage.value,
+      limit: pageSize.value,
+      search: searchQuery.value || undefined,
+      filters: selectedType.value ? { messageType: selectedType.value } : undefined,
+      sortBy: 'name',
+      sortOrder: 'asc'
+    }
+    
+    const response = messageTemplateService.getTemplatesWithPagination(params)
+    templates.value = response.data
+    pagination.value = response.pagination
+  } catch (error) {
+    console.error('Erreur lors du chargement des modèles:', error)
+    if (window.showNotification) {
+      window.showNotification('error', 'Erreur', 'Impossible de charger les modèles de messages')
+    }
+  } finally {
+    loading.value = false
   }
-  
-  const response = messageTemplateService.getTemplatesWithPagination(params)
-  templates.value = response.data
-  pagination.value = response.pagination
 }
 
 const onPageChange = (page: number) => {
   currentPage.value = page
+  loadTemplates()
+}
+
+const onPageSizeChange = (newPageSize: number) => {
+  pageSize.value = newPageSize
+  currentPage.value = 1 // Reset à la première page
   loadTemplates()
 }
 
@@ -198,12 +186,36 @@ const editTemplate = (template: MessageTemplate) => {
   router.push(`/message-templates/${template.uuid}/edit`)
 }
 
-const deleteTemplate = (template: MessageTemplate) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le modèle ${template.name} ?`)) {
+const deleteTemplate = async (template: MessageTemplate) => {
+  const result = await Swal.fire({
+    title: 'Êtes-vous sûr de vouloir supprimer ce modèle ?',
+    text: `Vous allez supprimer le modèle "${template.name}". Cette action est irréversible.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Non, annuler',
+    reverseButtons: true
+  })
+
+  if (result.isConfirmed) {
     const success = messageTemplateService.deleteMessageTemplate(template.uuid)
-    if (success && window.showNotification) {
-      window.showNotification('success', 'Modèle supprimé', `${template.name} a été supprimé avec succès`)
+    if (success) {
+      await Swal.fire({
+        title: 'Supprimé !',
+        text: `Le modèle ${template.name} a été supprimé avec succès.`,
+        icon: 'success',
+        confirmButtonText: 'OK'
+      })
       loadTemplates() // Recharger la liste
+    } else {
+      await Swal.fire({
+        title: 'Erreur !',
+        text: 'Une erreur est survenue lors de la suppression.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      })
     }
   }
 }

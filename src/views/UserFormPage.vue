@@ -1,163 +1,155 @@
 <template>
   <Layout :title="isEdit ? 'Modifier un utilisateur' : 'Créer un utilisateur'">
-    <div class="max-w-4xl mx-auto">
-      <!-- Breadcrumb -->
-      <div class="mb-6">
-        <nav class="flex items-center space-x-2 text-sm text-gray-500">
-          <router-link to="/dashboard" class="hover:text-blue-600">Tableau de bord</router-link>
-          <font-awesome-icon icon="chevron-right" class="text-xs" />
-          <router-link to="/users" class="hover:text-blue-600">Utilisateurs</router-link>
-          <font-awesome-icon icon="chevron-right" class="text-xs" />
-          <span class="text-gray-900">{{ isEdit ? 'Modifier' : 'Créer' }}</span>
-        </nav>
-      </div>
+    <!-- Breadcrumb -->
+    <Breadcrumb :items="breadcrumbItems" />
+    
+    <StepForm
+      :title="isEdit ? 'Modifier un utilisateur' : 'Créer un utilisateur'"
+      :steps="steps"
+      :form="form"
+      :is-loading="loading"
+      :submit-text="isEdit ? 'Mettre à jour' : 'Créer'"
+      @submit="handleSubmit"
+      @back="goBack"
+    >
+      <!-- Étape 1: Informations personnelles -->
+      <template #step-0="{ form }">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Civilité <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="form.civility"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              <option value="">Sélectionnez la civilité</option>
+              <option value="M.">M.</option>
+              <option value="Mme">Mme</option>
+              <option value="Dr.">Dr.</option>
+              <option value="Prof.">Prof.</option>
+            </select>
+          </div>
 
-      <!-- Formulaire -->
-      <div class="bg-white border border-gray-200 shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">
-            {{ isEdit ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }}
-          </h2>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Prénom <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="form.firstname"
+              type="text"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              placeholder="Entrez le prénom"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Nom <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="form.lastname"
+              type="text"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              placeholder="Entrez le nom"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Genre <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="form.genre"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              <option value="">Sélectionnez le genre</option>
+              <option value="Masculin">Masculin</option>
+              <option value="Féminin">Féminin</option>
+            </select>
+          </div>
         </div>
+      </template>
 
-        <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
-          <!-- Informations personnelles -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Prénom <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="form.firstname"
-                type="text"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Entrez le prénom"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Nom <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="form.lastname"
-                type="text"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Entrez le nom"
-              />
-            </div>
+      <!-- Étape 2: Informations de contact -->
+      <template #step-1="{ form }">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Email <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="form.email"
+              type="email"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              placeholder="exemple@email.com"
+            />
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Email <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="form.email"
-                type="email"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="exemple@email.com"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Téléphone principal <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="form.phone1"
-                type="tel"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="06 12 34 56 78"
-              />
-            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Téléphone principal <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="form.phone1"
+              type="tel"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              placeholder="06 12 34 56 78"
+            />
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Téléphone secondaire
-              </label>
-              <input
-                v-model="form.phone2"
-                type="tel"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="06 98 76 54 32"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Genre <span class="text-red-500">*</span>
-              </label>
-              <select
-                v-model="form.genre"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Sélectionnez le genre</option>
-                <option value="Masculin">Masculin</option>
-                <option value="Féminin">Féminin</option>
-              </select>
-            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Téléphone secondaire
+            </label>
+            <input
+              v-model="form.phone2"
+              type="tel"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              placeholder="06 98 76 54 32"
+            />
           </div>
+        </div>
+      </template>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Profil <span class="text-red-500">*</span>
-              </label>
-              <select
-                v-model="form.profil"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Sélectionnez le profil</option>
-                <option value="Administrateur">Administrateur</option>
-                <option value="Médecin">Médecin</option>
-                <option value="Secrétaire">Secrétaire</option>
-                <option value="Infirmier">Infirmier</option>
-              </select>
-            </div>
-
-            <div v-if="!isEdit">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Mot de passe <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="form.password"
-                type="password"
-                :required="!isEdit"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Mot de passe"
-              />
-            </div>
-          </div>
-
-          <!-- Boutons d'action -->
-          <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-            <router-link
-              to="/users"
-              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+      <!-- Étape 3: Profil et sécurité -->
+      <template #step-2="{ form }">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Profil <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="form.profil"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             >
-              Annuler
-            </router-link>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {{ loading ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer') }}
-            </button>
+              <option value="">Sélectionnez le profil</option>
+              <option value="Administrateur">Administrateur</option>
+              <option value="Médecin">Médecin</option>
+              <option value="Secrétaire">Secrétaire</option>
+              <option value="Infirmier">Infirmier</option>
+            </select>
           </div>
-        </form>
-      </div>
-    </div>
+
+          <div v-if="!isEdit">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Mot de passe <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="form.password"
+              type="password"
+              :required="!isEdit"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              placeholder="Mot de passe"
+            />
+          </div>
+        </div>
+      </template>
+    </StepForm>
   </Layout>
 </template>
 
@@ -165,6 +157,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
+import StepForm from '../components/StepForm.vue'
+import Breadcrumb from '../components/Breadcrumb.vue'
 import { userService } from '../services/userService'
 import type { User } from '../types/global'
 
@@ -174,7 +168,33 @@ const loading = ref(false)
 
 const isEdit = computed(() => !!route.params.uuid)
 
+// Breadcrumb items
+const breadcrumbItems = computed(() => [
+  { label: 'Tableau de bord', path: '/dashboard' },
+  { label: 'Utilisateurs', path: '/users' },
+  { label: isEdit.value ? 'Modifier' : 'Créer', path: '' }
+])
+
+const steps = [
+  {
+    title: 'Informations personnelles',
+    description: 'Saisissez les informations de base de l\'utilisateur',
+    fields: ['civility', 'firstname', 'lastname', 'genre']
+  },
+  {
+    title: 'Informations de contact',
+    description: 'Ajoutez les coordonnées de contact',
+    fields: ['email', 'phone1', 'phone2']
+  },
+  {
+    title: 'Profil et sécurité',
+    description: 'Définissez le profil et les paramètres de sécurité',
+    fields: ['profil', 'password']
+  }
+]
+
 const form = ref({
+  civility: '',
   firstname: '',
   lastname: '',
   email: '',
@@ -191,12 +211,18 @@ const updateSexe = () => {
   form.value.sexe = form.value.genre === 'Masculin' ? 'M' : 'F'
 }
 
+// Fonction pour retourner en arrière
+const goBack = () => {
+  router.push('/users')
+}
+
 // Charger les données de l'utilisateur en mode édition
 onMounted(async () => {
   if (isEdit.value && route.params.uuid) {
     const user = userService.getUserById(route.params.uuid as string)
     if (user) {
       form.value = {
+        civility: user.civility || '',
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email,
@@ -221,6 +247,7 @@ const handleSubmit = async () => {
     if (isEdit.value && route.params.uuid) {
       // Mode édition
       const updates: Partial<User> = {
+        civility: form.value.civility,
         firstname: form.value.firstname,
         lastname: form.value.lastname,
         email: form.value.email,
@@ -246,6 +273,7 @@ const handleSubmit = async () => {
     } else {
       // Mode création
       const newUser = userService.addUser({
+        civility: form.value.civility,
         firstname: form.value.firstname,
         lastname: form.value.lastname,
         email: form.value.email,

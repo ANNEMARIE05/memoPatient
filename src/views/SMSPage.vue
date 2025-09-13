@@ -78,6 +78,10 @@
                        <font-awesome-icon icon="edit" class="mr-1" />
                        Modifier
                      </button>
+                     <button @click="deleteTemplate(template)" class="text-red-600 hover:text-red-800 text-xs">
+                       <font-awesome-icon icon="trash" class="mr-1" />
+                       Supprimer
+                     </button>
                    </div>
                 </div>
               </div>
@@ -210,12 +214,35 @@
             </table>
           </div>
         </div>
+
+    <!-- Modal de confirmation de suppression SMS -->
+    <ConfirmModal
+      :isVisible="showDeleteModal"
+      title="Confirmer la suppression"
+      :message="smsToDelete ? `Êtes-vous sûr de vouloir supprimer ce SMS envoyé à ${smsToDelete.recipientName} ? Cette action est irréversible.` : ''"
+      confirmText="Supprimer"
+      cancelText="Annuler"
+      @confirm="confirmDeleteSMS"
+      @cancel="cancelDeleteSMS"
+    />
+
+    <!-- Modal de confirmation de suppression de modèle -->
+    <ConfirmModal
+      :isVisible="showDeleteTemplateModal"
+      title="Confirmer la suppression du modèle"
+      :message="templateToDelete ? `Êtes-vous sûr de vouloir supprimer le modèle '${templateToDelete.type}' ? Cette action est irréversible.` : ''"
+      confirmText="Supprimer"
+      cancelText="Annuler"
+      @confirm="confirmDeleteTemplate"
+      @cancel="cancelDeleteTemplate"
+    />
   </Layout>
 </template>
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
 import MetricCard from '../components/MetricCard.vue'
+import ConfirmModal from '../components/ConfirmModal.vue'
 import { smsService, type SMSStats, type SMS, type SMSTemplate } from '../services/smsService'
 import { patientService } from '../services/patientService'
 import { computed, ref } from 'vue'
@@ -233,6 +260,14 @@ const messageText = ref('')
 const sendDate = ref('')
 const sendTime = ref('')
 const showQuickSendModal = ref(false)
+
+// Modal de confirmation
+const showDeleteModal = ref(false)
+const smsToDelete = ref<SMS | null>(null)
+
+// Modal de confirmation pour les modèles
+const showDeleteTemplateModal = ref(false)
+const templateToDelete = ref<SMSTemplate | null>(null)
 
 const getSMSStatusClass = (status: string) => {
   switch (status) {
@@ -351,11 +386,40 @@ const resendSMS = (sms: SMS) => {
 }
 
 const deleteSMS = (sms: SMS) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer ce SMS ?`)) {
-    if (window.showNotification) {
-      window.showNotification('success', 'SMS supprimé', `SMS supprimé avec succès`)
-    }
+  smsToDelete.value = sms
+  showDeleteModal.value = true
+}
+
+const confirmDeleteSMS = () => {
+  if (smsToDelete.value && window.showNotification) {
+    window.showNotification('success', 'SMS supprimé', `SMS supprimé avec succès`)
   }
+  showDeleteModal.value = false
+  smsToDelete.value = null
+}
+
+const cancelDeleteSMS = () => {
+  showDeleteModal.value = false
+  smsToDelete.value = null
+}
+
+// Fonctions pour les modèles
+const deleteTemplate = (template: SMSTemplate) => {
+  templateToDelete.value = template
+  showDeleteTemplateModal.value = true
+}
+
+const confirmDeleteTemplate = () => {
+  if (templateToDelete.value && window.showNotification) {
+    window.showNotification('success', 'Modèle supprimé', `Le modèle '${templateToDelete.value.type}' a été supprimé avec succès`)
+  }
+  showDeleteTemplateModal.value = false
+  templateToDelete.value = null
+}
+
+const cancelDeleteTemplate = () => {
+  showDeleteTemplateModal.value = false
+  templateToDelete.value = null
 }
 
 // Fonctions pour formater la date et l'heure

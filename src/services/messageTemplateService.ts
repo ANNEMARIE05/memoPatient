@@ -1,6 +1,7 @@
 import type { PaginationParams, PaginatedResponse, MessageTemplate, MessageTemplateStats } from '../types/global'
+import { BasePaginationService } from './basePaginationService'
 
-class MessageTemplateService {
+class MessageTemplateService extends BasePaginationService {
   private templates: MessageTemplate[] = [
     {
       uuid: 'TMP001',
@@ -83,54 +84,18 @@ class MessageTemplateService {
   }
 
   getTemplatesWithPagination(params: PaginationParams): PaginatedResponse<MessageTemplate> {
-    const {
-      page = 1,
-      limit = 10,
-      search = '',
-      sortBy = 'createdAt',
-      sortOrder = 'desc'
-    } = params
+    const validatedParams = this.validatePaginationParams(params)
+    
+    // Champs de recherche pour les modèles de messages
+    const searchFields: (keyof MessageTemplate)[] = [
+      'name', 'description', 'messageType', 'content'
+    ]
 
-    let filteredTemplates = [...this.templates]
-
-    // Recherche
-    if (search) {
-      const searchLower = search.toLowerCase()
-      filteredTemplates = filteredTemplates.filter(template =>
-        template.name.toLowerCase().includes(searchLower) ||
-        template.description.toLowerCase().includes(searchLower) ||
-        template.messageType.toLowerCase().includes(searchLower)
-      )
-    }
-
-    // Tri
-    filteredTemplates.sort((a, b) => {
-      let aValue = a[sortBy as keyof MessageTemplate]
-      let bValue = b[sortBy as keyof MessageTemplate]
-
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1
-      } else {
-        return aValue < bValue ? 1 : -1
-      }
-    })
-
-    // Pagination
-    const startIndex = (page - 1) * limit
-    const endIndex = startIndex + limit
-    const paginatedTemplates = filteredTemplates.slice(startIndex, endIndex)
-
-    return {
-      data: paginatedTemplates,
-      pagination: {
-        page,
-        limit,
-        total: filteredTemplates.length,
-        totalPages: Math.ceil(filteredTemplates.length / limit),
-        hasNext: page < Math.ceil(filteredTemplates.length / limit),
-        hasPrev: page > 1
-      }
-    }
+    return this.processPaginatedRequest(
+      this.templates,
+      validatedParams,
+      searchFields
+    )
   }
 
   addMessageTemplate(templateData: Omit<MessageTemplate, 'uuid' | 'createdAt' | 'updatedAt' | 'createdUser' | 'updatedUser'>): MessageTemplate | null {

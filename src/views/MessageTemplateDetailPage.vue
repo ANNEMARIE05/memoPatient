@@ -99,26 +99,75 @@
             
             <div class="mt-4">
               <h4 class="text-sm font-medium text-gray-700 mb-2">Variables disponibles</h4>
-              <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                <!-- Informations patient -->
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{patient_name}</span>
-                  <span class="text-blue-600 ml-1">- Nom du patient</span>
+                  <span class="font-mono text-blue-800">{firstname}</span>
+                  <span class="text-blue-600 ml-1">- Prénom</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{appointment_date}</span>
-                  <span class="text-blue-600 ml-1">- Date du RDV</span>
+                  <span class="font-mono text-blue-800">{lastname}</span>
+                  <span class="text-blue-600 ml-1">- Nom</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{appointment_time}</span>
-                  <span class="text-blue-600 ml-1">- Heure du RDV</span>
+                  <span class="font-mono text-blue-800">{fullname}</span>
+                  <span class="text-blue-600 ml-1">- Nom complet</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{doctor_name}</span>
-                  <span class="text-blue-600 ml-1">- Nom du médecin</span>
+                  <span class="font-mono text-blue-800">{birthdate}</span>
+                  <span class="text-blue-600 ml-1">- Date de naissance</span>
                 </div>
-                <div class="bg-blue-50 px-2 py-1 rounded col-span-2">
-                  <span class="font-mono text-blue-800">{clinic_name}</span>
-                  <span class="text-blue-600 ml-1">- Nom de la clinique</span>
+                <div class="bg-blue-50 px-2 py-1 rounded">
+                  <span class="font-mono text-blue-800">{age}</span>
+                  <span class="text-blue-600 ml-1">- Âge</span>
+                </div>
+                <div class="bg-blue-50 px-2 py-1 rounded">
+                  <span class="font-mono text-blue-800">{phone1}</span>
+                  <span class="text-blue-600 ml-1">- Téléphone principal</span>
+                </div>
+                <div class="bg-blue-50 px-2 py-1 rounded">
+                  <span class="font-mono text-blue-800">{phone2}</span>
+                  <span class="text-blue-600 ml-1">- Téléphone secondaire</span>
+                </div>
+                <div class="bg-blue-50 px-2 py-1 rounded">
+                  <span class="font-mono text-blue-800">{email}</span>
+                  <span class="text-blue-600 ml-1">- Email</span>
+                </div>
+                <div class="bg-blue-50 px-2 py-1 rounded col-span-2 md:col-span-1">
+                  <span class="font-mono text-blue-800">{adresse}</span>
+                  <span class="text-blue-600 ml-1">- Adresse</span>
+                </div>
+                
+                <!-- Informations rendez-vous -->
+                <div class="bg-green-50 px-2 py-1 rounded">
+                  <span class="font-mono text-green-800">{appointment_date}</span>
+                  <span class="text-green-600 ml-1">- Date du RDV</span>
+                </div>
+                <div class="bg-green-50 px-2 py-1 rounded">
+                  <span class="font-mono text-green-800">{appointment_time}</span>
+                  <span class="text-green-600 ml-1">- Heure du RDV</span>
+                </div>
+                <div class="bg-green-50 px-2 py-1 rounded">
+                  <span class="font-mono text-green-800">{appointment_datetime}</span>
+                  <span class="text-green-600 ml-1">- Date et heure du RDV</span>
+                </div>
+                <div class="bg-green-50 px-2 py-1 rounded">
+                  <span class="font-mono text-green-800">{doctor_name}</span>
+                  <span class="text-green-600 ml-1">- Nom du médecin</span>
+                </div>
+                <div class="bg-green-50 px-2 py-1 rounded">
+                  <span class="font-mono text-green-800">{clinic_name}</span>
+                  <span class="text-green-600 ml-1">- Nom de la clinique</span>
+                </div>
+                
+                <!-- Informations système -->
+                <div class="bg-purple-50 px-2 py-1 rounded">
+                  <span class="font-mono text-purple-800">{current_date}</span>
+                  <span class="text-purple-600 ml-1">- Date actuelle</span>
+                </div>
+                <div class="bg-purple-50 px-2 py-1 rounded">
+                  <span class="font-mono text-purple-800">{current_time}</span>
+                  <span class="text-purple-600 ml-1">- Heure actuelle</span>
                 </div>
               </div>
             </div>
@@ -192,16 +241,16 @@
           </div>
         </div>
         
-        <div class="flex space-x-3">
+        <div class="flex justify-between space-x-3">
           <button
             @click="showDeleteModal = false"
-            class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-xl font-medium"
+            class="px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-xl font-medium"
           >
             Annuler
           </button>
           <button
             @click="confirmDelete"
-            class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 rounded-xl font-medium shadow-md"
+            class="px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 rounded-xl font-medium shadow-md"
           >
             Supprimer
           </button>
@@ -217,6 +266,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
 import { messageTemplateService } from '../services/messageTemplateService'
 import type { MessageTemplate } from '../types/global'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
@@ -241,12 +291,37 @@ onMounted(() => {
 const previewMessage = computed(() => {
   if (!template.value?.content) return ''
   
-  return template.value.content
-    .replace(/{patient_name}/g, 'Marie Dubois')
-    .replace(/{appointment_date}/g, '15/12/2024')
-    .replace(/{appointment_time}/g, '14h30')
-    .replace(/{doctor_name}/g, 'Dr. Martin')
-    .replace(/{clinic_name}/g, 'Clinique Memo Patient')
+  let preview = template.value.content
+  
+  // Remplacer toutes les variables par des exemples
+  const exampleData: Record<string, string> = {
+    firstname: 'Marie',
+    lastname: 'Dubois',
+    fullname: 'Marie Dubois',
+    birthdate: '15/03/1979',
+    age: '45 ans',
+    sexe: 'F',
+    genre: 'Féminin',
+    phone1: '06 12 34 56 78',
+    phone2: '06 98 76 54 32',
+    email: 'marie.dubois@email.com',
+    adresse: '123 Rue de la Paix, Paris',
+    appointment_date: '15/12/2024',
+    appointment_time: '14h30',
+    appointment_datetime: '15/12/2024 à 14h30',
+    doctor_name: 'Dr. Martin',
+    clinic_name: 'Clinique Memo Patient',
+    current_date: new Date().toLocaleDateString('fr-FR'),
+    current_time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  }
+  
+  // Remplacer toutes les variables trouvées
+  Object.keys(exampleData).forEach(key => {
+    const regex = new RegExp(`{${key}}`, 'g')
+    preview = preview.replace(regex, exampleData[key])
+  })
+  
+  return preview
 })
 
 // Statistiques d'utilisation (simulées)

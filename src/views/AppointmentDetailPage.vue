@@ -2,15 +2,7 @@
   <Layout title="Détails du rendez-vous">
     <div class="max-w-4xl mx-auto">
       <!-- Breadcrumb -->
-      <div class="mb-6">
-        <nav class="flex items-center space-x-2 text-sm text-gray-500">
-          <router-link to="/dashboard" class="hover:text-blue-600">Tableau de bord</router-link>
-          <font-awesome-icon icon="chevron-right" class="text-xs" />
-          <router-link to="/appointments" class="hover:text-blue-600">Rendez-vous</router-link>
-          <font-awesome-icon icon="chevron-right" class="text-xs" />
-          <span class="text-gray-900">Détails</span>
-        </nav>
-      </div>
+      <Breadcrumb :items="breadcrumbItems" />
 
       <!-- En-tête avec actions -->
       <div class="bg-white border border-gray-200 shadow-sm mb-6">
@@ -24,19 +16,12 @@
             </div>
             <div class="flex space-x-3">
               <router-link
-                :to="`/appointments/${appointment?.uuid}/edit`"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                to="/appointments"
+                class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
               >
-                <font-awesome-icon icon="edit" class="mr-2" />
-                Modifier
+                <font-awesome-icon icon="arrow-left" class="mr-2" />
+                Retour à la liste
               </router-link>
-              <button
-                @click="handleDelete"
-                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-              >
-                <font-awesome-icon icon="trash" class="mr-2" />
-                Supprimer
-              </button>
             </div>
           </div>
         </div>
@@ -99,14 +84,6 @@
                 Confirmer le rendez-vous
               </button>
               
-              <button
-                v-if="appointment?.statut === 1"
-                @click="updateStatus(2)"
-                class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <font-awesome-icon icon="play" class="mr-2" />
-                Marquer comme en cours
-              </button>
               
               <button
                 v-if="appointment?.statut === 2"
@@ -166,59 +143,31 @@
       </div>
     </div>
 
-    <!-- Modal de confirmation de suppression -->
-    <div 
-      v-if="showDeleteModal" 
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      @click="showDeleteModal = false"
-    >
-      <div 
-        class="bg-white p-6 max-w-sm w-full mx-4 shadow-2xl rounded-2xl border border-gray-100"
-        @click.stop
-      >
-        <div class="flex items-center mb-6">
-          <div class="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center mr-4">
-            <font-awesome-icon icon="exclamation-triangle" class="text-red-600 text-2xl" />
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
-            <p class="text-sm text-gray-600 mt-1">Cette action est irréversible</p>
-          </div>
-        </div>
-        
-        <div class="flex space-x-3">
-          <button
-            @click="showDeleteModal = false"
-            class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-xl font-medium"
-          >
-            Annuler
-          </button>
-          <button
-            @click="confirmDelete"
-            class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 rounded-xl font-medium shadow-md"
-          >
-            Supprimer
-          </button>
-        </div>
-      </div>
-    </div>
   </Layout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
+import Breadcrumb from '../components/Breadcrumb.vue'
 import { appointmentService } from '../services/appointmentService'
 import { patientService } from '../services/patientService'
 import { userService } from '../services/userService'
 import type { Appointment } from '../types/global'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
-const showDeleteModal = ref(false)
 
 const appointment = ref<Appointment | undefined>()
+
+// Breadcrumb items
+const breadcrumbItems = computed(() => [
+  { label: 'Tableau de bord', path: '/dashboard' },
+  { label: 'Rendez-vous', path: '/appointments' },
+  { label: 'Détails', path: '' }
+])
 
 // Charger les données du rendez-vous
 onMounted(() => {
@@ -294,26 +243,4 @@ const updateStatus = (newStatus: number) => {
   }
 }
 
-// Gestionnaire de suppression
-const handleDelete = () => {
-  showDeleteModal.value = true
-}
-
-// Confirmer la suppression
-const confirmDelete = () => {
-  if (appointment.value?.uuid) {
-    const success = appointmentService.deleteAppointment(appointment.value.uuid)
-    if (success) {
-      if (window.showNotification) {
-        window.showNotification('success', 'Succès', 'Rendez-vous supprimé avec succès')
-      }
-      router.push('/appointments')
-    } else {
-      if (window.showNotification) {
-        window.showNotification('error', 'Erreur', 'Erreur lors de la suppression')
-      }
-    }
-  }
-  showDeleteModal.value = false
-}
 </script>

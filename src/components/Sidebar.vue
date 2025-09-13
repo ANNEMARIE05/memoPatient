@@ -331,60 +331,86 @@
           </div>
         </div>
 
-        <!-- Historiques -->
+        <!-- Gestion des Paramètres -->
         <div class="mb-4">
-          <ul class="space-y-1">
-            <li>
-              <router-link
-                to="/message-history"
-                @click="closeMobileMenu"
+          <div>
+            <button
+              @click="toggleParametersMenu"
                 :class="[
-                  'flex items-center px-2 py-2 text-sm font-medium transition-colors duration-200 group',
-                  isActive('/message-history') 
+                  'w-full flex items-center px-2 py-2 text-sm font-medium transition-colors duration-200 group',
+                  isParametersSectionActive() 
                     ? 'bg-blue-50 text-blue-700' 
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
                   isCollapsed ? 'justify-center' : ''
                 ]"
-                :title="isCollapsed ? 'Historique des messages' : ''"
-              >
-                <div                 :class="[
+                :title="isCollapsed ? 'Paramètres' : ''"
+            >
+              <div                 :class="[
                   'w-7 h-7 flex items-center justify-center transition-colors duration-200',
-                  isActive('/message-history') 
+                  isParametersSectionActive() 
                     ? 'bg-blue-100' 
                     : 'bg-gray-100 group-hover:bg-gray-200'
                 ]">
-                  <font-awesome-icon icon="history"                   :class="[
+                <font-awesome-icon icon="cog"                 :class="[
+                  'text-xs transition-colors duration-200',
+                  isParametersSectionActive() 
+                    ? 'text-blue-600' 
+                    : 'text-gray-500 group-hover:text-gray-700'
+                ]" />
+              </div>
+              <span v-if="!isCollapsed" class="flex-1 ml-2 text-left">Paramètres</span>
+              <font-awesome-icon 
+                v-if="!isCollapsed"
+                :icon="parametersMenuOpen ? 'chevron-up' : 'chevron-down'" 
+                :class="[
+                  'text-xs transition-colors duration-200',
+                  isParametersSectionActive() 
+                    ? 'text-blue-500' 
+                    : 'text-gray-400'
+                ]" 
+              />
+            </button>
+            
+            <!-- Sous-menu paramètres -->
+            <div v-show="parametersMenuOpen && !isCollapsed" class="mt-1 ml-6 space-y-1">
+              <router-link
+                v-for="item in getMenuItemsBySection('parameters')"
+                :key="item.name"
+                :to="item.path"
+                @click="closeMobileMenu"
+                :class="[
+                  'flex items-center px-2 py-2 text-sm font-medium transition-colors duration-200 group',
+                  'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                ]"
+              >
+                <div :class="[
+                  'w-6 h-6 flex items-center justify-center transition-all duration-200',
+                  isActive(item.path) 
+                    ? 'bg-blue-100' 
+                    : 'bg-gray-100 group-hover:bg-gray-200'
+                ]">
+                  <font-awesome-icon :icon="item.icon"                   :class="[
                     'text-xs transition-colors duration-200',
-                    isActive('/message-history') 
+                    isActive(item.path) 
                       ? 'text-blue-600' 
                       : 'text-gray-500 group-hover:text-gray-700'
                   ]" />
                 </div>
-                <span v-if="!isCollapsed" class="flex-1 ml-2">Historiques</span>
+                <span class="flex-1 ml-2">{{ item.name }}</span>
+                <span 
+                  v-if="item.badge" 
+                  class="ml-auto bg-red-500 text-white text-xs px-1.5 py-0.5 font-semibold shadow-sm"
+                >
+                  {{ item.badge }}
+                </span>
               </router-link>
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
 
 
-    <!-- Logout Button -->
-    <div class="p-3 border-t border-gray-200 bg-white">
-      <button
-        @click="openLogoutModal"
-        :class="[
-          'w-full flex items-center px-2 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 group',
-          isCollapsed ? 'justify-center' : ''
-        ]"
-        :title="isCollapsed ? 'Se déconnecter' : ''"
-      >
-        <div class="w-7 h-7 bg-gray-100 group-hover:bg-red-100 flex items-center justify-center transition-colors duration-200">
-          <font-awesome-icon icon="sign-out-alt" class="text-xs text-gray-500 group-hover:text-red-500" />
-        </div>
-        <span v-if="!isCollapsed" class="font-medium ml-2">Se déconnecter</span>
-      </button>
-    </div>
 
   </div>
 </template>
@@ -399,6 +425,7 @@ const showMobileMenu = ref(false)
 const usersMenuOpen = ref(false)
 const messagingMenuOpen = ref(false)
 const patientsMenuOpen = ref(false)
+const parametersMenuOpen = ref(false)
 const isCollapsed = ref(false)
 
 const toggleMobileMenu = () => {
@@ -421,6 +448,10 @@ const togglePatientsMenu = () => {
   patientsMenuOpen.value = !patientsMenuOpen.value
 }
 
+const toggleParametersMenu = () => {
+  parametersMenuOpen.value = !parametersMenuOpen.value
+}
+
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value
   // Fermer tous les sous-menus quand on collapse
@@ -428,6 +459,7 @@ const toggleCollapse = () => {
     usersMenuOpen.value = false
     messagingMenuOpen.value = false
     patientsMenuOpen.value = false
+    parametersMenuOpen.value = false
   }
   
   // Émettre l'événement pour informer le Layout
@@ -441,11 +473,15 @@ const isUsersSectionActive = () => {
 }
 
 const isMessagingSectionActive = () => {
-  return route.path.startsWith('/appointments') || route.path.startsWith('/message-templates')
+  return route.path.startsWith('/appointments') || route.path.startsWith('/message-templates') || route.path.startsWith('/message-history')
 }
 
 const isPatientsSectionActive = () => {
   return route.path.startsWith('/patients') || route.path.startsWith('/medical-records')
+}
+
+const isParametersSectionActive = () => {
+  return route.path.startsWith('/parameters') || route.path.startsWith('/localization') || route.path.startsWith('/message-types')
 }
 
 
@@ -486,6 +522,13 @@ const menuItems = [
     badge: undefined as string | undefined
   },
   { 
+    name: 'Historiques', 
+    path: '/message-history', 
+    icon: 'history',
+    section: 'messaging',
+    badge: undefined as string | undefined
+  },
+  { 
     name: 'Patients', 
     path: '/patients', 
     icon: 'user-friends',
@@ -498,6 +541,20 @@ const menuItems = [
     icon: 'file-medical-alt',
     section: 'patients',
     badge: undefined as string | undefined
+  },
+  { 
+    name: 'Localisation', 
+    path: '/localization', 
+    icon: 'map-marker-alt',
+    section: 'parameters',
+    badge: undefined as string | undefined
+  },
+  { 
+    name: 'Type de message', 
+    path: '/message-types', 
+    icon: 'tags',
+    section: 'parameters',
+    badge: undefined as string | undefined
   }
 ]
 
@@ -509,22 +566,20 @@ const isActive = (path: string) => {
   return route.path === path || route.path.startsWith(path + '/')
 }
 
-const openLogoutModal = () => {
-  if ((window as any).openLogoutModal) {
-    ;(window as any).openLogoutModal()
-  }
-}
 
 // Ouvrir automatiquement les menus si on est sur une page de la section correspondante
 watch(() => route.path, (newPath) => {
   if (newPath.startsWith('/users') || newPath.startsWith('/profiles')) {
     usersMenuOpen.value = true
   }
-  if (newPath.startsWith('/appointments') || newPath.startsWith('/message-templates')) {
+  if (newPath.startsWith('/appointments') || newPath.startsWith('/message-templates') || newPath.startsWith('/message-history')) {
     messagingMenuOpen.value = true
   }
   if (newPath.startsWith('/patients') || newPath.startsWith('/medical-records')) {
     patientsMenuOpen.value = true
+  }
+  if (newPath.startsWith('/parameters') || newPath.startsWith('/localization') || newPath.startsWith('/message-types')) {
+    parametersMenuOpen.value = true
   }
 }, { immediate: true })
 </script>

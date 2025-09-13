@@ -143,6 +143,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
 import { messageHistoryService } from '../services/messageHistoryService'
 import type { ExtendedMessageSend } from '../types/global'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()

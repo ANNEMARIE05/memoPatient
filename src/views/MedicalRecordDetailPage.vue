@@ -155,16 +155,16 @@
           </div>
         </div>
         
-        <div class="flex space-x-3">
+        <div class="flex justify-between space-x-3">
           <button
             @click="showDeleteModal = false"
-            class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-xl font-medium"
+            class="px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-xl font-medium"
           >
             Annuler
           </button>
           <button
             @click="confirmDelete"
-            class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 rounded-xl font-medium shadow-md"
+            class="px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 rounded-xl font-medium shadow-md"
           >
             Supprimer
           </button>
@@ -182,6 +182,7 @@ import { medicalFolderService } from '../services/medicalFolderService'
 import { patientService } from '../services/patientService'
 import { userService } from '../services/userService'
 import type { MedicalFolder } from '../types/global'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()

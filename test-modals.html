@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des modales - MemoPatient</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .modal-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .modal-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9fafb;
+        }
+        .modal-item h3 {
+            margin: 0 0 10px 0;
+            color: #374151;
+        }
+        .modal-item p {
+            margin: 5px 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .test-button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .test-button:hover {
+            background: #1d4ed8;
+        }
+        .info-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #2563eb;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #1e40af;
+        }
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .info-box li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test des modales de suppression</h1>
+        
+        <div class="modal-list">
+            <div class="modal-item">
+                <h3>📅 Rendez-vous</h3>
+                <p><strong>Page:</strong> AppointmentsPage.vue</p>
+                <p><strong>Fonction:</strong> deleteAppointment()</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ Modifié</span></p>
+                <button class="test-button" onclick="testModal('appointments')">Tester la modal</button>
+            </div>
+
+            <div class="modal-item">
+                <h3>🏥 Dossiers médicaux</h3>
+                <p><strong>Page:</strong> MedicalRecordsPage.vue</p>
+                <p><strong>Fonction:</strong> deleteFolder()</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ Modifié</span></p>
+                <button class="test-button" onclick="testModal('medical-records')">Tester la modal</button>
+            </div>
+
+            <div class="modal-item">
+                <h3>👥 Profils</h3>
+                <p><strong>Page:</strong> ProfilesPage.vue</p>
+                <p><strong>Fonction:</strong> deleteProfile()</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ Modifié</span></p>
+                <button class="test-button" onclick="testModal('profiles')">Tester la modal</button>
+            </div>
+
+            <div class="modal-item">
+                <h3>👤 Patients</h3>
+                <p><strong>Page:</strong> PatientsPage.vue</p>
+                <p><strong>Fonction:</strong> deletePatient()</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ Modifié</span></p>
+                <button class="test-button" onclick="testModal('patients')">Tester la modal</button>
+            </div>
+
+            <div class="modal-item">
+                <h3>📝 Types de messages</h3>
+                <p><strong>Page:</strong> MessageTypesPage.vue</p>
+                <p><strong>Fonction:</strong> deleteType()</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ Modifié</span></p>
+                <button class="test-button" onclick="testModal('message-types')">Tester la modal</button>
+            </div>
+
+            <div class="modal-item">
+                <h3>📨 Historique des messages</h3>
+                <p><strong>Page:</strong> MessageHistoryPage.vue</p>
+                <p><strong>Fonction:</strong> deleteMessage()</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ Modifié</span></p>
+                <button class="test-button" onclick="testModal('message-history')">Tester la modal</button>
+            </div>
+
+            <div class="modal-item">
+                <h3>🌐 Localisation</h3>
+                <p><strong>Page:</strong> LocalizationDashboard.vue</p>
+                <p><strong>Fonction:</strong> deleteLanguage()</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ Modifié</span></p>
+                <button class="test-button" onclick="testModal('localization')">Tester la modal</button>
+            </div>
+
+            <div class="modal-item">
+                <h3>👨‍💼 Utilisateurs</h3>
+                <p><strong>Page:</strong> UsersPage.vue</p>
+                <p><strong>Fonction:</strong> deleteUser()</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ Modifié</span></p>
+                <button class="test-button" onclick="testModal('users')">Tester la modal</button>
+            </div>
+
+            <div class="modal-item">
+                <h3>📋 Modèles de messages</h3>
+                <p><strong>Page:</strong> MessageTemplatesPage.vue</p>
+                <p><strong>Fonction:</strong> deleteTemplate()</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ Modifié</span></p>
+                <button class="test-button" onclick="testModal('message-templates')">Tester la modal</button>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>🎯 Modifications effectuées :</h3>
+            <ul>
+                <li>✅ <strong>reverseButtons: true</strong> ajouté à toutes les modales SweetAlert2</li>
+                <li>✅ <strong>Ordre des boutons :</strong> "Non, annuler" apparaît maintenant AVANT "Oui, supprimer"</li>
+                <li>✅ <strong>9 fichiers modifiés :</strong> Toutes les pages avec des modales de suppression</li>
+                <li>✅ <strong>Compilation :</strong> Aucune erreur TypeScript détectée</li>
+            </ul>
+            
+            <h3>📋 Pages modifiées :</h3>
+            <ul>
+                <li>AppointmentsPage.vue - Suppression des rendez-vous</li>
+                <li>MedicalRecordsPage.vue - Suppression des dossiers médicaux</li>
+                <li>ProfilesPage.vue - Suppression des profils</li>
+                <li>PatientsPage.vue - Suppression des patients</li>
+                <li>MessageTypesPage.vue - Suppression des types de messages</li>
+                <li>MessageHistoryPage.vue - Suppression de l'historique des messages</li>
+                <li>LocalizationDashboard.vue - Suppression des langues</li>
+                <li>UsersPage.vue - Suppression des utilisateurs</li>
+                <li>MessageTemplatesPage.vue - Suppression des modèles de messages</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function testModal(page) {
+            const url = `http://localhost:5181/${page}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>

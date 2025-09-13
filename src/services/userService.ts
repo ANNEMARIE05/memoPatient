@@ -4,6 +4,7 @@ class UserService {
   private users: User[] = [
     {
       uuid: '550e8400-e29b-41d4-a716-446655440000',
+      civility: 'M.',
       firstname: 'Admin',
       lastname: 'Système',
       email: 'admin@memopatient.com',
@@ -21,6 +22,7 @@ class UserService {
     },
     {
       uuid: '550e8400-e29b-41d4-a716-446655440010',
+      civility: 'Dr.',
       firstname: 'Dr. Marie',
       lastname: 'Dubois',
       email: 'marie.dubois@memopatient.com',
@@ -38,6 +40,7 @@ class UserService {
     },
     {
       uuid: '550e8400-e29b-41d4-a716-446655440011',
+      civility: 'Mme',
       firstname: 'Sophie',
       lastname: 'Martin',
       email: 'sophie.martin@memopatient.com',
@@ -55,6 +58,7 @@ class UserService {
     },
     {
       uuid: '550e8400-e29b-41d4-a716-446655440012',
+      civility: 'Dr.',
       firstname: 'Dr. Pierre',
       lastname: 'Durand',
       email: 'pierre.durand@memopatient.com',

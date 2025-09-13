@@ -1,35 +1,28 @@
 <template>
   <Layout :title="isEdit ? 'Modifier un dossier médical' : 'Créer un dossier médical'">
-    <div class="max-w-4xl mx-auto">
-      <!-- Breadcrumb -->
-      <div class="mb-6">
-        <nav class="flex items-center space-x-2 text-sm text-gray-500">
-          <router-link to="/dashboard" class="hover:text-blue-600">Tableau de bord</router-link>
-          <font-awesome-icon icon="chevron-right" class="text-xs" />
-          <router-link to="/medical-records" class="hover:text-blue-600">Dossiers médicaux</router-link>
-          <font-awesome-icon icon="chevron-right" class="text-xs" />
-          <span class="text-gray-900">{{ isEdit ? 'Modifier' : 'Créer' }}</span>
-        </nav>
-      </div>
-
-      <!-- Formulaire -->
-      <div class="bg-white border border-gray-200 shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">
-            {{ isEdit ? 'Modifier le dossier médical' : 'Nouveau dossier médical' }}
-          </h2>
-        </div>
-
-        <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
-          <!-- Sélection du patient -->
+    <!-- Breadcrumb -->
+    <Breadcrumb :items="breadcrumbItems" />
+    
+    <StepForm
+      :title="isEdit ? 'Modifier un dossier médical' : 'Créer un dossier médical'"
+      :steps="steps"
+      :form="form"
+      :is-loading="loading"
+      :submit-text="isEdit ? 'Mettre à jour' : 'Créer'"
+      @submit="handleSubmit"
+      @back="goBack"
+    >
+      <!-- Étape 1: Sélection des intervenants -->
+      <template #step-0="{ form }">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Patient <span class="text-red-500">*</span>
             </label>
             <select
               v-model="form.patient_uuid"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             >
               <option value="">Sélectionnez un patient</option>
               <option v-for="patient in patients" :key="patient.uuid" :value="patient.uuid">
@@ -38,15 +31,14 @@
             </select>
           </div>
 
-          <!-- Sélection du médecin -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Médecin <span class="text-red-500">*</span>
             </label>
             <select
               v-model="form.medecin_uuid"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             >
               <option value="">Sélectionnez un médecin</option>
               <option v-for="user in doctors" :key="user.uuid" :value="user.uuid">
@@ -54,16 +46,20 @@
               </option>
             </select>
           </div>
+        </div>
+      </template>
 
-          <!-- Sélection du diagnostic -->
+      <!-- Étape 2: Diagnostic et traitement -->
+      <template #step-1="{ form }">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Diagnostic <span class="text-red-500">*</span>
             </label>
             <select
               v-model="form.diagnose_uuid"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             >
               <option value="">Sélectionnez un diagnostic</option>
               <option v-for="diagnosis in diagnoses" :key="diagnosis.uuid" :value="diagnosis.uuid">
@@ -72,42 +68,44 @@
             </select>
           </div>
 
-          <!-- Traitement -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Traitement <span class="text-red-500">*</span>
             </label>
             <textarea
               v-model="form.traitement"
-              rows="4"
+              rows="3"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               placeholder="Décrivez le traitement prescrit..."
             ></textarea>
           </div>
+        </div>
+      </template>
 
-          <!-- Description -->
+      <!-- Étape 3: Description et statut -->
+      <template #step-2="{ form }">
+        <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Description / Notes
             </label>
             <textarea
               v-model="form.description"
-              rows="4"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               placeholder="Notes supplémentaires sur le dossier médical..."
             ></textarea>
           </div>
 
-          <!-- Statut -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Statut <span class="text-red-500">*</span>
             </label>
             <select
               v-model="form.statut"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             >
               <option value="">Sélectionnez le statut</option>
               <option :value="1">Actif</option>
@@ -115,26 +113,9 @@
               <option :value="3">Fermé</option>
             </select>
           </div>
-
-          <!-- Boutons d'action -->
-          <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-            <router-link
-              to="/medical-records"
-              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-            >
-              Annuler
-            </router-link>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {{ loading ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer') }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      </template>
+    </StepForm>
   </Layout>
 </template>
 
@@ -142,6 +123,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
+import StepForm from '../components/StepForm.vue'
+import Breadcrumb from '../components/Breadcrumb.vue'
 import { medicalFolderService } from '../services/medicalFolderService'
 import { patientService } from '../services/patientService'
 import { userService } from '../services/userService'
@@ -152,6 +135,31 @@ const router = useRouter()
 const loading = ref(false)
 
 const isEdit = computed(() => !!route.params.uuid)
+
+// Breadcrumb items
+const breadcrumbItems = computed(() => [
+  { label: 'Tableau de bord', path: '/dashboard' },
+  { label: 'Dossiers médicaux', path: '/medical-records' },
+  { label: isEdit.value ? 'Modifier' : 'Créer', path: '' }
+])
+
+const steps = [
+  {
+    title: 'Sélection des intervenants',
+    description: 'Choisissez le patient et le médecin concernés',
+    fields: ['patient_uuid', 'medecin_uuid']
+  },
+  {
+    title: 'Diagnostic et traitement',
+    description: 'Définissez le diagnostic et le traitement prescrit',
+    fields: ['diagnose_uuid', 'traitement']
+  },
+  {
+    title: 'Description et statut',
+    description: 'Ajoutez des notes et définissez le statut du dossier',
+    fields: ['description', 'statut']
+  }
+]
 
 const form = ref({
   patient_uuid: '',
@@ -171,6 +179,11 @@ const diagnoses = ref([
   { uuid: 'DIAG004', libelle: 'Grippe' },
   { uuid: 'DIAG005', libelle: 'Rhume' }
 ])
+
+// Fonction pour retourner en arrière
+const goBack = () => {
+  router.push('/medical-records')
+}
 
 // Charger les données du dossier en mode édition
 onMounted(async () => {

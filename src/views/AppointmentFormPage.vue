@@ -1,35 +1,28 @@
 <template>
   <Layout :title="isEdit ? 'Modifier un rendez-vous' : 'Créer un rendez-vous'">
-    <div class="max-w-4xl mx-auto">
-      <!-- Breadcrumb -->
-      <div class="mb-6">
-        <nav class="flex items-center space-x-2 text-sm text-gray-500">
-          <router-link to="/dashboard" class="hover:text-blue-600">Tableau de bord</router-link>
-          <font-awesome-icon icon="chevron-right" class="text-xs" />
-          <router-link to="/appointments" class="hover:text-blue-600">Rendez-vous</router-link>
-          <font-awesome-icon icon="chevron-right" class="text-xs" />
-          <span class="text-gray-900">{{ isEdit ? 'Modifier' : 'Créer' }}</span>
-        </nav>
-      </div>
-
-      <!-- Formulaire -->
-      <div class="bg-white border border-gray-200 shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">
-            {{ isEdit ? 'Modifier le rendez-vous' : 'Nouveau rendez-vous' }}
-          </h2>
-        </div>
-
-        <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
-          <!-- Sélection du patient -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+    <!-- Breadcrumb -->
+    <Breadcrumb :items="breadcrumbItems" />
+    
+    <StepForm
+      :title="isEdit ? 'Modifier un rendez-vous' : 'Créer un rendez-vous'"
+      :steps="steps"
+      :form="form"
+      :is-loading="loading"
+      :submit-text="isEdit ? 'Mettre à jour' : 'Créer'"
+      @submit="handleSubmit"
+      @back="goBack"
+    >
+      <!-- Étape 1: Informations du patient -->
+      <template #step-0="{ form }">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Patient <span class="text-red-500">*</span>
             </label>
             <select
               v-model="form.patient_uuid"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             >
               <option value="">Sélectionnez un patient</option>
               <option v-for="patient in patients" :key="patient.uuid" :value="patient.uuid">
@@ -37,43 +30,49 @@
               </option>
             </select>
           </div>
+        </div>
+      </template>
 
-          <!-- Date et heure -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Date du rendez-vous <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="appointmentDate"
-                type="date"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Heure du rendez-vous <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="appointmentTime"
-                type="time"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+      <!-- Étape 2: Date et heure -->
+      <template #step-1="{ form }">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Date du rendez-vous <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="appointmentDate"
+              type="date"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            />
           </div>
 
-          <!-- Motif -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Heure du rendez-vous <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="appointmentTime"
+              type="time"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            />
+          </div>
+        </div>
+      </template>
+
+      <!-- Étape 3: Motif et statut -->
+      <template #step-2="{ form }">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Motif du rendez-vous <span class="text-red-500">*</span>
             </label>
             <select
               v-model="form.motif"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             >
               <option value="">Sélectionnez le motif</option>
               <option value="Consultation de routine">Consultation de routine</option>
@@ -86,28 +85,14 @@
             </select>
           </div>
 
-          <!-- Motif personnalisé -->
-          <div v-if="form.motif === 'Autre'">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Motif personnalisé
-            </label>
-            <input
-              v-model="customMotif"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Décrivez le motif du rendez-vous..."
-            />
-          </div>
-
-          <!-- Statut -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Statut <span class="text-red-500">*</span>
             </label>
             <select
               v-model="form.statut"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             >
               <option value="">Sélectionnez le statut</option>
               <option :value="0">En attente</option>
@@ -118,25 +103,21 @@
             </select>
           </div>
 
-          <!-- Boutons d'action -->
-          <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-            <router-link
-              to="/appointments"
-              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-            >
-              Annuler
-            </router-link>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {{ loading ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer') }}
-            </button>
+          <!-- Motif personnalisé -->
+          <div v-if="form.motif === 'Autre'" class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Motif personnalisé
+            </label>
+            <input
+              v-model="customMotif"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              placeholder="Décrivez le motif du rendez-vous..."
+            />
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      </template>
+    </StepForm>
   </Layout>
 </template>
 
@@ -144,6 +125,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
+import StepForm from '../components/StepForm.vue'
+import Breadcrumb from '../components/Breadcrumb.vue'
 import { appointmentService } from '../services/appointmentService'
 import { patientService } from '../services/patientService'
 import type { Appointment } from '../types/global'
@@ -153,6 +136,31 @@ const router = useRouter()
 const loading = ref(false)
 
 const isEdit = computed(() => !!route.params.uuid)
+
+// Breadcrumb items
+const breadcrumbItems = computed(() => [
+  { label: 'Tableau de bord', path: '/dashboard' },
+  { label: 'Rendez-vous', path: '/appointments' },
+  { label: isEdit.value ? 'Modifier' : 'Créer', path: '' }
+])
+
+const steps = [
+  {
+    title: 'Informations du patient',
+    description: 'Sélectionnez le patient pour le rendez-vous',
+    fields: ['patient_uuid']
+  },
+  {
+    title: 'Date et heure',
+    description: 'Définissez la date et l\'heure du rendez-vous',
+    fields: ['date_edition']
+  },
+  {
+    title: 'Motif et statut',
+    description: 'Précisez le motif et le statut du rendez-vous',
+    fields: ['motif', 'statut']
+  }
+]
 
 const form = ref({
   patient_uuid: '',
@@ -166,6 +174,11 @@ const appointmentTime = ref('')
 const customMotif = ref('')
 
 const patients = ref(patientService.getAllPatients())
+
+// Fonction pour retourner en arrière
+const goBack = () => {
+  router.push('/appointments')
+}
 
 // Mise à jour de la date d'édition quand date et heure changent
 const updateDateTime = () => {

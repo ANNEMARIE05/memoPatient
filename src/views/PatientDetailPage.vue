@@ -1,5 +1,8 @@
 <template>
   <Layout title="Détails du patient">
+    <!-- Breadcrumb -->
+    <Breadcrumb :items="breadcrumbItems" />
+    
     <div v-if="patient" class="space-y-6">
       <!-- En-tête avec informations principales -->
       <div class="bg-white shadow rounded-lg p-6">
@@ -125,19 +128,43 @@
         </button>
       </div>
     </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <ConfirmModal
+      :isVisible="showDeleteModal"
+      title="Confirmer la suppression"
+      :message="patient ? `Êtes-vous sûr de vouloir supprimer le patient '${patient.firstname} ${patient.lastname}' ? Cette action est irréversible et supprimera également tous ses dossiers médicaux et rendez-vous.` : ''"
+      confirmText="Supprimer"
+      cancelText="Annuler"
+      @confirm="confirmDeletePatient"
+      @cancel="cancelDeletePatient"
+    />
   </Layout>
 </template>
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
+import ConfirmModal from '../components/ConfirmModal.vue'
+import Breadcrumb from '../components/Breadcrumb.vue'
 import { patientService } from '../services/patientService'
 import type { Patient } from '../types/global'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
 const patient = ref<Patient | null>(null)
+
+// Modal de confirmation
+const showDeleteModal = ref(false)
+
+// Breadcrumb items
+const breadcrumbItems = computed(() => [
+  { label: 'Tableau de bord', path: '/dashboard' },
+  { label: 'Patients', path: '/patients' },
+  { label: 'Détails', path: '' }
+])
 
 // Fonctions utilitaires
 const formatDate = (dateString: string): string => {
@@ -179,15 +206,22 @@ const createMedicalRecord = () => {
 }
 
 const deletePatient = () => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le patient ${patient.value?.firstname} ${patient.value?.lastname} ?`)) {
-    if (patient.value) {
-      const success = patientService.deletePatient(patient.value.uuid)
-      if (success && window.showNotification) {
-        window.showNotification('success', 'Patient supprimé', `${patient.value.firstname} ${patient.value.lastname} a été supprimé avec succès`)
-        goBack()
-      }
+  showDeleteModal.value = true
+}
+
+const confirmDeletePatient = () => {
+  if (patient.value) {
+    const success = patientService.deletePatient(patient.value.uuid)
+    if (success && window.showNotification) {
+      window.showNotification('success', 'Patient supprimé', `${patient.value.firstname} ${patient.value.lastname} a été supprimé avec succès`)
+      goBack()
     }
   }
+  showDeleteModal.value = false
+}
+
+const cancelDeletePatient = () => {
+  showDeleteModal.value = false
 }
 
 // Lifecycle

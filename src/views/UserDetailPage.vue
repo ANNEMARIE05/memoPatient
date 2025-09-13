@@ -2,15 +2,7 @@
   <Layout title="Détails de l'utilisateur">
     <div class="max-w-4xl mx-auto">
       <!-- Breadcrumb -->
-      <div class="mb-6">
-        <nav class="flex items-center space-x-2 text-sm text-gray-500">
-          <router-link to="/dashboard" class="hover:text-blue-600">Tableau de bord</router-link>
-          <font-awesome-icon icon="chevron-right" class="text-xs" />
-          <router-link to="/users" class="hover:text-blue-600">Utilisateurs</router-link>
-          <font-awesome-icon icon="chevron-right" class="text-xs" />
-          <span class="text-gray-900">Détails</span>
-        </nav>
-      </div>
+      <Breadcrumb :items="breadcrumbItems" />
 
       <!-- En-tête avec actions -->
       <div class="bg-white border border-gray-200 shadow-sm mb-6">
@@ -138,16 +130,16 @@
           </div>
         </div>
         
-        <div class="flex space-x-3">
+        <div class="flex justify-between space-x-3">
           <button
             @click="showDeleteModal = false"
-            class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-xl font-medium"
+            class="px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-xl font-medium"
           >
             Annuler
           </button>
           <button
             @click="confirmDelete"
-            class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 rounded-xl font-medium shadow-md"
+            class="px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 rounded-xl font-medium shadow-md"
           >
             Supprimer
           </button>
@@ -161,14 +153,23 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
+import Breadcrumb from '../components/Breadcrumb.vue'
 import { userService } from '../services/userService'
 import type { User } from '../types/global'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
 const showDeleteModal = ref(false)
 
 const user = ref<User | undefined>()
+
+// Breadcrumb items
+const breadcrumbItems = computed(() => [
+  { label: 'Tableau de bord', path: '/dashboard' },
+  { label: 'Utilisateurs', path: '/users' },
+  { label: 'Détails', path: '' }
+])
 
 // Charger les données de l'utilisateur
 onMounted(() => {

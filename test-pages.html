@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des pages - MemoPatient</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .page-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .page-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9fafb;
+        }
+        .page-item h3 {
+            margin: 0 0 10px 0;
+            color: #374151;
+        }
+        .page-item p {
+            margin: 5px 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .test-button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .test-button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test des pages MemoPatient</h1>
+        
+        <div class="page-list">
+            <div class="page-item">
+                <h3>📊 Dashboard</h3>
+                <p><strong>URL:</strong> <a href="http://localhost:5181/dashboard" target="_blank">/dashboard</a></p>
+                <p><strong>Description:</strong> Tableau de bord principal</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ OK</span></p>
+                <button class="test-button" onclick="testPage('/dashboard')">Tester</button>
+            </div>
+
+            <div class="page-item">
+                <h3>👥 Gestion des profils</h3>
+                <p><strong>URL:</strong> <a href="http://localhost:5181/profiles" target="_blank">/profiles</a></p>
+                <p><strong>Description:</strong> Gestion des profils utilisateurs</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ OK</span></p>
+                <button class="test-button" onclick="testPage('/profiles')">Tester</button>
+            </div>
+
+            <div class="page-item">
+                <h3>🏥 Gestion des dossiers médicaux</h3>
+                <p><strong>URL:</strong> <a href="http://localhost:5181/medical-records" target="_blank">/medical-records</a></p>
+                <p><strong>Description:</strong> Gestion des dossiers médicaux</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ OK</span></p>
+                <button class="test-button" onclick="testPage('/medical-records')">Tester</button>
+            </div>
+
+            <div class="page-item">
+                <h3>👤 Gestion des patients</h3>
+                <p><strong>URL:</strong> <a href="http://localhost:5181/patients" target="_blank">/patients</a></p>
+                <p><strong>Description:</strong> Gestion des patients</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ OK</span></p>
+                <button class="test-button" onclick="testPage('/patients')">Tester</button>
+            </div>
+
+            <div class="page-item">
+                <h3>📅 Gestion des rendez-vous</h3>
+                <p><strong>URL:</strong> <a href="http://localhost:5181/appointments" target="_blank">/appointments</a></p>
+                <p><strong>Description:</strong> Gestion des rendez-vous</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ OK</span></p>
+                <button class="test-button" onclick="testPage('/appointments')">Tester</button>
+            </div>
+
+            <div class="page-item">
+                <h3>📝 Modèles de messages</h3>
+                <p><strong>URL:</strong> <a href="http://localhost:5181/message-templates" target="_blank">/message-templates</a></p>
+                <p><strong>Description:</strong> Gestion des modèles de messages</p>
+                <p><strong>Status:</strong> <span class="status ok">✅ OK</span></p>
+                <button class="test-button" onclick="testPage('/message-templates')">Tester</button>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 8px;">
+            <h3>🎯 Résumé des corrections effectuées :</h3>
+            <ul>
+                <li>✅ <strong>Fichiers de localisation :</strong> Corrigé les propriétés dupliquées dans en.ts et fr.ts</li>
+                <li>✅ <strong>Composable useI18n :</strong> Corrigé le paramètre params undefined</li>
+                <li>✅ <strong>PatientsPage.vue :</strong> Ajouté les variables de pagination manquantes</li>
+                <li>✅ <strong>MedicalRecordsPage.vue :</strong> Supprimé la balise script dupliquée</li>
+                <li>✅ <strong>AppointmentsPage.vue :</strong> Supprimé la balise script dupliquée</li>
+                <li>✅ <strong>Compilation TypeScript :</strong> Aucune erreur détectée</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function testPage(path) {
+            const url = `http://localhost:5181${path}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>

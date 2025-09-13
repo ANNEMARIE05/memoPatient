@@ -3,39 +3,41 @@
     enter-active-class="transform ease-out duration-300 transition"
     enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
     enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
-    leave-active-class="transition ease-in duration-100"
-    leave-from-class="opacity-100"
-    leave-to-class="opacity-0"
+    leave-active-class="transition ease-in duration-200"
+    leave-from-class="opacity-100 scale-100"
+    leave-to-class="opacity-0 scale-95"
   >
     <div
       v-if="show"
       :class="[
-        'max-w-sm w-full shadow-xl border-2 pointer-events-auto overflow-hidden',
+        'max-w-md w-full shadow-2xl border-l-4 pointer-events-auto overflow-hidden backdrop-blur-sm',
         getNotificationClasses()
       ]"
     >
       <div class="p-4">
-        <div class="flex items-start">
+        <div class="flex items-center">
           <div class="flex-shrink-0">
-            <font-awesome-icon 
-              :icon="icon" 
-              :class="iconClass"
-              class="h-6 w-6"
-            />
+            <div :class="[
+              'w-10 h-10 rounded-full flex items-center justify-center',
+              getIconBackgroundClass()
+            ]">
+              <font-awesome-icon 
+                :icon="icon" 
+                :class="iconClass"
+                class="h-5 w-5"
+              />
+            </div>
           </div>
-          <div class="ml-3 w-0 flex-1 pt-0.5">
-            <p class="text-sm font-medium text-gray-900">{{ title }}</p>
-            <p class="mt-1 text-sm text-gray-500">{{ message }}</p>
+          <div class="ml-4 flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900 truncate">{{ title }}</p>
+            <p class="mt-1 text-sm text-gray-600 leading-relaxed">{{ message }}</p>
           </div>
-          <div class="ml-4 flex-shrink-0 flex">
+          <div class="ml-4 flex-shrink-0">
             <button
               @click="close"
-              :class="[
-                'inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2',
-                getCloseButtonClasses()
-              ]"
+              class="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 rounded-full p-1 transition-colors"
             >
-              <font-awesome-icon icon="times" class="h-5 w-5" />
+              <font-awesome-icon icon="times" class="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -87,20 +89,20 @@ const iconClass = computed(() => {
 
 const getNotificationClasses = () => {
   const classes = {
-    success: 'bg-green-50 border-green-200',
-    error: 'bg-red-50 border-red-200',
-    warning: 'bg-yellow-50 border-yellow-200',
-    info: 'bg-blue-50 border-blue-200'
+    success: 'bg-white border-green-500 shadow-green-100',
+    error: 'bg-white border-red-500 shadow-red-100',
+    warning: 'bg-white border-yellow-500 shadow-yellow-100',
+    info: 'bg-white border-blue-500 shadow-blue-100'
   }
   return classes[props.type]
 }
 
-const getCloseButtonClasses = () => {
+const getIconBackgroundClass = () => {
   const classes = {
-    success: 'focus:ring-green-500',
-    error: 'focus:ring-red-500',
-    warning: 'focus:ring-yellow-500',
-    info: 'focus:ring-blue-500'
+    success: 'bg-green-100',
+    error: 'bg-red-100',
+    warning: 'bg-yellow-100',
+    info: 'bg-blue-100'
   }
   return classes[props.type]
 }

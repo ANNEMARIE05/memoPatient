@@ -7,6 +7,7 @@ declare global {
 // Types basés sur le modèle physique de données
 export interface User {
   uuid: string
+  civility: string
   firstname: string
   lastname: string
   email: string
@@ -253,6 +254,45 @@ export interface ExtendedMessageSend {
   messageModelUuid?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+}
+
+// Types pour la localisation
+export interface Language {
+  code: string
+  name: string
+  nativeName: string
+  flag: string
+  progress: number
+  status: 'active' | 'inactive' | 'incomplete'
+  lastUpdated: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface TranslationKey {
+  id: string
+  key: string
+  namespace: string
+  translations: Record<string, string>
+  description?: string
+  isObsolete: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LocalizationStats {
+  supportedLanguages: number
+  completeTranslations: number
+  partialTranslations: number
+  missingKeys: number
+  totalKeys: number
+}
+
+export interface KeyStats {
+  translated: number
+  missing: number
+  obsolete: number
+  total: number
 }
 
 export {}

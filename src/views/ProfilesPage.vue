@@ -112,9 +112,6 @@
                     <button @click="editProfile(profile)" class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
                       <font-awesome-icon icon="edit" />
                     </button>
-                    <button @click="deleteProfile(profile)" class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
-                      <font-awesome-icon icon="trash" />
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -122,21 +119,15 @@
           </table>
         </div>
 
-        <!-- Pagination -->
-        <PaginationComponent
-          v-if="pagination && pagination.totalPages > 1"
-          :pagination="pagination"
-          @page-change="onPageChange"
-        />
       </div>
     </div>
+
   </Layout>
 </template>
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
 import MetricCard from '../components/MetricCard.vue'
-import PaginationComponent from '../components/PaginationComponent.vue'
 import { profileService } from '../services/profileService'
 import type { Profile, ProfileStats } from '../types/global'
 import { computed, ref, onMounted, watch } from 'vue'
@@ -152,6 +143,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const searchQuery = ref('')
 const searchTimeout = ref<number | null>(null)
+
 
 // Statistiques
 const profileStats = computed(() => profileService.getProfilesStats())
@@ -197,15 +189,6 @@ const editProfile = (profile: Profile) => {
   router.push(`/profiles/${profile.id}/edit`)
 }
 
-const deleteProfile = (profile: Profile) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le profil ${profile.name} ?`)) {
-    const success = profileService.deleteProfile(profile.id)
-    if (success && window.showNotification) {
-      window.showNotification('success', 'Profil supprimé', `${profile.name} a été supprimé avec succès`)
-      loadProfiles() // Recharger la liste
-    }
-  }
-}
 
 const openAddProfileModal = () => {
   // Vérifier qu'on n'est pas sur une page complémentaire
@@ -227,3 +210,4 @@ onMounted(() => {
   loadProfiles()
 })
 </script>
+

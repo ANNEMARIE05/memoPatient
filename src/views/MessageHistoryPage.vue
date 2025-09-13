@@ -109,7 +109,7 @@
       </div>
 
       <!-- Table des historiques -->
-      <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div class="bg-white shadow rounded-lg p-6">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -118,7 +118,7 @@
                   v-for="column in columns" 
                   :key="column.key"
                   @click="sortBy(column.key)"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 >
                   <div class="flex items-center gap-2">
                     {{ column.label }}
@@ -129,33 +129,40 @@
                     />
                   </div>
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-if="loading" class="animate-pulse">
-                <td :colspan="columns.length + 1" class="px-6 py-4 text-center text-gray-500">
-                  Chargement...
+            <tbody class="divide-y divide-gray-200">
+              <tr v-if="loading" class="bg-gray-50">
+                <td :colspan="columns.length + 1" class="px-4 py-8 text-center">
+                  <div class="flex items-center justify-center space-x-2">
+                    <font-awesome-icon icon="spinner" class="animate-spin text-blue-600" />
+                    <span class="text-gray-600">Chargement des historiques...</span>
+                  </div>
                 </td>
               </tr>
-              <tr v-else-if="messageHistory.length === 0">
-                <td :colspan="columns.length + 1" class="px-6 py-4 text-center text-gray-500">
-                  Aucun historique de message trouvé
+              <tr v-else-if="messageHistory.length === 0" class="bg-gray-50">
+                <td :colspan="columns.length + 1" class="px-4 py-8 text-center">
+                  <div class="text-gray-500">
+                    <font-awesome-icon icon="inbox" class="text-4xl mb-2" />
+                    <p>Aucun historique de message trouvé</p>
+                    <p class="text-sm">Essayez de modifier vos critères de recherche</p>
+                  </div>
                 </td>
               </tr>
               <tr v-else v-for="message in messageHistory" :key="message.uuid" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {{ message.uuid }}
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+                <td class="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">
                   {{ message.content }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {{ message.phoneNumber }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-4 py-3 whitespace-nowrap">
                   <span :class="[
                     'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
                     messageHistoryService.getStatusClass(message.status || '')
@@ -163,54 +170,32 @@
                     {{ messageHistoryService.getStatusText(message.status || '') }}
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {{ messageHistoryService.formatDate(message.sentAt || null) }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {{ messageHistoryService.formatDate(message.deliveredAt || null) }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                   {{ message.errorMessage || '-' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center gap-2">
-                    <button
-                      @click="viewMessage(message)"
-                      class="text-blue-600 hover:text-blue-900 transition-colors"
-                      title="Voir les détails"
-                    >
-                      <font-awesome-icon icon="eye" class="text-sm" />
-                    </button>
-                    <button
-                      v-if="message.status === 'failed'"
-                      @click="resendMessage(message.uuid)"
-                      class="text-green-600 hover:text-green-900 transition-colors"
-                      title="Relancer le message"
-                    >
-                      <font-awesome-icon icon="redo" class="text-sm" />
-                    </button>
-                    <button
-                      @click="deleteMessage(message.uuid)"
-                      class="text-red-600 hover:text-red-900 transition-colors"
-                      title="Supprimer"
-                    >
-                      <font-awesome-icon icon="trash" class="text-sm" />
-                    </button>
-                  </div>
+                <td class="px-4 py-3">
+                  <ActionButtons
+                    @view="viewMessage(message)"
+                    @resend="resendMessage(message.uuid)"
+                    @delete="deleteMessage(message.uuid)"
+                    :show-resend="message.status === 'failed'"
+                    :show-edit="false"
+                  />
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Pagination -->
-        <PaginationComponent
-          v-if="pagination && pagination.totalPages > 1"
-          :pagination="pagination"
-          @page-change="onPageChange"
-        />
       </div>
     </div>
+
   </Layout>
 </template>
 
@@ -218,9 +203,10 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
-import PaginationComponent from '../components/PaginationComponent.vue'
+import ActionButtons from '../components/ActionButtons.vue'
 import { messageHistoryService } from '../services/messageHistoryService'
 import type { ExtendedMessageSend, MessageHistoryStats, PaginationParams } from '../types/global'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 
@@ -248,6 +234,7 @@ const deliveryStatusFilter = ref('')
 const sortField = ref('sentAt')
 const sortOrder = ref<'asc' | 'desc'>('desc')
 const searchTimeout = ref<number | null>(null)
+
 
 // Configuration des colonnes du tableau
 const columns = [
@@ -338,16 +325,40 @@ const resendMessage = (uuid: string) => {
   }
 }
 
-const deleteMessage = (uuid: string) => {
-  if (confirm('Êtes-vous sûr de vouloir supprimer cet historique ?')) {
+const deleteMessage = async (uuid: string) => {
+  const message = messageHistory.value.find(m => m.uuid === uuid)
+  const messageContent = message ? message.content.substring(0, 50) + '...' : 'ce message'
+  
+  const result = await Swal.fire({
+    title: 'Êtes-vous sûr de vouloir supprimer cet historique de message ?',
+    text: `Vous allez supprimer l'historique du message "${messageContent}". Cette action est irréversible.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Non, annuler',
+    reverseButtons: true
+  })
+
+  if (result.isConfirmed) {
     const success = messageHistoryService.deleteMessageHistory(uuid)
     if (success) {
+      await Swal.fire({
+        title: 'Supprimé !',
+        text: `L'historique du message a été supprimé avec succès.`,
+        icon: 'success',
+        confirmButtonText: 'OK'
+      })
       loadMessageHistory()
       loadStats()
-      // Notification de succès
-      if (window.showNotification) {
-        window.showNotification('success', 'Historique supprimé', 'L\'historique a été supprimé avec succès')
-      }
+    } else {
+      await Swal.fire({
+        title: 'Erreur !',
+        text: 'Une erreur est survenue lors de la suppression.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      })
     }
   }
 }

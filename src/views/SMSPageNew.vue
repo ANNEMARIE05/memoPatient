@@ -123,7 +123,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="mt-8 flex justify-end space-x-4">
+        <div class="mt-8 flex justify-between space-x-4">
           <button class="px-6 py-2 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium transition-colors">
             Annuler
           </button>

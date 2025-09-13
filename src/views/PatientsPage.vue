@@ -22,10 +22,10 @@
           icon-color="purple"
         />
         <MetricCard
-          title="Femmes"
-          :value="patientStats.genderDistribution.female.toString()"
-          icon="female"
-          icon-color="pink"
+          title="Femmes & Hommes"
+          :value="`${patientStats.genderDistribution.female} / ${patientStats.genderDistribution.male}`"
+          icon="users"
+          icon-color="purple"
         />
       </div>
 
@@ -54,6 +54,22 @@
               <option value="Masculin">Masculin</option>
               <option value="Féminin">Féminin</option>
             </select>
+            <div class="flex space-x-2">
+              <input
+                v-model="dateStart"
+                @change="loadPatients"
+                type="date"
+                placeholder="Date début"
+                class="px-2 md:px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              />
+              <input
+                v-model="dateEnd"
+                @change="loadPatients"
+                type="date"
+                placeholder="Date fin"
+                class="px-2 md:px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              />
+            </div>
           </div>
         </div>
 
@@ -72,7 +88,29 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <tr v-for="patient in patients" :key="patient.uuid" class="hover:bg-gray-50">
+              <!-- Indicateur de chargement -->
+              <tr v-if="loading" class="bg-gray-50">
+                <td colspan="7" class="px-4 py-8 text-center">
+                  <div class="flex items-center justify-center space-x-2">
+                    <font-awesome-icon icon="spinner" class="animate-spin text-blue-600" />
+                    <span class="text-gray-600">Chargement des patients...</span>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Message si aucun résultat -->
+              <tr v-else-if="!loading && patients.length === 0" class="bg-gray-50">
+                <td colspan="7" class="px-4 py-8 text-center">
+                  <div class="text-gray-500">
+                    <font-awesome-icon icon="inbox" class="text-4xl mb-2" />
+                    <p>Aucun patient trouvé</p>
+                    <p class="text-sm">Essayez de modifier vos critères de recherche</p>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Données des patients -->
+              <tr v-else v-for="patient in patients" :key="patient.uuid" class="hover:bg-gray-50">
                 <td class="px-4 py-3">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10">
@@ -96,29 +134,17 @@
                   </span>
                 </td>
                 <td class="px-4 py-3">
-                  <div class="flex space-x-2">
-                    <button @click="viewPatient(patient)" class="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails">
-                      <font-awesome-icon icon="eye" />
-                    </button>
-                    <button @click="editPatient(patient)" class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
-                      <font-awesome-icon icon="edit" />
-                    </button>
-                    <button @click="deletePatient(patient)" class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
-                      <font-awesome-icon icon="trash" />
-                    </button>
-                  </div>
+                  <ActionButtons
+                    @view="viewPatient(patient)"
+                    @edit="editPatient(patient)"
+                    @delete="deletePatient(patient)"
+                  />
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Pagination -->
-        <PaginationComponent
-          v-if="pagination && pagination.totalPages > 1"
-          :pagination="pagination"
-          @page-change="onPageChange"
-        />
       </div>
     </div>
   </Layout>
@@ -127,24 +153,28 @@
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
 import MetricCard from '../components/MetricCard.vue'
-import PaginationComponent from '../components/PaginationComponent.vue'
+import ActionButtons from '../components/ActionButtons.vue'
 import { patientService } from '../services/patientService'
 import type { Patient, PatientStats } from '../types/global'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 
 import type { PaginationParams, PaginatedResponse } from '../types/global'
 
 const router = useRouter()
 
-// Variables réactives pour la pagination
+// Variables réactives
 const patients = ref<Patient[]>([])
 const pagination = ref<PaginatedResponse<Patient>['pagination'] | null>(null)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const searchQuery = ref('')
 const selectedGenre = ref('')
+const dateStart = ref('')
+const dateEnd = ref('')
 const searchTimeout = ref<number | null>(null)
+const loading = ref(false)
 
 // Statistiques
 const patientStats = computed(() => patientService.getPatientsStats())
@@ -167,25 +197,54 @@ const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString('fr-FR')
 }
 
-// Fonctions de pagination
-const loadPatients = () => {
-  const params: PaginationParams = {
-    page: currentPage.value,
-    limit: pageSize.value,
-    search: searchQuery.value || undefined,
-    filters: selectedGenre.value ? { genre: selectedGenre.value } : undefined,
-    sortBy: 'firstname',
-    sortOrder: 'asc'
+// Fonctions de chargement
+const loadPatients = async () => {
+  loading.value = true
+  try {
+    // Charger tous les patients sans pagination
+    const allPatients = await patientService.getAllPatients()
+    
+    // Appliquer les filtres
+    let filteredPatients = allPatients
+    
+    // Filtre de recherche
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase()
+      filteredPatients = filteredPatients.filter(patient => 
+        patient.firstname.toLowerCase().includes(query) ||
+        patient.lastname.toLowerCase().includes(query) ||
+        patient.email.toLowerCase().includes(query) ||
+        patient.phone1.includes(query)
+      )
+    }
+    
+    // Filtre par genre
+    if (selectedGenre.value) {
+      filteredPatients = filteredPatients.filter(patient => patient.genre === selectedGenre.value)
+    }
+    
+    // Filtre par date
+    if (dateStart.value) {
+      filteredPatients = filteredPatients.filter(patient => 
+        new Date(patient.created_at) >= new Date(dateStart.value)
+      )
+    }
+    
+    if (dateEnd.value) {
+      filteredPatients = filteredPatients.filter(patient => 
+        new Date(patient.created_at) <= new Date(dateEnd.value)
+      )
+    }
+    
+    patients.value = filteredPatients
+  } catch (error) {
+    console.error('Erreur lors du chargement des patients:', error)
+    if (window.showNotification) {
+      window.showNotification('error', 'Erreur', 'Impossible de charger les patients')
+    }
+  } finally {
+    loading.value = false
   }
-  
-  const response = patientService.getPatients(params)
-  patients.value = response.data
-  pagination.value = response.pagination
-}
-
-const onPageChange = (page: number) => {
-  currentPage.value = page
-  loadPatients()
 }
 
 const onSearchChange = () => {
@@ -195,7 +254,6 @@ const onSearchChange = () => {
   }
   
   searchTimeout.value = setTimeout(() => {
-    currentPage.value = 1 // Reset à la première page lors de la recherche
     loadPatients()
   }, 500)
 }
@@ -209,12 +267,36 @@ const editPatient = (patient: Patient) => {
   router.push(`/patients/${patient.uuid}/edit`)
 }
 
-const deletePatient = (patient: Patient) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le patient ${patient.firstname} ${patient.lastname} ?`)) {
+const deletePatient = async (patient: Patient) => {
+  const result = await Swal.fire({
+    title: 'Êtes-vous sûr de vouloir supprimer ce patient ?',
+    text: `Vous allez supprimer le patient "${patient.firstname} ${patient.lastname}". Cette action est irréversible.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Non, annuler',
+    reverseButtons: true
+  })
+
+  if (result.isConfirmed) {
     const success = patientService.deletePatient(patient.uuid)
-    if (success && window.showNotification) {
-      window.showNotification('success', 'Patient supprimé', `${patient.firstname} ${patient.lastname} a été supprimé avec succès`)
+    if (success) {
+      await Swal.fire({
+        title: 'Supprimé !',
+        text: `Le patient ${patient.firstname} ${patient.lastname} a été supprimé avec succès.`,
+        icon: 'success',
+        confirmButtonText: 'OK'
+      })
       loadPatients() // Recharger la liste
+    } else {
+      await Swal.fire({
+        title: 'Erreur !',
+        text: 'Une erreur est survenue lors de la suppression.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      })
     }
   }
 }
@@ -230,6 +312,11 @@ const openAddPatientModal = () => {
 
 // Watchers
 watch(selectedGenre, () => {
+  currentPage.value = 1
+  loadPatients()
+})
+
+watch([dateStart, dateEnd], () => {
   currentPage.value = 1
   loadPatients()
 })

@@ -22,22 +22,6 @@
               </h2>
               <p class="text-sm text-gray-500">{{ profile?.code }}</p>
             </div>
-            <div class="flex space-x-3">
-              <router-link
-                :to="`/profiles/${profile?.id}/edit`"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <font-awesome-icon icon="edit" class="mr-2" />
-                Modifier
-              </router-link>
-              <button
-                @click="handleDelete"
-                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-              >
-                <font-awesome-icon icon="trash" class="mr-2" />
-                Supprimer
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -103,66 +87,8 @@
         </div>
       </div>
 
-      <!-- Statistiques d'utilisation -->
-      <div class="mt-6 bg-white border border-gray-200 shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Statistiques d'utilisation</h3>
-        </div>
-        <div class="p-6">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-blue-600">{{ userCount }}</div>
-              <div class="text-sm text-gray-500">Utilisateurs avec ce profil</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-green-600">{{ activeUserCount }}</div>
-              <div class="text-sm text-gray-500">Utilisateurs actifs</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-purple-600">{{ profile?.permissions?.length || 0 }}</div>
-              <div class="text-sm text-gray-500">Permissions accordées</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Modal de confirmation de suppression -->
-    <div 
-      v-if="showDeleteModal" 
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      @click="showDeleteModal = false"
-    >
-      <div 
-        class="bg-white p-6 max-w-sm w-full mx-4 shadow-2xl rounded-2xl border border-gray-100"
-        @click.stop
-      >
-        <div class="flex items-center mb-6">
-          <div class="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center mr-4">
-            <font-awesome-icon icon="exclamation-triangle" class="text-red-600 text-2xl" />
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
-            <p class="text-sm text-gray-600 mt-1">Cette action est irréversible</p>
-          </div>
-        </div>
-        
-        <div class="flex space-x-3">
-          <button
-            @click="showDeleteModal = false"
-            class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-xl font-medium"
-          >
-            Annuler
-          </button>
-          <button
-            @click="confirmDelete"
-            class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 rounded-xl font-medium shadow-md"
-          >
-            Supprimer
-          </button>
-        </div>
-      </div>
-    </div>
   </Layout>
 </template>
 
@@ -171,12 +97,10 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
 import { profileService } from '../services/profileService'
-import { userService } from '../services/userService'
 import type { Profile } from '../types/global'
 
 const route = useRoute()
 const router = useRouter()
-const showDeleteModal = ref(false)
 
 const profile = ref<Profile | undefined>()
 
@@ -261,37 +185,5 @@ const getCategoryLabel = (category: string): string => {
   return categoryLabels[category] || category
 }
 
-// Statistiques d'utilisation
-const userCount = computed(() => {
-  const users = userService.getAllUsers()
-  return users.filter(user => user.profil === profile.value?.name).length
-})
 
-const activeUserCount = computed(() => {
-  const users = userService.getAllUsers()
-  return users.filter(user => user.profil === profile.value?.name).length // Tous actifs par défaut
-})
-
-// Gestionnaire de suppression
-const handleDelete = () => {
-  showDeleteModal.value = true
-}
-
-// Confirmer la suppression
-const confirmDelete = () => {
-  if (profile.value?.id) {
-    const success = profileService.deleteProfile(profile.value.id)
-    if (success) {
-      if (window.showNotification) {
-        window.showNotification('success', 'Succès', 'Profil supprimé avec succès')
-      }
-      router.push('/profiles')
-    } else {
-      if (window.showNotification) {
-        window.showNotification('error', 'Erreur', 'Erreur lors de la suppression')
-      }
-    }
-  }
-  showDeleteModal.value = false
-}
 </script>

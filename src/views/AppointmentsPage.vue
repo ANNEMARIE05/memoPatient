@@ -31,7 +31,7 @@
 
       <!-- Actions et filtres -->
       <div class="bg-white shadow rounded-lg p-6">
-        <div class="mb-4 flex justify-between items-center">
+        <div class="mb-6 flex justify-between items-center">
           <div class="flex space-x-3">
             <button @click="openAddAppointmentModal" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-sm font-medium transition-colors">
               <font-awesome-icon icon="calendar-plus" class="mr-2" />
@@ -39,20 +39,88 @@
             </button>
           </div>
           <div class="flex space-x-3">
-            <div class="relative">
+            <button 
+              @click="toggleFilters" 
+              class="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <font-awesome-icon icon="filter" class="mr-2" />
+              Filtres
+            </button>
+          </div>
+        </div>
+
+        <!-- Panneau de filtres avancés -->
+        <div v-if="showFilters" class="mb-6 p-4 bg-gray-50 rounded-lg border">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Filtre par date de début -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
               <input
-                v-model="selectedDate"
-                @change="loadAppointments"
+                v-model="filters.startDate"
+                @change="applyFilters"
                 type="date"
-                class="px-3 py-2 border-2 border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-            <select v-model="selectedStatus" @change="loadAppointments" class="px-3 py-2 border-2 border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <option value="">Tous les rendez-vous</option>
-              <option value="1">Confirmés</option>
-              <option value="2">En attente</option>
-              <option value="3">Annulés</option>
-            </select>
+            
+            <!-- Filtre par date de fin -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
+              <input
+                v-model="filters.endDate"
+                @change="applyFilters"
+                type="date"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <!-- Filtre par statut -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+              <select 
+                v-model="filters.status" 
+                @change="applyFilters" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Tous les statuts</option>
+                <option value="0">En attente</option>
+                <option value="1">Confirmé</option>
+                <option value="2">En cours</option>
+                <option value="3">Annulé</option>
+                <option value="4">Terminé</option>
+              </select>
+            </div>
+            
+            <!-- Filtre par patient -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Patient</label>
+              <select 
+                v-model="filters.patient" 
+                @change="applyFilters" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Tous les patients</option>
+                <option v-for="patient in patients" :key="patient.uuid" :value="patient.uuid">
+                  {{ patient.firstname }} {{ patient.lastname }}
+                </option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Boutons d'action pour les filtres -->
+          <div class="mt-4 flex justify-end space-x-3">
+            <button 
+              @click="clearFilters" 
+              class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              Effacer les filtres
+            </button>
+            <button 
+              @click="toggleFilters" 
+              class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            >
+              Appliquer
+            </button>
           </div>
         </div>
 
@@ -101,43 +169,34 @@
                   </span>
                 </td>
                 <td class="px-4 py-3">
-                  <div class="flex space-x-2">
-                    <button @click="viewAppointment(appointment)" class="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails">
-                      <font-awesome-icon icon="eye" />
-                    </button>
-                    <button @click="editAppointment(appointment)" class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
-                      <font-awesome-icon icon="edit" />
-                    </button>
-                    <button @click="deleteAppointment(appointment)" class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
-                      <font-awesome-icon icon="trash" />
-                    </button>
-                  </div>
+                  <ActionButtons
+                    @view="viewAppointment(appointment)"
+                    @edit="editAppointment(appointment)"
+                    @delete="deleteAppointment(appointment)"
+                  />
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Pagination -->
-        <PaginationComponent
-          v-if="pagination && pagination.totalPages > 1"
-          :pagination="pagination"
-          @page-change="onPageChange"
-        />
       </div>
     </div>
+
   </Layout>
 </template>
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
 import MetricCard from '../components/MetricCard.vue'
-import PaginationComponent from '../components/PaginationComponent.vue'
+import ActionButtons from '../components/ActionButtons.vue'
 import { appointmentService } from '../services/appointmentService'
-import type { Appointment, AppointmentStats } from '../types/global'
+import { patientService } from '../services/patientService'
+import type { Appointment, AppointmentStats, Patient } from '../types/global'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { PaginationParams, PaginatedResponse } from '../types/global'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 
@@ -146,8 +205,18 @@ const appointments = ref<Appointment[]>([])
 const pagination = ref<PaginatedResponse<Appointment>['pagination'] | null>(null)
 const currentPage = ref(1)
 const pageSize = ref(10)
-const selectedDate = ref('')
-const selectedStatus = ref('')
+const loading = ref(false)
+
+// Variables pour les filtres
+const showFilters = ref(false)
+const patients = ref<Patient[]>([])
+const filters = ref({
+  startDate: '',
+  endDate: '',
+  status: '',
+  patient: ''
+})
+
 
 // Statistiques
 const appointmentStats = computed(() => appointmentService.getAppointmentsStats())
@@ -164,25 +233,43 @@ const formatDateTime = (dateString: string): string => {
 }
 
 // Fonctions de pagination
-const loadAppointments = () => {
-  const params: PaginationParams = {
-    page: currentPage.value,
-    limit: pageSize.value,
-    filters: {
-      ...(selectedDate.value ? { date: selectedDate.value } : {}),
-      ...(selectedStatus.value ? { statut: parseInt(selectedStatus.value) } : {})
-    },
-    sortBy: 'date_edition',
-    sortOrder: 'asc'
+const loadAppointments = async () => {
+  loading.value = true
+  try {
+    const params: PaginationParams = {
+      page: currentPage.value,
+      limit: pageSize.value,
+      filters: {
+        ...(filters.value.startDate ? { startDate: filters.value.startDate } : {}),
+        ...(filters.value.endDate ? { endDate: filters.value.endDate } : {}),
+        ...(filters.value.status ? { statut: parseInt(filters.value.status) } : {}),
+        ...(filters.value.patient ? { patient_uuid: filters.value.patient } : {})
+      },
+      sortBy: 'date_edition',
+      sortOrder: 'asc'
+    }
+    
+    const response = appointmentService.getAppointments(params)
+    appointments.value = response.data
+    pagination.value = response.pagination
+  } catch (error) {
+    console.error('Erreur lors du chargement des rendez-vous:', error)
+    if (window.showNotification) {
+      window.showNotification('error', 'Erreur', 'Impossible de charger les rendez-vous')
+    }
+  } finally {
+    loading.value = false
   }
-  
-  const response = appointmentService.getAppointments(params)
-  appointments.value = response.data
-  pagination.value = response.pagination
 }
 
 const onPageChange = (page: number) => {
   currentPage.value = page
+  loadAppointments()
+}
+
+const onPageSizeChange = (newPageSize: number) => {
+  pageSize.value = newPageSize
+  currentPage.value = 1 // Reset à la première page
   loadAppointments()
 }
 
@@ -195,12 +282,36 @@ const editAppointment = (appointment: Appointment) => {
   router.push(`/appointments/${appointment.uuid}/edit`)
 }
 
-const deleteAppointment = (appointment: Appointment) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le rendez-vous ${appointment.motif} ?`)) {
+const deleteAppointment = async (appointment: Appointment) => {
+  const result = await Swal.fire({
+    title: 'Êtes-vous sûr de vouloir supprimer ce rendez-vous ?',
+    text: `Vous allez supprimer le rendez-vous "${appointment.motif}". Cette action est irréversible.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Non, annuler',
+    reverseButtons: true
+  })
+
+  if (result.isConfirmed) {
     const success = appointmentService.deleteAppointment(appointment.uuid)
-    if (success && window.showNotification) {
-      window.showNotification('success', 'Rendez-vous supprimé', `${appointment.motif} a été supprimé avec succès`)
+    if (success) {
+      await Swal.fire({
+        title: 'Supprimé !',
+        text: `Le rendez-vous ${appointment.motif} a été supprimé avec succès.`,
+        icon: 'success',
+        confirmButtonText: 'OK'
+      })
       loadAppointments() // Recharger la liste
+    } else {
+      await Swal.fire({
+        title: 'Erreur !',
+        text: 'Une erreur est survenue lors de la suppression.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      })
     }
   }
 }
@@ -214,6 +325,31 @@ const openAddAppointmentModal = () => {
   router.push('/appointments/create')
 }
 
+// Fonctions pour les filtres
+const toggleFilters = () => {
+  showFilters.value = !showFilters.value
+}
+
+const applyFilters = () => {
+  currentPage.value = 1
+  loadAppointments()
+}
+
+const clearFilters = () => {
+  filters.value = {
+    startDate: '',
+    endDate: '',
+    status: '',
+    patient: ''
+  }
+  currentPage.value = 1
+  loadAppointments()
+}
+
+const loadPatients = () => {
+  patients.value = patientService.getAllPatients()
+}
+
 // Fonctions pour les statuts
 const getStatusText = (statut: number): string => {
   return appointmentService.getStatusText(statut)
@@ -224,13 +360,14 @@ const getStatusClass = (statut: number): string => {
 }
 
 // Watchers
-watch([selectedDate, selectedStatus], () => {
+watch(filters, () => {
   currentPage.value = 1
   loadAppointments()
-})
+}, { deep: true })
 
 // Lifecycle
 onMounted(() => {
   loadAppointments()
+  loadPatients()
 })
 </script>

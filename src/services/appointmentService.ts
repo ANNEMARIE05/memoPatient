@@ -64,15 +64,33 @@ class AppointmentService {
     
     // Filtres
     if (params.filters) {
-      if (params.filters.date) {
-        const filterDate = new Date(params.filters.date)
+      // Filtre par date de début
+      if (params.filters.startDate) {
+        const startDate = new Date(params.filters.startDate)
         filteredAppointments = filteredAppointments.filter(apt => {
           const aptDate = new Date(apt.date_edition)
-          return aptDate.toDateString() === filterDate.toDateString()
+          return aptDate >= startDate
         })
       }
+      
+      // Filtre par date de fin
+      if (params.filters.endDate) {
+        const endDate = new Date(params.filters.endDate)
+        endDate.setHours(23, 59, 59, 999) // Fin de journée
+        filteredAppointments = filteredAppointments.filter(apt => {
+          const aptDate = new Date(apt.date_edition)
+          return aptDate <= endDate
+        })
+      }
+      
+      // Filtre par statut
       if (params.filters.statut !== undefined) {
         filteredAppointments = filteredAppointments.filter(apt => apt.statut === params.filters!.statut)
+      }
+      
+      // Filtre par patient
+      if (params.filters.patient_uuid) {
+        filteredAppointments = filteredAppointments.filter(apt => apt.patient_uuid === params.filters!.patient_uuid)
       }
     }
     

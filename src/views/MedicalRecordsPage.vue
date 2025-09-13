@@ -98,43 +98,33 @@
                   </span>
                 </td>
                 <td class="px-4 py-3">
-                  <div class="flex space-x-2">
-                    <button @click="viewFolder(folder)" class="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails">
-                      <font-awesome-icon icon="eye" />
-                    </button>
-                    <button @click="editFolder(folder)" class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
-                      <font-awesome-icon icon="edit" />
-                    </button>
-                    <button @click="deleteFolder(folder)" class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
-                      <font-awesome-icon icon="trash" />
-                    </button>
-                  </div>
+                  <ActionButtons
+                    @view="viewFolder(folder)"
+                    @edit="editFolder(folder)"
+                    @delete="deleteFolder(folder)"
+                  />
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Pagination -->
-        <PaginationComponent
-          v-if="pagination && pagination.totalPages > 1"
-          :pagination="pagination"
-          @page-change="onPageChange"
-        />
       </div>
     </div>
+
   </Layout>
 </template>
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
 import MetricCard from '../components/MetricCard.vue'
-import PaginationComponent from '../components/PaginationComponent.vue'
+import ActionButtons from '../components/ActionButtons.vue'
 import { medicalFolderService } from '../services/medicalFolderService'
 import type { MedicalFolder, MedicalFolderStats } from '../types/global'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { PaginationParams, PaginatedResponse } from '../types/global'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 
@@ -146,6 +136,7 @@ const pageSize = ref(10)
 const searchQuery = ref('')
 const selectedStatus = ref('')
 const searchTimeout = ref<number | null>(null)
+
 
 // Statistiques
 const folderStats = computed(() => medicalFolderService.getMedicalFoldersStats())
@@ -202,12 +193,36 @@ const editFolder = (folder: MedicalFolder) => {
   router.push(`/medical-records/${folder.uuid}/edit`)
 }
 
-const deleteFolder = (folder: MedicalFolder) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le dossier ${folder.num_folder} ?`)) {
+const deleteFolder = async (folder: MedicalFolder) => {
+  const result = await Swal.fire({
+    title: 'Êtes-vous sûr de vouloir supprimer ce dossier médical ?',
+    text: `Vous allez supprimer le dossier médical "${folder.num_folder}". Cette action est irréversible.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Non, annuler',
+    reverseButtons: true
+  })
+
+  if (result.isConfirmed) {
     const success = medicalFolderService.deleteMedicalFolder(folder.uuid)
-    if (success && window.showNotification) {
-      window.showNotification('success', 'Dossier supprimé', `${folder.num_folder} a été supprimé avec succès`)
+    if (success) {
+      await Swal.fire({
+        title: 'Supprimé !',
+        text: `Le dossier médical ${folder.num_folder} a été supprimé avec succès.`,
+        icon: 'success',
+        confirmButtonText: 'OK'
+      })
       loadFolders() // Recharger la liste
+    } else {
+      await Swal.fire({
+        title: 'Erreur !',
+        text: 'Une erreur est survenue lors de la suppression.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      })
     }
   }
 }

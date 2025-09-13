@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import './style.css'
+import Swal from 'sweetalert2'
+import i18n from './i18n'
 
 // Import Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -17,6 +19,7 @@ import UserDetailPage from './views/UserDetailPage.vue'
 import ProfilesPage from './views/ProfilesPage.vue'
 import ProfileFormPage from './views/ProfileFormPage.vue'
 import ProfileDetailPage from './views/ProfileDetailPage.vue'
+import ProfilePermissionsPage from './views/ProfilePermissionsPage.vue'
 import MessageTemplatesPage from './views/MessageTemplatesPage.vue'
 import MessageTemplateFormPage from './views/MessageTemplateFormPage.vue'
 import MessageTemplateDetailPage from './views/MessageTemplateDetailPage.vue'
@@ -33,6 +36,9 @@ import AppointmentFormPage from './views/AppointmentFormPage.vue'
 import AppointmentDetailPage from './views/AppointmentDetailPage.vue'
 import SMSPage from './views/SMSPage.vue'
 import ProfilePage from './views/ProfilePage.vue'
+import MessageTypesPage from './views/MessageTypesPage.vue'
+import MessageTypeFormPage from './views/MessageTypeFormPage.vue'
+import LocalizationDashboard from './views/LocalizationDashboard.vue'
 import AuthGuard from './components/AuthGuard.vue'
 
 // Add icons to library
@@ -66,7 +72,8 @@ const routes = [
       { path: '', component: ProfilesPage },
       { path: 'create', component: ProfileFormPage },
       { path: ':id', component: ProfileDetailPage },
-      { path: ':id/edit', component: ProfileFormPage }
+      { path: ':id/edit', component: ProfileFormPage },
+      { path: ':id/permissions', component: ProfilePermissionsPage }
     ]
   },
   { 
@@ -130,6 +137,22 @@ const routes = [
     children: [
       { path: '', component: ProfilePage }
     ]
+  },
+  { 
+    path: '/message-types', 
+    component: AuthGuard,
+    children: [
+      { path: '', component: MessageTypesPage },
+      { path: 'create', component: MessageTypeFormPage },
+      { path: ':uuid/edit', component: MessageTypeFormPage }
+    ]
+  },
+  { 
+    path: '/localization', 
+    component: AuthGuard,
+    children: [
+      { path: '', component: LocalizationDashboard }
+    ]
   }
 ]
 
@@ -138,7 +161,31 @@ const router = createRouter({
   routes
 })
 
+// Configuration globale de SweetAlert2
+Swal.mixin({
+  position: 'top-start',
+  toast: true,
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer)
+    toast.addEventListener('mouseleave', Swal.resumeTimer)
+  }
+})
+
+// Configuration pour les modales de confirmation
+Swal.mixin({
+  position: 'top-start',
+  showCancelButton: true,
+  confirmButtonColor: '#d33',
+  cancelButtonColor: '#3085d6',
+  confirmButtonText: 'Oui, confirmer',
+  cancelButtonText: 'Non, annuler'
+})
+
 const app = createApp(App)
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(router)
+app.use(i18n)
 app.mount('#app')

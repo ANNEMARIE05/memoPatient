@@ -100,8 +100,10 @@ class PatientService {
     }
   ]
 
-  // Méthode pour obtenir tous les patients avec pagination
-  getPatients(params: PaginationParams): PaginatedResponse<Patient> {
+  // Méthode pour obtenir tous les patients avec pagination (SSR)
+  async getPatients(params: PaginationParams): Promise<PaginatedResponse<Patient>> {
+    // Simulation d'un délai réseau pour SSR
+    await new Promise(resolve => setTimeout(resolve, 300))
     let filteredPatients = [...this.patients]
     
     // Recherche
@@ -123,6 +125,16 @@ class PatientService {
       }
       if (params.filters.genre) {
         filteredPatients = filteredPatients.filter(p => p.genre === params.filters!.genre)
+      }
+      if (params.filters.dateStart) {
+        filteredPatients = filteredPatients.filter(p => 
+          new Date(p.created_at) >= new Date(params.filters!.dateStart)
+        )
+      }
+      if (params.filters.dateEnd) {
+        filteredPatients = filteredPatients.filter(p => 
+          new Date(p.created_at) <= new Date(params.filters!.dateEnd)
+        )
       }
     }
     

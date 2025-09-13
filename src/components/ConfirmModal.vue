@@ -11,16 +11,16 @@
       
       <!-- Modal -->
       <div
-        class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all"
+        class="relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 transform transition-all"
         @click.stop
       >
         <!-- Header -->
-        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <div class="flex items-center justify-between p-8 border-b border-gray-200">
           <div class="flex items-center">
-            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
-              <font-awesome-icon icon="exclamation-triangle" class="text-red-600 text-lg" />
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+              <font-awesome-icon icon="exclamation-triangle" class="text-red-600 text-xl" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-xl font-semibold text-gray-900">
               {{ title }}
             </h3>
           </div>
@@ -33,22 +33,22 @@
         </div>
         
         <!-- Content -->
-        <div class="p-6">
-          <p class="text-gray-600 mb-6">
+        <div class="p-8">
+          <p class="text-gray-600 mb-8 text-lg">
             {{ message }}
           </p>
           
           <!-- Actions -->
-          <div class="flex justify-end space-x-3">
+          <div class="flex justify-end space-x-4">
             <button
               @click="$emit('cancel')"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              class="px-6 py-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               {{ cancelText }}
             </button>
             <button
               @click="$emit('confirm')"
-              class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+              class="px-6 py-3 text-base font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
             >
               {{ confirmText }}
             </button>
