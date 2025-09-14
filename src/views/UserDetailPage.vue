@@ -4,7 +4,7 @@
       <!-- Breadcrumb -->
       <Breadcrumb :items="breadcrumbItems" />
 
-      <!-- En-tête avec actions -->
+      <!-- En-tête -->
       <div class="bg-white border border-gray-200 shadow-sm mb-6">
         <div class="px-6 py-4 border-b border-gray-200">
           <div class="flex items-center justify-between">
@@ -16,19 +16,12 @@
             </div>
             <div class="flex space-x-3">
               <router-link
-                :to="`/users/${user?.uuid}/edit`"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                to="/users"
+                class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
               >
-                <font-awesome-icon icon="edit" class="mr-2" />
-                Modifier
+                <font-awesome-icon icon="arrow-left" class="mr-2" />
+                Retour à la liste
               </router-link>
-              <button
-                @click="handleDelete"
-                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-              >
-                <font-awesome-icon icon="trash" class="mr-2" />
-                Supprimer
-              </button>
             </div>
           </div>
         </div>
@@ -110,42 +103,6 @@
       </div>
     </div>
 
-    <!-- Modal de confirmation de suppression -->
-    <div 
-      v-if="showDeleteModal" 
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      @click="showDeleteModal = false"
-    >
-      <div 
-        class="bg-white p-6 max-w-sm w-full mx-4 shadow-2xl rounded-2xl border border-gray-100"
-        @click.stop
-      >
-        <div class="flex items-center mb-6">
-          <div class="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center mr-4">
-            <font-awesome-icon icon="exclamation-triangle" class="text-red-600 text-2xl" />
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
-            <p class="text-sm text-gray-600 mt-1">Cette action est irréversible</p>
-          </div>
-        </div>
-        
-        <div class="flex justify-between space-x-3">
-          <button
-            @click="showDeleteModal = false"
-            class="px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-xl font-medium"
-          >
-            Annuler
-          </button>
-          <button
-            @click="confirmDelete"
-            class="px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 rounded-xl font-medium shadow-md"
-          >
-            Supprimer
-          </button>
-        </div>
-      </div>
-    </div>
   </Layout>
 </template>
 
@@ -156,11 +113,9 @@ import Layout from '../components/Layout.vue'
 import Breadcrumb from '../components/Breadcrumb.vue'
 import { userService } from '../services/userService'
 import type { User } from '../types/global'
-import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
-const showDeleteModal = ref(false)
 
 const user = ref<User | undefined>()
 
@@ -196,26 +151,4 @@ const formatDate = (dateString?: string): string => {
   })
 }
 
-// Gestionnaire de suppression
-const handleDelete = () => {
-  showDeleteModal.value = true
-}
-
-// Confirmer la suppression
-const confirmDelete = () => {
-  if (user.value?.uuid) {
-    const success = userService.deleteUser(user.value.uuid)
-    if (success) {
-      if (window.showNotification) {
-        window.showNotification('success', 'Succès', 'Utilisateur supprimé avec succès')
-      }
-      router.push('/users')
-    } else {
-      if (window.showNotification) {
-        window.showNotification('error', 'Erreur', 'Erreur lors de la suppression')
-      }
-    }
-  }
-  showDeleteModal.value = false
-}
 </script>

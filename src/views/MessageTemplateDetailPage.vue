@@ -12,7 +12,7 @@
         </nav>
       </div>
 
-      <!-- En-tête avec actions -->
+      <!-- En-tête -->
       <div class="bg-white border border-gray-200 shadow-sm mb-6">
         <div class="px-6 py-4 border-b border-gray-200">
           <div class="flex items-center justify-between">
@@ -24,19 +24,12 @@
             </div>
             <div class="flex space-x-3">
               <router-link
-                :to="`/message-templates/${template?.uuid}/edit`"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                to="/message-templates"
+                class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
               >
-                <font-awesome-icon icon="edit" class="mr-2" />
-                Modifier
+                <font-awesome-icon icon="arrow-left" class="mr-2" />
+                Retour à la liste
               </router-link>
-              <button
-                @click="handleDelete"
-                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-              >
-                <font-awesome-icon icon="trash" class="mr-2" />
-                Supprimer
-              </button>
             </div>
           </div>
         </div>
@@ -102,72 +95,56 @@
               <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                 <!-- Informations patient -->
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{firstname}</span>
-                  <span class="text-blue-600 ml-1">- Prénom</span>
+                  <span class="font-mono text-blue-800">firstname</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{lastname}</span>
-                  <span class="text-blue-600 ml-1">- Nom</span>
+                  <span class="font-mono text-blue-800">lastname</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{fullname}</span>
-                  <span class="text-blue-600 ml-1">- Nom complet</span>
+                  <span class="font-mono text-blue-800">fullname</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{birthdate}</span>
-                  <span class="text-blue-600 ml-1">- Date de naissance</span>
+                  <span class="font-mono text-blue-800">birthdate</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{age}</span>
-                  <span class="text-blue-600 ml-1">- Âge</span>
+                  <span class="font-mono text-blue-800">age</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{phone1}</span>
-                  <span class="text-blue-600 ml-1">- Téléphone principal</span>
+                  <span class="font-mono text-blue-800">phone1</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{phone2}</span>
-                  <span class="text-blue-600 ml-1">- Téléphone secondaire</span>
+                  <span class="font-mono text-blue-800">phone2</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded">
-                  <span class="font-mono text-blue-800">{email}</span>
-                  <span class="text-blue-600 ml-1">- Email</span>
+                  <span class="font-mono text-blue-800">email</span>
                 </div>
                 <div class="bg-blue-50 px-2 py-1 rounded col-span-2 md:col-span-1">
-                  <span class="font-mono text-blue-800">{adresse}</span>
-                  <span class="text-blue-600 ml-1">- Adresse</span>
+                  <span class="font-mono text-blue-800">adresse</span>
                 </div>
                 
                 <!-- Informations rendez-vous -->
                 <div class="bg-green-50 px-2 py-1 rounded">
-                  <span class="font-mono text-green-800">{appointment_date}</span>
-                  <span class="text-green-600 ml-1">- Date du RDV</span>
+                  <span class="font-mono text-green-800">date_rdv</span>
                 </div>
                 <div class="bg-green-50 px-2 py-1 rounded">
-                  <span class="font-mono text-green-800">{appointment_time}</span>
-                  <span class="text-green-600 ml-1">- Heure du RDV</span>
+                  <span class="font-mono text-green-800">heure_rdv</span>
                 </div>
                 <div class="bg-green-50 px-2 py-1 rounded">
-                  <span class="font-mono text-green-800">{appointment_datetime}</span>
-                  <span class="text-green-600 ml-1">- Date et heure du RDV</span>
+                  <span class="font-mono text-green-800">date_heure_rdv</span>
                 </div>
                 <div class="bg-green-50 px-2 py-1 rounded">
-                  <span class="font-mono text-green-800">{doctor_name}</span>
-                  <span class="text-green-600 ml-1">- Nom du médecin</span>
+                  <span class="font-mono text-green-800">nom_medecin</span>
                 </div>
                 <div class="bg-green-50 px-2 py-1 rounded">
-                  <span class="font-mono text-green-800">{clinic_name}</span>
-                  <span class="text-green-600 ml-1">- Nom de la clinique</span>
+                  <span class="font-mono text-green-800">nom_clinique</span>
                 </div>
                 
                 <!-- Informations système -->
                 <div class="bg-purple-50 px-2 py-1 rounded">
-                  <span class="font-mono text-purple-800">{current_date}</span>
-                  <span class="text-purple-600 ml-1">- Date actuelle</span>
+                  <span class="font-mono text-purple-800">date_actuelle</span>
                 </div>
                 <div class="bg-purple-50 px-2 py-1 rounded">
-                  <span class="font-mono text-purple-800">{current_time}</span>
-                  <span class="text-purple-600 ml-1">- Heure actuelle</span>
+                  <span class="font-mono text-purple-800">heure_actuelle</span>
                 </div>
               </div>
             </div>
@@ -193,70 +170,8 @@
         </div>
       </div>
 
-      <!-- Statistiques d'utilisation -->
-      <div class="mt-6 bg-white border border-gray-200 shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Statistiques d'utilisation</h3>
-        </div>
-        <div class="p-6">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-blue-600">{{ usageStats.totalSent }}</div>
-              <div class="text-sm text-gray-500">Messages envoyés</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-green-600">{{ usageStats.successRate }}%</div>
-              <div class="text-sm text-gray-500">Taux de succès</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-purple-600">{{ usageStats.thisMonth }}</div>
-              <div class="text-sm text-gray-500">Ce mois</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-orange-600">{{ usageStats.lastUsed }}</div>
-              <div class="text-sm text-gray-500">Dernière utilisation</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Modal de confirmation de suppression -->
-    <div 
-      v-if="showDeleteModal" 
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      @click="showDeleteModal = false"
-    >
-      <div 
-        class="bg-white p-6 max-w-sm w-full mx-4 shadow-2xl rounded-2xl border border-gray-100"
-        @click.stop
-      >
-        <div class="flex items-center mb-6">
-          <div class="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center mr-4">
-            <font-awesome-icon icon="exclamation-triangle" class="text-red-600 text-2xl" />
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
-            <p class="text-sm text-gray-600 mt-1">Cette action est irréversible</p>
-          </div>
-        </div>
-        
-        <div class="flex justify-between space-x-3">
-          <button
-            @click="showDeleteModal = false"
-            class="px-4 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-xl font-medium"
-          >
-            Annuler
-          </button>
-          <button
-            @click="confirmDelete"
-            class="px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 rounded-xl font-medium shadow-md"
-          >
-            Supprimer
-          </button>
-        </div>
-      </div>
-    </div>
   </Layout>
 </template>
 
@@ -266,11 +181,9 @@ import { useRoute, useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
 import { messageTemplateService } from '../services/messageTemplateService'
 import type { MessageTemplate } from '../types/global'
-import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
-const showDeleteModal = ref(false)
 
 const template = ref<MessageTemplate | undefined>()
 
@@ -306,13 +219,13 @@ const previewMessage = computed(() => {
     phone2: '06 98 76 54 32',
     email: 'marie.dubois@email.com',
     adresse: '123 Rue de la Paix, Paris',
-    appointment_date: '15/12/2024',
-    appointment_time: '14h30',
-    appointment_datetime: '15/12/2024 à 14h30',
-    doctor_name: 'Dr. Martin',
-    clinic_name: 'Clinique Memo Patient',
-    current_date: new Date().toLocaleDateString('fr-FR'),
-    current_time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    date_rdv: '15/12/2024',
+    heure_rdv: '14h30',
+    date_heure_rdv: '15/12/2024 à 14h30',
+    nom_medecin: 'Dr. Martin',
+    nom_clinique: 'Clinique Memo Patient',
+    date_actuelle: new Date().toLocaleDateString('fr-FR'),
+    heure_actuelle: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
   }
   
   // Remplacer toutes les variables trouvées
@@ -324,13 +237,6 @@ const previewMessage = computed(() => {
   return preview
 })
 
-// Statistiques d'utilisation (simulées)
-const usageStats = computed(() => ({
-  totalSent: 156,
-  successRate: 94,
-  thisMonth: 23,
-  lastUsed: '2 jours'
-}))
 
 // Obtenir le label du type de message
 const getMessageTypeLabel = (type?: string): string => {
@@ -376,26 +282,4 @@ const getStatusClass = (status?: string): string => {
   return classes[status || ''] || 'bg-gray-100 text-gray-800'
 }
 
-// Gestionnaire de suppression
-const handleDelete = () => {
-  showDeleteModal.value = true
-}
-
-// Confirmer la suppression
-const confirmDelete = () => {
-  if (template.value?.uuid) {
-    const success = messageTemplateService.deleteMessageTemplate(template.value.uuid)
-    if (success) {
-      if (window.showNotification) {
-        window.showNotification('success', 'Succès', 'Modèle de message supprimé avec succès')
-      }
-      router.push('/message-templates')
-    } else {
-      if (window.showNotification) {
-        window.showNotification('error', 'Erreur', 'Erreur lors de la suppression')
-      }
-    }
-  }
-  showDeleteModal.value = false
-}
 </script>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Correction Pagination</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h1 class="text-lg font-semibold text-gray-900">✅ Correction Pagination - Localisations Géographiques</h1>
+                    <p class="text-sm text-gray-600 mt-1">Problème des chiffres répétés résolu</p>
+                </div>
+
+                <!-- Exemples de pagination corrigée -->
+                <div class="p-6 space-y-8">
+                    <!-- Cas 1: Peu de pages (≤ 7) -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900 mb-3">Cas 1: Peu de pages (≤ 7 pages)</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    Affichage de <span class="font-semibold">1</span> à <span class="font-semibold">10</span> sur <span class="font-semibold">25</span> résultats
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <button class="px-3 py-2 text-sm text-gray-300 cursor-not-allowed rounded-lg" disabled>
+                                        <i class="fas fa-chevron-left mr-1"></i>Précédent
+                                    </button>
+                                    <button class="px-3 py-2 text-sm bg-blue-500 text-white rounded-lg">1</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">2</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">3</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">
+                                        Suivant<i class="fas fa-chevron-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">✅ Pas de répétition: 1, 2, 3 (pas de 1 répété)</p>
+                        </div>
+                    </div>
+
+                    <!-- Cas 2: Beaucoup de pages avec ellipsis -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900 mb-3">Cas 2: Beaucoup de pages avec ellipsis</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    Affichage de <span class="font-semibold">11</span> à <span class="font-semibold">20</span> sur <span class="font-semibold">150</span> résultats
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">
+                                        <i class="fas fa-chevron-left mr-1"></i>Précédent
+                                    </button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">1</button>
+                                    <span class="px-3 py-2 text-sm text-gray-400">...</span>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">3</button>
+                                    <button class="px-3 py-2 text-sm bg-blue-500 text-white rounded-lg">4</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">5</button>
+                                    <span class="px-3 py-2 text-sm text-gray-400">...</span>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">8</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">
+                                        Suivant<i class="fas fa-chevron-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">✅ Pas de répétition: 1, ..., 3, 4, 5, ..., 8 (pas de 1 ou 8 répétés)</p>
+                        </div>
+                    </div>
+
+                    <!-- Cas 3: Page courante proche du début -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900 mb-3">Cas 3: Page courante proche du début</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    Affichage de <span class="font-semibold">1</span> à <span class="font-semibold">10</span> sur <span class="font-semibold">150</span> résultats
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <button class="px-3 py-2 text-sm text-gray-300 cursor-not-allowed rounded-lg" disabled>
+                                        <i class="fas fa-chevron-left mr-1"></i>Précédent
+                                    </button>
+                                    <button class="px-3 py-2 text-sm bg-blue-500 text-white rounded-lg">1</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">2</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">3</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">4</button>
+                                    <span class="px-3 py-2 text-sm text-gray-400">...</span>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">15</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">
+                                        Suivant<i class="fas fa-chevron-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">✅ Pas de répétition: 1, 2, 3, 4, ..., 15 (pas de 1 répété)</p>
+                        </div>
+                    </div>
+
+                    <!-- Cas 4: Page courante proche de la fin -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900 mb-3">Cas 4: Page courante proche de la fin</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    Affichage de <span class="font-semibold">141</span> à <span class="font-semibold">150</span> sur <span class="font-semibold">150</span> résultats
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">
+                                        <i class="fas fa-chevron-left mr-1"></i>Précédent
+                                    </button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">1</button>
+                                    <span class="px-3 py-2 text-sm text-gray-400">...</span>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">12</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">13</button>
+                                    <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">14</button>
+                                    <button class="px-3 py-2 text-sm bg-blue-500 text-white rounded-lg">15</button>
+                                    <button class="px-3 py-2 text-sm text-gray-300 cursor-not-allowed rounded-lg" disabled>
+                                        Suivant<i class="fas fa-chevron-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">✅ Pas de répétition: 1, ..., 12, 13, 14, 15 (pas de 15 répété)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Résumé des corrections -->
+                <div class="px-6 py-4 border-t border-gray-100 bg-green-50">
+                    <h2 class="text-lg font-semibold text-green-900 mb-3">🔧 Corrections Appliquées</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h3 class="font-medium text-green-900 mb-2">🐛 Problème Identifié</h3>
+                            <ul class="text-sm text-green-800 space-y-1">
+                                <li>• Répétition des numéros de page</li>
+                                <li>• Première et dernière page affichées deux fois</li>
+                                <li>• Logique de calcul des pages visibles incorrecte</li>
+                                <li>• Conditions d'affichage des ellipsis non sécurisées</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-green-900 mb-2">✅ Solution Appliquée</h3>
+                            <ul class="text-sm text-green-800 space-y-1">
+                                <li>• Exclusion de la première et dernière page des pages visibles</li>
+                                <li>• Vérification des limites avant génération du tableau</li>
+                                <li>• Protection contre les tableaux vides</li>
+                                <li>• Conditions d'ellipsis sécurisées</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

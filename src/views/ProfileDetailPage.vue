@@ -12,7 +12,7 @@
         </nav>
       </div>
 
-      <!-- En-tête avec actions -->
+      <!-- En-tête -->
       <div class="bg-white border border-gray-200 shadow-sm mb-6">
         <div class="px-6 py-4 border-b border-gray-200">
           <div class="flex items-center justify-between">
@@ -21,6 +21,15 @@
                 {{ profile?.name }}
               </h2>
               <p class="text-sm text-gray-500">{{ profile?.code }}</p>
+            </div>
+            <div class="flex space-x-3">
+              <router-link
+                to="/profiles"
+                class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+              >
+                <font-awesome-icon icon="arrow-left" class="mr-2" />
+                Retour à la liste
+              </router-link>
             </div>
           </div>
         </div>

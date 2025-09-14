@@ -24,19 +24,12 @@
             </div>
             <div class="flex space-x-3">
               <router-link
-                :to="`/medical-records/${folder?.uuid}/edit`"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                to="/medical-records"
+                class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
               >
-                <font-awesome-icon icon="edit" class="mr-2" />
-                Modifier
+                <font-awesome-icon icon="arrow-left" class="mr-2" />
+                Retour à la liste
               </router-link>
-              <button
-                @click="handleDelete"
-                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-              >
-                <font-awesome-icon icon="trash" class="mr-2" />
-                Supprimer
-              </button>
             </div>
           </div>
         </div>

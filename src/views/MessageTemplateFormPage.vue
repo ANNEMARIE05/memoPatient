@@ -7,9 +7,31 @@
       <!-- Formulaire -->
       <div class="bg-white border border-gray-200 shadow-sm">
         <div class="px-4 py-3 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">
-            {{ isEdit ? 'Modifier le modèle de message' : 'Nouveau modèle de message' }}
-          </h2>
+          <div class="flex items-center justify-between">
+            <!-- Titre à gauche -->
+            <h2 class="text-lg font-semibold text-gray-900">
+              {{ isEdit ? 'Modifier le modèle de message' : 'Nouveau modèle de message' }}
+            </h2>
+            
+            <!-- Actions à droite -->
+            <div class="flex items-center space-x-3">
+              <router-link
+                to="/message-templates"
+                class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center text-sm transition-colors"
+              >
+                <font-awesome-icon icon="arrow-left" class="mr-2" />
+                Retour
+              </router-link>
+              <button
+                @click="handleSubmit"
+                :disabled="loading"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm transition-colors"
+              >
+                <font-awesome-icon v-if="loading" icon="spinner" class="mr-2 animate-spin" />
+                {{ loading ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer') }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <form @submit.prevent="handleSubmit" class="p-4 space-y-4">
@@ -72,28 +94,46 @@
             />
           </div>
 
-          <!-- Sélection des variables -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Variables disponibles
-            </label>
-            <div class="bg-gray-50 border border-gray-300 rounded-md p-3">
-              <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-3">
-                <button
-                  v-for="variable in availableVariables"
-                  :key="variable.key"
-                  type="button"
-                  @click="insertVariable(variable.key)"
-                  class="px-2 py-1 text-xs bg-white border border-gray-300 rounded-md hover:bg-blue-50 hover:border-blue-300 transition-colors text-center"
-                >
-                  {{ variable.label }}
-                </button>
-              </div>
-              <div class="text-xs text-gray-500">
-                Cliquez sur une variable pour l'insérer dans le message
-              </div>
-            </div>
-          </div>
+           <!-- Sélection des variables -->
+           <div>
+             <label class="block text-sm font-medium text-gray-700 mb-1">
+               Variables disponibles
+             </label>
+             <select
+               v-model="selectedVariable"
+               @change="insertVariableFromSelect"
+               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+             >
+               <option value="">Sélectionnez une variable à insérer</option>
+               <optgroup label="Informations patient">
+                 <option
+                   v-for="variable in patientVariables"
+                   :key="variable.key"
+                   :value="variable.key"
+                 >
+                   {{ variable.label }}
+                 </option>
+               </optgroup>
+               <optgroup label="Informations rendez-vous">
+                 <option
+                   v-for="variable in appointmentVariables"
+                   :key="variable.key"
+                   :value="variable.key"
+                 >
+                   {{ variable.label }}
+                 </option>
+               </optgroup>
+               <optgroup label="Informations système">
+                 <option
+                   v-for="variable in systemVariables"
+                   :key="variable.key"
+                   :value="variable.key"
+                 >
+                   {{ variable.label }}
+                 </option>
+               </optgroup>
+             </select>
+           </div>
 
           <!-- Contenu du message -->
           <div>
@@ -146,22 +186,6 @@
             </div>
           </div>
 
-          <!-- Boutons d'action -->
-          <div class="flex justify-between space-x-3 pt-4 border-t border-gray-200">
-            <router-link
-              to="/message-templates"
-              class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm"
-            >
-              Annuler
-            </router-link>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-            >
-              {{ loading ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer') }}
-            </button>
-          </div>
         </form>
       </div>
     </div>
@@ -180,6 +204,7 @@ const route = useRoute()
 const router = useRouter()
 const loading = ref(false)
 const contentTextarea = ref<HTMLTextAreaElement | null>(null)
+const selectedVariable = ref('')
 
 const isEdit = computed(() => !!route.params.uuid)
 
@@ -199,9 +224,8 @@ const form = ref({
   status: 'active'
 })
 
-// Variables disponibles basées sur les champs des patients
-const availableVariables = ref([
-  // Informations patient
+// Variables disponibles organisées par catégories
+const patientVariables = computed(() => [
   { key: 'firstname', label: 'Prénom' },
   { key: 'lastname', label: 'Nom' },
   { key: 'fullname', label: 'Nom complet' },
@@ -212,18 +236,27 @@ const availableVariables = ref([
   { key: 'phone1', label: 'Téléphone principal' },
   { key: 'phone2', label: 'Téléphone secondaire' },
   { key: 'email', label: 'Email' },
-  { key: 'adresse', label: 'Adresse' },
-  
-  // Informations rendez-vous
-  { key: 'appointment_date', label: 'Date du RDV' },
-  { key: 'appointment_time', label: 'Heure du RDV' },
-  { key: 'appointment_datetime', label: 'Date et heure du RDV' },
-  { key: 'doctor_name', label: 'Nom du médecin' },
-  { key: 'clinic_name', label: 'Nom de la clinique' },
-  
-  // Informations système
-  { key: 'current_date', label: 'Date actuelle' },
-  { key: 'current_time', label: 'Heure actuelle' }
+  { key: 'adresse', label: 'Adresse' }
+])
+
+const appointmentVariables = computed(() => [
+  { key: 'date_rdv', label: 'Date du RDV' },
+  { key: 'heure_rdv', label: 'Heure du RDV' },
+  { key: 'date_heure_rdv', label: 'Date et heure du RDV' },
+  { key: 'nom_medecin', label: 'Nom du médecin' },
+  { key: 'nom_clinique', label: 'Nom de la clinique' }
+])
+
+const systemVariables = computed(() => [
+  { key: 'date_actuelle', label: 'Date actuelle' },
+  { key: 'heure_actuelle', label: 'Heure actuelle' }
+])
+
+// Toutes les variables pour l'aperçu
+const availableVariables = computed(() => [
+  ...patientVariables.value,
+  ...appointmentVariables.value,
+  ...systemVariables.value
 ])
 
 // Fonction pour insérer une variable dans le textarea
@@ -247,6 +280,16 @@ const insertVariable = (variableKey: string) => {
     textarea.focus()
     textarea.setSelectionRange(start + variableText.length, start + variableText.length)
   }, 0)
+}
+
+// Fonction pour insérer une variable depuis le select
+const insertVariableFromSelect = () => {
+  if (!selectedVariable.value) return
+  
+  insertVariable(selectedVariable.value)
+  
+  // Réinitialiser la sélection
+  selectedVariable.value = ''
 }
 
 // Aperçu du message avec des données d'exemple

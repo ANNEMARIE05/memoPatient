@@ -38,7 +38,9 @@ import SMSPage from './views/SMSPage.vue'
 import ProfilePage from './views/ProfilePage.vue'
 import MessageTypesPage from './views/MessageTypesPage.vue'
 import MessageTypeFormPage from './views/MessageTypeFormPage.vue'
-import LocalizationDashboard from './views/LocalizationDashboard.vue'
+import GeographicLocationsPage from './views/GeographicLocationsPage.vue'
+import GeographicLocationDetailPage from './views/GeographicLocationDetailPage.vue'
+import GeographicLocationFormPage from './views/GeographicLocationFormPage.vue'
 import AuthGuard from './components/AuthGuard.vue'
 
 // Add icons to library
@@ -148,10 +150,23 @@ const routes = [
     ]
   },
   { 
+    path: '/geographic-locations', 
+    component: AuthGuard,
+    children: [
+      { path: '', component: GeographicLocationsPage },
+      { path: 'create', component: GeographicLocationFormPage },
+      { path: ':id', component: GeographicLocationDetailPage },
+      { path: ':id/edit', component: GeographicLocationFormPage }
+    ]
+  },
+  { 
     path: '/localization', 
     component: AuthGuard,
     children: [
-      { path: '', component: LocalizationDashboard }
+      { path: '', component: GeographicLocationsPage },
+      { path: 'create', component: GeographicLocationFormPage },
+      { path: ':id', component: GeographicLocationDetailPage },
+      { path: ':id/edit', component: GeographicLocationFormPage }
     ]
   }
 ]

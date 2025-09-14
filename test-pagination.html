@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Pagination Design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Test du Nouveau Design de Pagination</h1>
+        
+        <!-- Simulation d'un tableau avec pagination -->
+        <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+            <!-- En-tête du tableau -->
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-900">Liste des Patients</h2>
+            </div>
+            
+            <!-- Tableau -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Âge</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <i class="fas fa-user text-blue-600"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">Jean Dupont</div>
+                                        <div class="text-sm text-gray-500">PAT001</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">45 ans</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">06 12 34 56 78</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">jean.dupont@email.com</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    Actif
+                                </span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                            <i class="fas fa-user text-green-600"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">Marie Martin</div>
+                                        <div class="text-sm text-gray-500">PAT002</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">32 ans</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">06 98 76 54 32</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">marie.martin@email.com</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    Actif
+                                </span>
+                            </td>
+                        </tr>
+                        <!-- Répéter quelques lignes pour simuler un tableau -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                                            <i class="fas fa-user text-purple-600"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">Pierre Durand</div>
+                                        <div class="text-sm text-gray-500">PAT003</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">28 ans</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">06 11 22 33 44</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">pierre.durand@email.com</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    Actif
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Nouvelle pagination avec le design HumanHub -->
+            <div class="bg-white">
+                <!-- Sélecteur de taille de page en haut à droite -->
+                <div class="flex justify-end px-6 py-3 border-b border-gray-100">
+                    <div class="flex items-center space-x-2">
+                        <label for="pageSize" class="text-sm text-gray-600">Afficher</label>
+                        <select
+                            id="pageSize"
+                            class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        >
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span class="text-sm text-gray-600">éléments</span>
+                    </div>
+                </div>
+
+                <!-- Pagination principale en bas -->
+                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between w-full">
+                        <!-- Informations de pagination -->
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span>
+                                Affichage de 
+                                <span class="font-semibold text-gray-900">1</span>
+                                à 
+                                <span class="font-semibold text-gray-900">10</span>
+                                sur 
+                                <span class="font-semibold text-gray-900">57</span>
+                                résultats
+                            </span>
+                        </div>
+
+                        <!-- Navigation de pagination -->
+                        <div class="flex items-center space-x-1">
+                            <!-- Bouton Précédent -->
+                            <button class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-300 cursor-not-allowed">
+                                <i class="fas fa-chevron-left mr-1"></i>
+                                Précédent
+                            </button>
+
+                            <!-- Numéros de page -->
+                            <div class="flex items-center space-x-1">
+                                <!-- Page active -->
+                                <button class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-blue-500 text-white shadow-sm">
+                                    1
+                                </button>
+                                
+                                <!-- Autres pages -->
+                                <button class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                                    2
+                                </button>
+                                <button class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                                    3
+                                </button>
+                                
+                                <!-- Ellipsis -->
+                                <span class="px-3 py-2 text-sm text-gray-400">...</span>
+                                
+                                <!-- Dernière page -->
+                                <button class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                                    6
+                                </button>
+                            </div>
+
+                            <!-- Bouton Suivant -->
+                            <button class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50 cursor-pointer">
+                                Suivant
+                                <i class="fas fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comparaison avec l'ancien design -->
+        <div class="mt-8 bg-white shadow-sm rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-900">Ancien Design (pour comparaison)</h2>
+            </div>
+            
+            <!-- Ancienne pagination -->
+            <div class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+                <div class="flex items-center justify-between w-full">
+                    <!-- Informations de pagination -->
+                    <div class="flex items-center text-sm text-gray-700">
+                        <span>
+                            Affichage de 
+                            <span class="font-medium">1</span>
+                            à 
+                            <span class="font-medium">10</span>
+                            sur 
+                            <span class="font-medium">57</span>
+                            résultats
+                        </span>
+                    </div>
+
+                    <!-- Sélecteur de taille de page -->
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <label for="pageSizeOld" class="text-sm text-gray-700">Éléments par page:</label>
+                            <select
+                                id="pageSizeOld"
+                                class="px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+
+                        <!-- Navigation de pagination -->
+                        <div class="flex items-center space-x-2">
+                            <!-- Bouton Précédent -->
+                            <button class="relative inline-flex items-center px-3 py-2 text-sm font-medium border border-gray-300 rounded-md transition-colors bg-gray-100 text-gray-300 cursor-not-allowed">
+                                <i class="fas fa-chevron-left mr-1"></i>
+                                Précédent
+                            </button>
+
+                            <!-- Numéros de page -->
+                            <div class="flex space-x-1">
+                                <button class="relative inline-flex items-center px-3 py-2 text-sm font-medium border rounded-md transition-colors bg-blue-600 text-white border-blue-600">
+                                    1
+                                </button>
+                                <button class="relative inline-flex items-center px-3 py-2 text-sm font-medium border rounded-md transition-colors bg-white text-gray-500 border-gray-300 hover:bg-gray-50">
+                                    2
+                                </button>
+                                <button class="relative inline-flex items-center px-3 py-2 text-sm font-medium border rounded-md transition-colors bg-white text-gray-500 border-gray-300 hover:bg-gray-50">
+                                    3
+                                </button>
+                                <span class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">...</span>
+                                <button class="relative inline-flex items-center px-3 py-2 text-sm font-medium border rounded-md transition-colors bg-white text-gray-500 border-gray-300 hover:bg-gray-50">
+                                    6
+                                </button>
+                            </div>
+
+                            <!-- Bouton Suivant -->
+                            <button class="relative inline-flex items-center px-3 py-2 text-sm font-medium border border-gray-300 rounded-md transition-colors bg-white text-gray-500 hover:bg-gray-50 cursor-pointer">
+                                Suivant
+                                <i class="fas fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

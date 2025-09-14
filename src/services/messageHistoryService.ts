@@ -1,4 +1,5 @@
 import type { ExtendedMessageSend, PaginationParams, PaginatedResponse, MessageHistoryStats } from '../types/global'
+import { patientService } from './patientService'
 
 // Mock data pour les historiques de messages
 const mockMessageHistory: ExtendedMessageSend[] = [
@@ -12,14 +13,13 @@ const mockMessageHistory: ExtendedMessageSend[] = [
     created_at: '2024-01-15T14:25:00Z',
     updated_at: '2024-01-15T14:31:00Z',
     // Propriétés étendues pour l'interface utilisateur
-    patientUuid: 'pat-001',
+    patientUuid: '550e8400-e29b-41d4-a716-446655440001',
     messageTypeUuid: 'type-001',
     messageModelUuid: 'model-001',
     phoneNumber: '+33123456789',
     sentAt: new Date('2024-01-15T14:30:00Z'),
     deliveredAt: new Date('2024-01-15T14:31:00Z'),
     status: 'delivered',
-    deliveryStatus: 'success',
     errorMessage: null,
     createdAt: new Date('2024-01-15T14:25:00Z'),
     updatedAt: new Date('2024-01-15T14:31:00Z')
@@ -34,14 +34,13 @@ const mockMessageHistory: ExtendedMessageSend[] = [
     created_at: '2024-01-15T10:10:00Z',
     updated_at: '2024-01-15T10:16:00Z',
     // Propriétés étendues pour l'interface utilisateur
-    patientUuid: 'pat-002',
+    patientUuid: '550e8400-e29b-41d4-a716-446655440002',
     messageTypeUuid: 'type-002',
     messageModelUuid: 'model-002',
     phoneNumber: '+33123456790',
     sentAt: new Date('2024-01-15T10:15:00Z'),
     deliveredAt: new Date('2024-01-15T10:16:00Z'),
     status: 'delivered',
-    deliveryStatus: 'success',
     errorMessage: null,
     createdAt: new Date('2024-01-15T10:10:00Z'),
     updatedAt: new Date('2024-01-15T10:16:00Z')
@@ -56,14 +55,13 @@ const mockMessageHistory: ExtendedMessageSend[] = [
     created_at: '2024-01-15T07:55:00Z',
     updated_at: '2024-01-15T08:00:00Z',
     // Propriétés étendues pour l'interface utilisateur
-    patientUuid: 'pat-003',
+    patientUuid: '550e8400-e29b-41d4-a716-446655440003',
     messageTypeUuid: 'type-001',
     messageModelUuid: 'model-003',
     phoneNumber: '+33123456791',
     sentAt: new Date('2024-01-15T08:00:00Z'),
     deliveredAt: undefined,
     status: 'pending',
-    deliveryStatus: 'pending',
     errorMessage: null,
     createdAt: new Date('2024-01-15T07:55:00Z'),
     updatedAt: new Date('2024-01-15T08:00:00Z')
@@ -78,14 +76,13 @@ const mockMessageHistory: ExtendedMessageSend[] = [
     created_at: '2024-01-14T16:25:00Z',
     updated_at: '2024-01-14T16:30:00Z',
     // Propriétés étendues pour l'interface utilisateur
-    patientUuid: 'pat-004',
+    patientUuid: '550e8400-e29b-41d4-a716-446655440004',
     messageTypeUuid: 'type-003',
     messageModelUuid: 'model-004',
     phoneNumber: '+33123456792',
     sentAt: new Date('2024-01-14T16:30:00Z'),
     deliveredAt: undefined,
     status: 'failed',
-    deliveryStatus: 'failed',
     errorMessage: 'Numéro invalide',
     createdAt: new Date('2024-01-14T16:25:00Z'),
     updatedAt: new Date('2024-01-14T16:30:00Z')
@@ -100,14 +97,13 @@ const mockMessageHistory: ExtendedMessageSend[] = [
     created_at: '2024-01-14T13:55:00Z',
     updated_at: '2024-01-14T14:01:00Z',
     // Propriétés étendues pour l'interface utilisateur
-    patientUuid: 'pat-005',
+    patientUuid: '550e8400-e29b-41d4-a716-446655440005',
     messageTypeUuid: 'type-001',
     messageModelUuid: 'model-005',
     phoneNumber: '+33123456793',
     sentAt: new Date('2024-01-14T14:00:00Z'),
     deliveredAt: new Date('2024-01-14T14:01:00Z'),
     status: 'delivered',
-    deliveryStatus: 'success',
     errorMessage: null,
     createdAt: new Date('2024-01-14T13:55:00Z'),
     updatedAt: new Date('2024-01-14T14:01:00Z')
@@ -142,8 +138,8 @@ export const messageHistoryService = {
     if (filters.status) {
       filteredMessages = filteredMessages.filter(msg => msg.status === filters.status)
     }
-    if (filters.deliveryStatus) {
-      filteredMessages = filteredMessages.filter(msg => msg.deliveryStatus === filters.deliveryStatus)
+    if (filters.patientUuid) {
+      filteredMessages = filteredMessages.filter(msg => msg.patientUuid === filters.patientUuid)
     }
 
     // Tri
@@ -234,6 +230,14 @@ export const messageHistoryService = {
       failedToday: messagesToday.filter(msg => msg.status === 'failed').length,
       pendingToday: messagesToday.filter(msg => msg.status === 'pending').length
     }
+  },
+
+  // Obtenir la liste des patients pour le filtre
+  getPatientsForFilter() {
+    return patientService.getAllPatients().map(patient => ({
+      uuid: patient.uuid,
+      name: `${patient.firstname} ${patient.lastname}`
+    }))
   },
 
   // Utilitaires pour l'affichage

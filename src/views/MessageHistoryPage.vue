@@ -91,16 +91,16 @@
 
           <!-- Filtres -->
           <div class="flex gap-4">
+            <select v-model="patientFilter" @change="loadMessageHistory" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Tous les patients</option>
+              <option v-for="patient in patients" :key="patient.uuid" :value="patient.uuid">
+                {{ patient.name }}
+              </option>
+            </select>
+
             <select v-model="statusFilter" @change="loadMessageHistory" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               <option value="">Tous les statuts</option>
               <option value="delivered">Livré</option>
-              <option value="pending">En attente</option>
-              <option value="failed">Échec</option>
-            </select>
-
-            <select v-model="deliveryStatusFilter" @change="loadMessageHistory" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option value="">Tous les états</option>
-              <option value="success">Succès</option>
               <option value="pending">En attente</option>
               <option value="failed">Échec</option>
             </select>
@@ -110,6 +110,27 @@
 
       <!-- Table des historiques -->
       <div class="bg-white shadow rounded-lg p-6">
+        <!-- Sélecteur de taille de page -->
+        <div class="flex justify-end px-6 py-3 border-b border-gray-100 mb-4">
+          <div class="flex items-center space-x-2">
+            <label for="pageSize" class="text-sm text-gray-600">Afficher</label>
+            <select
+              id="pageSize"
+              :value="pagination.limit"
+              @change="(event) => onPageSizeChange(parseInt((event.target as HTMLSelectElement).value))"
+              :disabled="loading"
+              class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-sm text-gray-600">éléments</span>
+          </div>
+        </div>
+
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -160,7 +181,7 @@
                   {{ message.content }}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  {{ message.phoneNumber }}
+                  {{ getPatientName(message.patientUuid) }}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   <span :class="[
@@ -172,9 +193,6 @@
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {{ messageHistoryService.formatDate(message.sentAt || null) }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  {{ messageHistoryService.formatDate(message.deliveredAt || null) }}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                   {{ message.errorMessage || '-' }}
@@ -193,6 +211,15 @@
           </table>
         </div>
 
+        <!-- Pagination -->
+        <PaginationComponent
+          v-if="pagination"
+          :pagination="pagination"
+          :loading="loading"
+          @page-change="onPageChange"
+          @page-size-change="onPageSizeChange"
+        />
+
       </div>
     </div>
 
@@ -204,6 +231,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Layout from '../components/Layout.vue'
 import ActionButtons from '../components/ActionButtons.vue'
+import PaginationComponent from '../components/PaginationComponent.vue'
 import { messageHistoryService } from '../services/messageHistoryService'
 import type { ExtendedMessageSend, MessageHistoryStats, PaginationParams } from '../types/global'
 import Swal from 'sweetalert2'
@@ -230,20 +258,20 @@ const pagination = ref({
 const loading = ref(false)
 const searchQuery = ref('')
 const statusFilter = ref('')
-const deliveryStatusFilter = ref('')
+const patientFilter = ref('')
 const sortField = ref('sentAt')
 const sortOrder = ref<'asc' | 'desc'>('desc')
 const searchTimeout = ref<number | null>(null)
+const patients = ref<Array<{uuid: string, name: string}>>([])
 
 
 // Configuration des colonnes du tableau
 const columns = [
   { key: 'uuid', label: 'UUID' },
   { key: 'content', label: 'Contenu' },
-  { key: 'phoneNumber', label: 'Numéro' },
+  { key: 'patientName', label: 'Patient' },
   { key: 'status', label: 'Statut' },
   { key: 'sentAt', label: 'Envoyé le' },
-  { key: 'deliveredAt', label: 'Livré le' },
   { key: 'errorMessage', label: 'Erreur' }
 ]
 
@@ -259,7 +287,7 @@ const loadMessageHistory = async () => {
       sortOrder: sortOrder.value,
       filters: {
         status: statusFilter.value || undefined,
-        deliveryStatus: deliveryStatusFilter.value || undefined
+        patientUuid: patientFilter.value || undefined
       }
     }
 
@@ -278,6 +306,18 @@ const loadStats = () => {
   messageHistoryStats.value = messageHistoryService.getMessageHistoryStats()
 }
 
+// Charger la liste des patients
+const loadPatients = () => {
+  patients.value = messageHistoryService.getPatientsForFilter()
+}
+
+// Obtenir le nom du patient par UUID
+const getPatientName = (patientUuid: string | undefined) => {
+  if (!patientUuid) return 'Patient inconnu'
+  const patient = patients.value.find(p => p.uuid === patientUuid)
+  return patient ? patient.name : 'Patient inconnu'
+}
+
 // Gestion de la recherche avec debounce
 const onSearchChange = () => {
   if (searchTimeout.value) {
@@ -289,9 +329,16 @@ const onSearchChange = () => {
   }, 500)
 }
 
+
 // Changement de page
 const onPageChange = (page: number) => {
   pagination.value.page = page
+  loadMessageHistory()
+}
+
+const onPageSizeChange = (newPageSize: number) => {
+  pagination.value.limit = newPageSize
+  pagination.value.page = 1 // Reset à la première page
   loadMessageHistory()
 }
 
@@ -365,6 +412,7 @@ const deleteMessage = async (uuid: string) => {
 
 // Initialisation
 onMounted(() => {
+  loadPatients()
   loadMessageHistory()
   loadStats()
 })

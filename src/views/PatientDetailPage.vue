@@ -1,131 +1,147 @@
 <template>
   <Layout title="Détails du patient">
-    <!-- Breadcrumb -->
-    <Breadcrumb :items="breadcrumbItems" />
-    
-    <div v-if="patient" class="space-y-6">
-      <!-- En-tête avec informations principales -->
-      <div class="bg-white shadow rounded-lg p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center space-x-4">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-              <font-awesome-icon icon="user" class="text-blue-600 text-2xl" />
+    <div class="max-w-4xl mx-auto">
+      <!-- Breadcrumb -->
+      <div class="mb-6">
+        <nav class="flex items-center space-x-2 text-sm text-gray-500">
+          <router-link to="/dashboard" class="hover:text-blue-600">Tableau de bord</router-link>
+          <font-awesome-icon icon="chevron-right" class="text-xs" />
+          <router-link to="/patients" class="hover:text-blue-600">Patients</router-link>
+          <font-awesome-icon icon="chevron-right" class="text-xs" />
+          <span class="text-gray-900">Détails</span>
+        </nav>
+      </div>
+
+      <div v-if="patient">
+        <!-- En-tête avec actions -->
+        <div class="bg-white border border-gray-200 shadow-sm mb-6">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-semibold text-gray-900">
+                  {{ patient.firstname }} {{ patient.lastname }}
+                </h2>
+                <p class="text-sm text-gray-500">ID: {{ patient.uuid }}</p>
+              </div>
+              <div class="flex space-x-3">
+                <router-link
+                  to="/patients"
+                  class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                >
+                  <font-awesome-icon icon="arrow-left" class="mr-2" />
+                  Retour à la liste
+                </router-link>
+              </div>
             </div>
-            <div>
-              <h1 class="text-2xl font-bold text-gray-900">{{ patient.firstname }} {{ patient.lastname }}</h1>
-              <p class="text-gray-600">ID: {{ patient.uuid }}</p>
+          </div>
+        </div>
+
+        <!-- Informations du patient -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Informations personnelles -->
+          <div class="bg-white border border-gray-200 shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h3 class="text-lg font-medium text-gray-900">Informations personnelles</h3>
+            </div>
+            <div class="p-6 space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Prénom</label>
+                <p class="mt-1 text-sm text-gray-900">{{ patient.firstname }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Nom</label>
+                <p class="mt-1 text-sm text-gray-900">{{ patient.lastname }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Date de naissance</label>
+                <p class="mt-1 text-sm text-gray-900">{{ formatDate(patient.birthdate) }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Âge</label>
+                <p class="mt-1 text-sm text-gray-900">{{ calculateAge(patient.birthdate) }} ans</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Sexe</label>
+                <p class="mt-1 text-sm text-gray-900">{{ patient.sexe }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Genre</label>
+                <p class="mt-1 text-sm text-gray-900">{{ patient.genre }}</p>
+              </div>
             </div>
           </div>
-          <div class="flex space-x-2">
-            <button @click="editPatient" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center">
-              <font-awesome-icon icon="edit" class="mr-2" />
-              Modifier
-            </button>
-            <button @click="goBack" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center">
-              <font-awesome-icon icon="arrow-left" class="mr-2" />
-              Retour
-            </button>
+
+          <!-- Informations de contact -->
+          <div class="bg-white border border-gray-200 shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h3 class="text-lg font-medium text-gray-900">Informations de contact</h3>
+            </div>
+            <div class="p-6 space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Téléphone principal</label>
+                <p class="mt-1 text-sm text-gray-900">{{ patient.phone1 }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Téléphone secondaire</label>
+                <p class="mt-1 text-sm text-gray-900">{{ patient.phone2 || 'Non renseigné' }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Email</label>
+                <p class="mt-1 text-sm text-gray-900">{{ patient.email }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Adresse</label>
+                <p class="mt-1 text-sm text-gray-900">{{ patient.adresse }}</p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Informations personnelles -->
-      <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Informations personnelles</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Prénom</label>
-            <p class="mt-1 text-sm text-gray-900">{{ patient.firstname }}</p>
+        <!-- Informations système -->
+        <div class="mt-6 bg-white border border-gray-200 shadow-sm">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Informations système</h3>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Nom</label>
-            <p class="mt-1 text-sm text-gray-900">{{ patient.lastname }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Date de naissance</label>
-            <p class="mt-1 text-sm text-gray-900">{{ formatDate(patient.birthdate) }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Âge</label>
-            <p class="mt-1 text-sm text-gray-900">{{ calculateAge(patient.birthdate) }} ans</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Sexe</label>
-            <p class="mt-1 text-sm text-gray-900">{{ patient.sexe }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Genre</label>
-            <p class="mt-1 text-sm text-gray-900">{{ patient.genre }}</p>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-500">ID du patient</label>
+                <p class="mt-1 text-sm text-gray-900 font-mono">{{ patient.uuid }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Date de création</label>
+                <p class="mt-1 text-sm text-gray-900">{{ formatDateTime(patient.created_at) }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Dernière modification</label>
+                <p class="mt-1 text-sm text-gray-900">{{ formatDateTime(patient.updated_at) }}</p>
+              </div>
+            </div>
           </div>
         </div>
+
       </div>
 
-      <!-- Informations de contact -->
-      <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Informations de contact</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Téléphone principal</label>
-            <p class="mt-1 text-sm text-gray-900">{{ patient.phone1 }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Téléphone secondaire</label>
-            <p class="mt-1 text-sm text-gray-900">{{ patient.phone2 || 'Non renseigné' }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Email</label>
-            <p class="mt-1 text-sm text-gray-900">{{ patient.email }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Adresse</label>
-            <p class="mt-1 text-sm text-gray-900">{{ patient.adresse }}</p>
-          </div>
+      <div v-else class="bg-white border border-gray-200 shadow-sm">
+        <div class="p-6 text-center">
+          <font-awesome-icon icon="exclamation-triangle" class="text-yellow-500 text-4xl mb-4" />
+          <h2 class="text-lg font-semibold text-gray-900 mb-2">Patient non trouvé</h2>
+          <p class="text-gray-600 mb-4">Le patient demandé n'existe pas ou a été supprimé.</p>
+          <router-link
+            to="/patients"
+            class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+          >
+            Retour à la liste
+          </router-link>
         </div>
-      </div>
-
-      <!-- Informations système -->
-      <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Informations système</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Date de création</label>
-            <p class="mt-1 text-sm text-gray-900">{{ formatDateTime(patient.created_at) }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Dernière modification</label>
-            <p class="mt-1 text-sm text-gray-900">{{ formatDateTime(patient.updated_at) }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
-        <div class="flex space-x-4">
-          <button @click="createAppointment" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center">
-            <font-awesome-icon icon="calendar-plus" class="mr-2" />
-            Nouveau rendez-vous
-          </button>
-          <button @click="createMedicalRecord" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md flex items-center">
-            <font-awesome-icon icon="folder-plus" class="mr-2" />
-            Nouveau dossier médical
-          </button>
-          <button @click="deletePatient" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center">
-            <font-awesome-icon icon="trash" class="mr-2" />
-            Supprimer
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div v-else class="bg-white shadow rounded-lg p-6">
-      <div class="text-center">
-        <font-awesome-icon icon="exclamation-triangle" class="text-yellow-500 text-4xl mb-4" />
-        <h2 class="text-lg font-semibold text-gray-900 mb-2">Patient non trouvé</h2>
-        <p class="text-gray-600 mb-4">Le patient demandé n'existe pas ou a été supprimé.</p>
-        <button @click="goBack" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
-          Retour à la liste
-        </button>
       </div>
     </div>
 
@@ -193,17 +209,7 @@ const goBack = () => {
   router.push('/patients')
 }
 
-const editPatient = () => {
-  router.push(`/patients/${patient.value?.uuid}/edit`)
-}
 
-const createAppointment = () => {
-  router.push(`/appointments/create?patient=${patient.value?.uuid}`)
-}
-
-const createMedicalRecord = () => {
-  router.push(`/medical-records/create?patient=${patient.value?.uuid}`)
-}
 
 const deletePatient = () => {
   showDeleteModal.value = true

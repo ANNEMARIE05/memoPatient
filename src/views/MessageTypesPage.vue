@@ -24,6 +24,27 @@
           </div>
         </div>
 
+        <!-- Sélecteur de taille de page -->
+        <div class="flex justify-end px-6 py-3 border-b border-gray-100">
+          <div class="flex items-center space-x-2">
+            <label for="pageSize" class="text-sm text-gray-600">Afficher</label>
+            <select
+              id="pageSize"
+              :value="pageSize"
+              @change="(event) => onPageSizeChange(parseInt((event.target as HTMLSelectElement).value))"
+              :disabled="loading"
+              class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-sm text-gray-600">éléments</span>
+          </div>
+        </div>
+
         <!-- Tableau des types -->
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
@@ -91,6 +112,15 @@
           </table>
         </div>
 
+        <!-- Pagination -->
+        <PaginationComponent
+          v-if="pagination"
+          :pagination="pagination"
+          :loading="loading"
+          @page-change="onPageChange"
+          @page-size-change="onPageSizeChange"
+        />
+
       </div>
     </div>
 
@@ -99,6 +129,7 @@
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
+import PaginationComponent from '../components/PaginationComponent.vue'
 import { messageTypeService } from '../services/messageTypeService'
 import type { MessageType } from '../types/global'
 import { ref, onMounted } from 'vue'

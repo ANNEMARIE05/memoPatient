@@ -1,47 +1,5 @@
 <template>
   <Layout title="Profil">
-    <!-- Modale de changement de mot de passe -->
-    <ConfirmModal
-      :is-visible="showPasswordModal"
-      title="Changer le mot de passe"
-      :message="passwordMessage"
-      confirm-text="Changer le mot de passe"
-      cancel-text="Annuler"
-      @confirm="confirmPasswordChange"
-      @cancel="cancelPasswordChange"
-    >
-      <template #content>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe actuel</label>
-            <input 
-              v-model="passwordForm.currentPassword"
-              type="password" 
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Entrez votre mot de passe actuel"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
-            <input 
-              v-model="passwordForm.newPassword"
-              type="password" 
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Entrez votre nouveau mot de passe"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer le nouveau mot de passe</label>
-            <input 
-              v-model="passwordForm.confirmPassword"
-              type="password" 
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Confirmez votre nouveau mot de passe"
-            />
-          </div>
-        </div>
-      </template>
-    </ConfirmModal>
 
     <div class="max-w-4xl mx-auto">
       <!-- Profil Header -->
@@ -146,88 +104,8 @@
           </div>
         </div>
 
-        <!-- Sécurité -->
-        <div class="bg-white border border-gray-200 shadow-sm">
-          <div class="p-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Sécurité</h3>
-          </div>
-          <div class="p-4">
-            <div class="space-y-4">
-              <div class="p-4 bg-gray-50 rounded-lg">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h4 class="text-sm font-medium text-gray-900">Mot de passe</h4>
-                    <p class="text-sm text-gray-500">Dernière modification il y a 30 jours</p>
-                  </div>
-                  <button 
-                    @click="openPasswordModal"
-                    class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors"
-                  >
-                    Modifier
-                  </button>
-                </div>
-              </div>
-              
-              <div class="p-4 bg-gray-50 rounded-lg">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h4 class="text-sm font-medium text-gray-900">Authentification à deux facteurs</h4>
-                    <p class="text-sm text-gray-500">Non activée</p>
-                  </div>
-                  <button 
-                    class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors"
-                    disabled
-                  >
-                    Activer
-                  </button>
-                </div>
-              </div>
-
-              <div class="p-4 bg-gray-50 rounded-lg">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h4 class="text-sm font-medium text-gray-900">Sessions actives</h4>
-                    <p class="text-sm text-gray-500">2 appareils connectés</p>
-                  </div>
-                  <button 
-                    class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors"
-                    disabled
-                  >
-                    Gérer
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
-          <!-- Statistiques -->
-          <div class="bg-white border border-gray-200 shadow-sm mt-6">
-            <div class="p-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">Statistiques d'activité</h3>
-            </div>
-            <div class="p-4">
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="text-center">
-                  <div class="text-2xl font-bold text-blue-600">1,247</div>
-                  <div class="text-sm text-gray-600">Patients gérés</div>
-                </div>
-                <div class="text-center">
-                  <div class="text-2xl font-bold text-green-600">892</div>
-                  <div class="text-sm text-gray-600">Dossiers créés</div>
-                </div>
-                <div class="text-center">
-                  <div class="text-2xl font-bold text-orange-600">2,156</div>
-                  <div class="text-sm text-gray-600">Rendez-vous planifiés</div>
-                </div>
-                <div class="text-center">
-                  <div class="text-2xl font-bold text-purple-600">1,247</div>
-                  <div class="text-sm text-gray-600">SMS envoyés</div>
-                </div>
-              </div>
-            </div>
-          </div>
 
       <!-- Actions -->
       <div v-if="editMode" class="flex justify-between space-x-3 mt-6">
@@ -250,13 +128,10 @@
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
-import ConfirmModal from '../components/ConfirmModal.vue'
 import { ref, computed, onMounted } from 'vue'
 
 // État du composant
 const editMode = ref(false)
-const showPasswordModal = ref(false)
-const passwordMessage = ref('')
 
 // Données du profil utilisateur
 const userProfile = ref({
@@ -268,12 +143,6 @@ const userProfile = ref({
   role: 'admin'
 })
 
-// Données du formulaire de changement de mot de passe
-const passwordForm = ref({
-  currentPassword: '',
-  newPassword: '',
-  confirmPassword: ''
-})
 
 // Données sauvegardées pour annulation
 const originalProfile = ref({ ...userProfile.value })
@@ -316,65 +185,6 @@ const saveProfile = () => {
   }
 }
 
-// Fonction pour ouvrir la modale de changement de mot de passe
-const openPasswordModal = () => {
-  passwordForm.value = {
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  }
-  passwordMessage.value = 'Veuillez remplir les champs ci-dessous pour changer votre mot de passe.'
-  showPasswordModal.value = true
-}
-
-// Fonction pour confirmer le changement de mot de passe
-const confirmPasswordChange = () => {
-  // Validation
-  if (!passwordForm.value.currentPassword) {
-    if (window.showNotification) {
-      window.showNotification('error', 'Erreur', 'Veuillez entrer votre mot de passe actuel')
-    }
-    return
-  }
-  
-  if (!passwordForm.value.newPassword) {
-    if (window.showNotification) {
-      window.showNotification('error', 'Erreur', 'Veuillez entrer un nouveau mot de passe')
-    }
-    return
-  }
-  
-  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    if (window.showNotification) {
-      window.showNotification('error', 'Erreur', 'Les mots de passe ne correspondent pas')
-    }
-    return
-  }
-  
-  if (passwordForm.value.newPassword.length < 6) {
-    if (window.showNotification) {
-      window.showNotification('error', 'Erreur', 'Le mot de passe doit contenir au moins 6 caractères')
-    }
-    return
-  }
-  
-  // Simuler le changement de mot de passe
-  showPasswordModal.value = false
-  
-  if (window.showNotification) {
-    window.showNotification('success', 'Mot de passe changé', 'Votre mot de passe a été modifié avec succès')
-  }
-}
-
-// Fonction pour annuler le changement de mot de passe
-const cancelPasswordChange = () => {
-  showPasswordModal.value = false
-  passwordForm.value = {
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  }
-}
 
 // Charger les données utilisateur au montage
 onMounted(() => {

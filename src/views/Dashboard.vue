@@ -163,69 +163,20 @@
 
   </Layout>
 
-  <!-- Modal de confirmation de déconnexion -->
-  <ConfirmModal
-    :is-visible="showLogoutModal"
-    title="Confirmer la déconnexion"
-    message="Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à nouveau à l'application."
-    confirm-text="Se déconnecter"
-    cancel-text="Annuler"
-    @confirm="confirmLogout"
-    @cancel="cancelLogout"
-  />
 </template>
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
-import ConfirmModal from '../components/ConfirmModal.vue'
 import { patientService } from '../services/patientService'
 import type { PatientStats } from '../types/global'
 import { smsService, type SMSStats } from '../services/smsService'
 import { userService } from '../services/userService'
 import { appointmentService } from '../services/appointmentService'
 import type { AppointmentStats } from '../types/global'
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const showLogoutModal = ref(false)
-
-// Fonction pour gérer la déconnexion directe
-const handleLogout = () => {
-  localStorage.removeItem('isAuthenticated')
-  localStorage.removeItem('user')
-  
-  // Show logout notification
-  if (window.showNotification) {
-    window.showNotification('info', 'Déconnexion', 'Vous avez été déconnecté avec succès')
-  }
-  
-  router.push('/login')
-}
-
-// Fonction pour confirmer la déconnexion
-const confirmLogout = () => {
-  showLogoutModal.value = false
-  handleLogout()
-}
-
-// Fonction pour annuler la déconnexion
-const cancelLogout = () => {
-  showLogoutModal.value = false
-}
-
-// Écouter l'événement de déconnexion depuis la sidebar
-const handleLogoutEvent = () => {
-  showLogoutModal.value = true
-}
-
-onMounted(() => {
-  window.addEventListener('show-logout-modal', handleLogoutEvent)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('show-logout-modal', handleLogoutEvent)
-})
 
 // Récupération des statistiques réelles
 const patientStats = computed(() => patientService.getPatientsStats())

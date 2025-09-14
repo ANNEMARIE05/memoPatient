@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Pagination Localisations Géographiques</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h1 class="text-lg font-semibold text-gray-900">Test - Pagination Localisations Géographiques</h1>
+                    <p class="text-sm text-gray-600 mt-1">Vérification du design uniforme avec les autres pages</p>
+                </div>
+
+                <!-- Sélecteur de taille de page (comme les autres pages) -->
+                <div class="flex justify-end px-6 py-3 border-b border-gray-100">
+                    <div class="flex items-center space-x-2">
+                        <label for="pageSize" class="text-sm text-gray-600">Afficher</label>
+                        <select
+                            id="pageSize"
+                            class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        >
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span class="text-sm text-gray-600">éléments</span>
+                    </div>
+                </div>
+
+                <!-- Tableau des localisations -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code Postal</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parent</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <!-- Exemple de données -->
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <i class="fas fa-globe text-blue-600"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <p class="text-sm font-medium text-gray-900">France</p>
+                                            <p class="text-xs text-gray-500">FR</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                        Pays
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900 font-mono">
+                                    -
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">
+                                    -
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                        Actif
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <i class="fas fa-map text-blue-600"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <p class="text-sm font-medium text-gray-900">Île-de-France</p>
+                                            <p class="text-xs text-gray-500">IDF</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                        Région
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900 font-mono">
+                                    -
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">
+                                    France
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                        Actif
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <i class="fas fa-city text-blue-600"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <p class="text-sm font-medium text-gray-900">Paris</p>
+                                            <p class="text-xs text-gray-500">PARIS</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                        Ville
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900 font-mono">
+                                    75001-75020
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">
+                                    Île-de-France
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                        Actif
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800 text-sm" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination (design uniforme) -->
+                <div class="px-6 py-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-600">
+                            Affichage de <span class="font-medium">1</span> à <span class="font-medium">3</span> sur <span class="font-medium">13</span> résultats
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                Précédent
+                            </button>
+                            <button class="px-3 py-1.5 text-sm bg-blue-500 text-white shadow-sm rounded-lg">
+                                1
+                            </button>
+                            <button class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
+                                2
+                            </button>
+                            <button class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
+                                3
+                            </button>
+                            <span class="px-2 text-sm text-gray-500">...</span>
+                            <button class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
+                                2
+                            </button>
+                            <button class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
+                                Suivant
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Résumé des fonctionnalités -->
+            <div class="mt-8 bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">✅ Fonctionnalités Implémentées</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="font-medium text-gray-900 mb-2">🎯 Pagination</h3>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Composant PaginationComponent intégré</li>
+                            <li>• Variables de pagination (currentPage, pageSize, pagination)</li>
+                            <li>• Fonctions onPageChange et onPageSizeChange</li>
+                            <li>• Gestion des états de chargement</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-900 mb-2">🎨 Design Uniforme</h3>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Sélecteur de taille de page en haut à droite</li>
+                            <li>• Avatars 10x10px avec icônes appropriées</li>
+                            <li>• Boutons d'action cohérents</li>
+                            <li>• États de chargement intégrés</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-900 mb-2">🔧 Fonctionnalités</h3>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Recherche avec debounce (500ms)</li>
+                            <li>• Filtres par type et statut</li>
+                            <li>• Reset automatique à la page 1</li>
+                            <li>• Gestion d'erreurs avec notifications</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-900 mb-2">📊 Service</h3>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Pagination côté serveur implémentée</li>
+                            <li>• Tri par nom (ordre ascendant)</li>
+                            <li>• Filtrage par recherche et critères</li>
+                            <li>• Métadonnées de pagination complètes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

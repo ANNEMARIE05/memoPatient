@@ -30,6 +30,27 @@
           </div>
         </div>
 
+        <!-- Sélecteur de taille de page -->
+        <div class="flex justify-end px-6 py-3 border-b border-gray-100">
+          <div class="flex items-center space-x-2">
+            <label for="pageSize" class="text-sm text-gray-600">Afficher</label>
+            <select
+              id="pageSize"
+              :value="pageSize"
+              @change="(event) => onPageSizeChange(parseInt((event.target as HTMLSelectElement).value))"
+              :disabled="loading"
+              class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-sm text-gray-600">éléments</span>
+          </div>
+        </div>
+
         <!-- Tableau des utilisateurs avec pagination côté serveur -->
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
@@ -78,6 +99,15 @@
           </table>
         </div>
 
+        <!-- Pagination -->
+        <PaginationComponent
+          v-if="pagination"
+          :pagination="pagination"
+          :loading="loading"
+          @page-change="onPageChange"
+          @page-size-change="onPageSizeChange"
+        />
+
       </div>
     </div>
   </Layout>
@@ -86,6 +116,7 @@
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
 import ActionButtons from '../components/ActionButtons.vue'
+import PaginationComponent from '../components/PaginationComponent.vue'
 import { userService } from '../services/userService'
 import type { User } from '../types/global'
 import { ref, onMounted, watch } from 'vue'
@@ -97,6 +128,9 @@ const router = useRouter()
 
 // Variables réactives
 const users = ref<User[]>([])
+const pagination = ref<PaginatedResponse<User>['pagination'] | null>(null)
+const currentPage = ref(1)
+const pageSize = ref(10)
 const loading = ref(false)
 const searchQuery = ref('')
 const selectedProfile = ref('')
@@ -107,26 +141,20 @@ const searchTimeout = ref<number | null>(null)
 const loadUsers = async () => {
   loading.value = true
   try {
-    // Charger tous les utilisateurs sans pagination
-    const allUsers = await userService.getAllUsers()
-    
-    // Appliquer le filtre de recherche
-    let filteredUsers = allUsers
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase()
-      filteredUsers = allUsers.filter(user => 
-        user.firstname.toLowerCase().includes(query) ||
-        user.lastname.toLowerCase().includes(query) ||
-        user.email.toLowerCase().includes(query)
-      )
+    const params: PaginationParams = {
+      page: currentPage.value,
+      limit: pageSize.value,
+      search: searchQuery.value || undefined,
+      filters: {
+        profil: selectedProfile.value || undefined
+      },
+      sortBy: 'created_at',
+      sortOrder: 'desc'
     }
     
-    // Appliquer le filtre de profil
-    if (selectedProfile.value) {
-      filteredUsers = filteredUsers.filter(user => user.profil === selectedProfile.value)
-    }
-    
-    users.value = filteredUsers
+    const response = userService.getUsers(params)
+    users.value = response.data
+    pagination.value = response.pagination
   } catch (error) {
     console.error('Erreur lors du chargement des utilisateurs:', error)
     if (window.showNotification) {
@@ -139,6 +167,17 @@ const loadUsers = async () => {
 
 
 
+const onPageChange = (page: number) => {
+  currentPage.value = page
+  loadUsers()
+}
+
+const onPageSizeChange = (newPageSize: number) => {
+  pageSize.value = newPageSize
+  currentPage.value = 1 // Reset à la première page
+  loadUsers()
+}
+
 const onSearchChange = () => {
   // Debounce de la recherche
   if (searchTimeout.value) {
@@ -146,6 +185,7 @@ const onSearchChange = () => {
   }
   
   searchTimeout.value = setTimeout(() => {
+    currentPage.value = 1 // Reset à la première page lors de la recherche
     loadUsers()
   }, 500)
 }
@@ -199,6 +239,7 @@ const openAddUserModal = () => {
 
 // Watchers
 watch(selectedProfile, () => {
+  currentPage.value = 1
   loadUsers()
 })
 

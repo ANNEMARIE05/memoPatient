@@ -1,230 +1,121 @@
 <template>
   <Layout title="Envoi de SMS">
-        <!-- Actions -->
-        <div class="mb-4 flex flex-col md:flex-row md:justify-between md:items-center space-y-3 md:space-y-0">
-          <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-            <button @click="showQuickSendModal = true" class="bg-blue-500 hover:bg-blue-600 text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-colors">
-              <font-awesome-icon icon="sms" class="mr-1 md:mr-2" />
-              Nouveau SMS
-            </button>
-            <button @click="manageTemplates" class="bg-purple-500 hover:bg-purple-600 text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-colors">
-              <font-awesome-icon icon="edit" class="mr-1 md:mr-2" />
-              Gérer modèles
-            </button>
+    <!-- Breadcrumb -->
+    <Breadcrumb :items="breadcrumbItems" />
+    
+    <StepForm
+      title="Envoi de SMS"
+      :steps="steps"
+      :form="form"
+      :is-loading="isLoading"
+      submit-text="Envoyer SMS"
+      @submit="sendSMS"
+      @back="goBack"
+    >
+      <!-- Étape 1: Planification de l'envoi -->
+      <template #step-0="{ form }">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Date d'envoi</label>
+            <input 
+              v-model="form.sendDate" 
+              type="date" 
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            />
           </div>
-          
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-            <div class="relative">
-              <input
-                type="text"
-                placeholder="Rechercher un SMS..."
-                class="w-full sm:w-64 px-3 md:px-4 py-2 pl-8 md:pl-10 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
-              />
-              <font-awesome-icon icon="search" class="absolute left-2 md:left-3 top-2.5 text-gray-400 text-sm" />
-            </div>
-            <select class="px-2 md:px-3 py-2 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
-              <option>Tous les SMS</option>
-              <option>Envoyés</option>
-              <option>En attente</option>
-              <option>Échecs</option>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Heure d'envoi</label>
+            <input 
+              v-model="form.sendTime" 
+              type="time" 
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Type de message</label>
+            <select 
+              v-model="form.messageType" 
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            >
+              <option value="Personnalisé">Personnalisé</option>
+              <option value="Rappel RDV">Rappel RDV</option>
+              <option value="Annulation">Annulation</option>
+              <option value="Report">Report</option>
+              <option value="Confirmation">Confirmation</option>
             </select>
           </div>
         </div>
+      </template>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
-          <MetricCard
-            :title="'SMS envoyés'"
-            :value="smsStats.totalSent.toString()"
-            icon="sms"
-            icon-color="blue"
-          />
-          <MetricCard
-            :title="'Modèles disponibles'"
-            :value="smsStats.templatesCount.toString()"
-            icon="file-alt"
-            icon-color="green"
-          />
-          <MetricCard
-            :title="'Taux de livraison'"
-            :value="`${smsStats.deliveryRate}%`"
-            icon="check-circle"
-            icon-color="orange"
-          />
-          <MetricCard
-            :title="'SMS en attente'"
-            :value="smsStats.pending.toString()"
-            icon="clock"
-            icon-color="red"
-          />
-        </div>
-
-        <!-- Modèles de messages -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-          <div class="bg-white border border-gray-200 shadow-sm">
-            <div class="p-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">Modèles de messages</h3>
-            </div>
-            <div class="p-4">
-              <div class="space-y-3">
-                <div v-for="template in messageTemplates" :key="template.id" class="p-3 bg-gray-50 border border-gray-200">
-                  <div class="flex items-center justify-between mb-2">
-                    <font-awesome-icon icon="file-alt" class="text-blue-600" />
-                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1">{{ template.type }}</span>
-                  </div>
-                  <p class="text-sm text-gray-700">{{ template.content }}</p>
-                   <div class="mt-2 flex space-x-2">
-                     <button class="text-blue-600 hover:text-blue-800 text-xs">
-                       <font-awesome-icon icon="edit" class="mr-1" />
-                       Modifier
-                     </button>
-                     <button @click="deleteTemplate(template)" class="text-red-600 hover:text-red-800 text-xs">
-                       <font-awesome-icon icon="trash" class="mr-1" />
-                       Supprimer
-                     </button>
-                   </div>
-                </div>
-              </div>
-            </div>
+      <!-- Étape 2: Rédaction du message -->
+      <template #step-1="{ form }">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="sm:col-span-2 lg:col-span-3">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Modèle de message</label>
+            <select 
+              v-model="form.selectedTemplate" 
+              @change="updateMessageFromTemplate" 
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm mb-4"
+            >
+              <option value="">Sélectionner un modèle (optionnel)</option>
+              <option v-for="template in messageTemplates" :key="template.id" :value="template.id">
+                {{ template.name }}
+              </option>
+            </select>
           </div>
-
-          <!-- Envoi rapide -->
-          <div class="bg-white border border-gray-200 shadow-sm">
-            <div class="p-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">Envoi rapide</h3>
-            </div>
-            <div class="p-4">
-              <form class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Destinataire</label>
-                  <select v-model="selectedPatient" @change="updateMessageWithRecipient" class="w-full px-3 py-2 border-2 border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Sélectionner un patient</option>
-                    <option v-for="patient in patients" :key="patient.uuid" :value="patient.uuid">
-                      {{ patient.firstname }} {{ patient.lastname }} - {{ patient.phone1 }}
-                    </option>
-                  </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Date d'envoi</label>
-                    <input 
-                      v-model="sendDate" 
-                      @change="updateMessageWithRecipient"
-                      type="date" 
-                      class="w-full px-3 py-2 border-2 border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Heure d'envoi</label>
-                    <input 
-                      v-model="sendTime" 
-                      @change="updateMessageWithRecipient"
-                      type="time" 
-                      class="w-full px-3 py-2 border-2 border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Modèle</label>
-                  <select v-model="selectedTemplate" @change="updateMessageFromTemplate" class="w-full px-3 py-2 border-2 border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Sélectionner un modèle</option>
-                    <option v-for="template in messageTemplates" :key="template.id" :value="template.id">
-                      {{ template.name }}
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                  <textarea 
-                    v-model="messageText"
-                    rows="4"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Tapez votre message ici..."
-                  ></textarea>
-                </div>
-                <button @click="sendSMS" type="button" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-sm font-medium transition-colors">
-                  <font-awesome-icon icon="paper-plane" class="mr-2" />
-                  Envoyer SMS
-                </button>
-              </form>
-            </div>
+          <div class="sm:col-span-2 lg:col-span-3">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Message <span class="text-red-500">*</span>
+            </label>
+            <textarea 
+              v-model="form.messageText"
+              rows="6"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              placeholder="Tapez votre message ici..."
+            ></textarea>
+            <p class="text-xs text-gray-500 mt-1">
+              Vous pouvez utiliser des variables comme [nom], [prénom], [téléphone], [email], &#123;&#123;patientName&#125;&#125;, &#123;&#123;appointmentDate&#125;&#125;, &#123;&#123;appointmentTime&#125;&#125;
+            </p>
           </div>
         </div>
+      </template>
 
-        <!-- Historique des SMS -->
-        <div class="bg-white border border-gray-200 shadow-sm">
-          <div class="p-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Historique des SMS</h3>
+      <!-- Étape 3: Aperçu et confirmation -->
+      <template #step-2="{ form }">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h4 class="text-lg font-medium text-gray-900 mb-4">Aperçu du message</h4>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="text-sm font-medium text-gray-700">Date d'envoi :</label>
+              <p class="text-sm text-gray-900">
+                {{ form.sendDate || 'Immédiat' }}
+              </p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-700">Heure d'envoi :</label>
+              <p class="text-sm text-gray-900">
+                {{ form.sendTime || 'Immédiat' }}
+              </p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-700">Type de message :</label>
+              <p class="text-sm text-gray-900">
+                {{ form.messageType }}
+              </p>
+            </div>
           </div>
           
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date d'envoi</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Destinataire</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Message</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200">
-                <tr v-for="sms in smsHistory" :key="sms.id" class="hover:bg-gray-50">
-                  <td class="px-4 py-3">
-                    <div>
-                      <p class="text-sm font-medium text-gray-900">{{ formatDate(sms.sentAt) }}</p>
-                      <p class="text-xs text-gray-500">{{ formatTime(sms.sentAt) }}</p>
-                    </div>
-                  </td>
-                  <td class="px-4 py-3">
-                    <div class="flex items-center">
-                      <div class="w-8 h-8 bg-blue-100 flex items-center justify-center mr-3">
-                        <font-awesome-icon icon="user" class="text-blue-600 text-sm" />
-                      </div>
-                      <div>
-                        <p class="text-sm font-medium text-gray-900">{{ sms.recipientName }}</p>
-                        <p class="text-xs text-gray-500">{{ sms.recipientPhone }}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900">{{ sms.type }}</td>
-                  <td class="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">{{ sms.message }}</td>
-                  <td class="px-4 py-3">
-                    <span :class="getSMSStatusClass(sms.status)" 
-                          class="px-2 py-1 text-xs font-medium rounded-full">
-                      {{ sms.status }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-3">
-                    <div class="flex space-x-2">
-                      <button @click="viewSMS(sms)" class="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails">
-                        <font-awesome-icon icon="eye" />
-                      </button>
-                      <button @click="resendSMS(sms)" class="text-green-600 hover:text-green-800 text-sm" title="Renvoyer">
-                        <font-awesome-icon icon="redo" />
-                      </button>
-                      <button @click="deleteSMS(sms)" class="text-red-600 hover:text-red-800 text-sm" title="Supprimer">
-                        <font-awesome-icon icon="trash" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Message :</label>
+            <div class="bg-white border border-gray-200 rounded-md p-3 mt-1">
+              <p class="text-sm text-gray-900 whitespace-pre-wrap">{{ form.messageText || 'Aucun message saisi' }}</p>
+            </div>
           </div>
         </div>
-
-    <!-- Modal de confirmation de suppression SMS -->
-    <ConfirmModal
-      :isVisible="showDeleteModal"
-      title="Confirmer la suppression"
-      :message="smsToDelete ? `Êtes-vous sûr de vouloir supprimer ce SMS envoyé à ${smsToDelete.recipientName} ? Cette action est irréversible.` : ''"
-      confirmText="Supprimer"
-      cancelText="Annuler"
-      @confirm="confirmDeleteSMS"
-      @cancel="cancelDeleteSMS"
-    />
+      </template>
+    </StepForm>
 
     <!-- Modal de confirmation de suppression de modèle -->
     <ConfirmModal
@@ -241,166 +132,128 @@
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
-import MetricCard from '../components/MetricCard.vue'
+import StepForm from '../components/StepForm.vue'
+import Breadcrumb from '../components/Breadcrumb.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
-import { smsService, type SMSStats, type SMS, type SMSTemplate } from '../services/smsService'
+import { smsService, type SMS, type SMSTemplate } from '../services/smsService'
 import { patientService } from '../services/patientService'
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const isLoading = ref(false)
+
+// Breadcrumb items
+const breadcrumbItems = computed(() => [
+  { label: 'Tableau de bord', path: '/dashboard' },
+  { label: 'Rendez-vous', path: '/appointments' },
+  { label: 'Rédaction de message', path: '' }
+])
+
+const steps = [
+  {
+    title: 'Planification',
+    description: 'Définissez la date et l\'heure d\'envoi',
+    fields: ['sendDate', 'sendTime', 'messageType']
+  },
+  {
+    title: 'Rédaction du message',
+    description: 'Rédigez votre message ou sélectionnez un modèle',
+    fields: ['selectedTemplate', 'messageText']
+  },
+  {
+    title: 'Aperçu et confirmation',
+    description: 'Vérifiez les informations avant l\'envoi',
+    fields: []
+  }
+]
+
+const form = ref({
+  selectedTemplate: '',
+  messageText: '',
+  sendDate: '',
+  sendTime: '',
+  messageType: 'Personnalisé'
+})
 
 // Récupération des données SMS
 const messageTemplates = computed(() => smsService.getTemplates())
-const smsHistory = computed(() => smsService.getSMSHistory())
-const smsStats = computed(() => smsService.getSMSStats())
 const patients = computed(() => patientService.getAllPatients())
-
-// Variables réactives pour le formulaire
-const selectedPatient = ref('')
-const selectedTemplate = ref('')
-const messageText = ref('')
-const sendDate = ref('')
-const sendTime = ref('')
-const showQuickSendModal = ref(false)
-
-// Modal de confirmation
-const showDeleteModal = ref(false)
-const smsToDelete = ref<SMS | null>(null)
 
 // Modal de confirmation pour les modèles
 const showDeleteTemplateModal = ref(false)
 const templateToDelete = ref<SMSTemplate | null>(null)
 
-const getSMSStatusClass = (status: string) => {
-  switch (status) {
-    case 'Livré':
-      return 'bg-green-100 text-green-800'
-    case 'En attente':
-      return 'bg-yellow-100 text-yellow-800'
-    case 'Échec':
-      return 'bg-red-100 text-red-800'
-    default:
-      return 'bg-gray-100 text-gray-800'
-  }
-}
+// Fonctions utilitaires
 
 // Fonction pour mettre à jour le message à partir du modèle
 const updateMessageFromTemplate = () => {
-  if (selectedTemplate.value) {
-    const template = smsService.getTemplateById(selectedTemplate.value)
+  if (form.value.selectedTemplate) {
+    const template = smsService.getTemplateById(form.value.selectedTemplate)
     if (template) {
-      let message = template.content
-      
-      // Remplacer les variables si un patient est sélectionné
-      if (selectedPatient.value) {
-        const patient = patients.value.find(p => p.uuid === selectedPatient.value)
-        if (patient) {
-          // Remplacer les variables avec crochets
-          message = message.replace(/\[nom\]/g, `${patient.firstname} ${patient.lastname}`)
-          message = message.replace(/\[prénom\]/g, patient.firstname)
-          message = message.replace(/\[téléphone\]/g, patient.phone1)
-          message = message.replace(/\[email\]/g, patient.email)
-          
-          // Remplacer les variables avec accolades doubles
-          message = message.replace(/\{\{patientName\}\}/g, `${patient.firstname} ${patient.lastname}`)
-          message = message.replace(/\{\{appointmentDate\}\}/g, sendDate.value || 'la date sélectionnée')
-          message = message.replace(/\{\{appointmentTime\}\}/g, sendTime.value || 'l\'heure sélectionnée')
-        }
-      }
-      
-      messageText.value = message
+      form.value.messageText = template.content
     }
   }
 }
 
-// Fonction pour auto-remplir le message quand un destinataire est sélectionné
-const updateMessageWithRecipient = () => {
-  if (selectedPatient.value && selectedTemplate.value) {
-    updateMessageFromTemplate()
-  } else if (selectedPatient.value && messageText.value) {
-    // Si un patient est sélectionné mais pas de modèle, on peut personnaliser le message existant
-    const patient = patients.value.find(p => p.uuid === selectedPatient.value)
-    if (patient) {
-      let message = messageText.value
-      // Remplacer les variables avec crochets
-      message = message.replace(/\[nom\]/g, `${patient.firstname} ${patient.lastname}`)
-      message = message.replace(/\[prénom\]/g, patient.firstname)
-      message = message.replace(/\[téléphone\]/g, patient.phone1)
-      message = message.replace(/\[email\]/g, patient.email)
-      
-      // Remplacer les variables avec accolades doubles
-      message = message.replace(/\{\{patientName\}\}/g, `${patient.firstname} ${patient.lastname}`)
-      message = message.replace(/\{\{appointmentDate\}\}/g, sendDate.value || 'la date sélectionnée')
-      message = message.replace(/\{\{appointmentTime\}\}/g, sendTime.value || 'l\'heure sélectionnée')
-      
-      messageText.value = message
-    }
-  }
+// Fonction pour retourner en arrière
+const goBack = () => {
+  router.push('/appointments')
 }
 
 // Fonction pour envoyer un SMS
-const sendSMS = () => {
-  if (!selectedPatient.value || !messageText.value.trim()) {
-    alert('Veuillez sélectionner un patient et saisir un message')
+const sendSMS = async () => {
+  if (!form.value.messageText.trim()) {
+    alert('Veuillez saisir un message')
     return
   }
 
-  const patient = patients.value.find(p => p.uuid === selectedPatient.value)
+  // Pour l'instant, on utilise le premier patient disponible
+  // Dans une vraie application, il faudrait une autre logique pour déterminer le destinataire
+  const patient = patients.value[0]
   if (!patient) {
-    alert('Patient non trouvé')
+    alert('Aucun patient disponible')
     return
   }
 
-  const smsData: Omit<SMS, 'id' | 'status' | 'sentAt'> = {
-    recipientId: patient.uuid,
-    recipientName: `${patient.firstname} ${patient.lastname}`,
-    recipientPhone: patient.phone1,
-    message: messageText.value.trim(),
-    type: (selectedTemplate.value ? messageTemplates.value.find(t => t.id === selectedTemplate.value)?.type || 'Personnalisé' : 'Personnalisé') as 'Rappel RDV' | 'Annulation' | 'Report' | 'Confirmation' | 'Personnalisé',
-    templateId: selectedTemplate.value || undefined
+  isLoading.value = true
+
+  try {
+    const smsData: Omit<SMS, 'id' | 'status' | 'sentAt'> = {
+      recipientId: patient.uuid,
+      recipientName: `${patient.firstname} ${patient.lastname}`,
+      recipientPhone: patient.phone1,
+      message: form.value.messageText.trim(),
+      type: form.value.messageType as 'Rappel RDV' | 'Annulation' | 'Report' | 'Confirmation' | 'Personnalisé',
+      templateId: form.value.selectedTemplate || undefined
+    }
+
+    const newSMS = smsService.sendSMS(smsData)
+    
+    // Réinitialiser le formulaire
+    form.value = {
+      selectedTemplate: '',
+      messageText: '',
+      sendDate: '',
+      sendTime: '',
+      messageType: 'Personnalisé'
+    }
+    
+    // Afficher une notification
+    if (window.showNotification) {
+      window.showNotification('success', 'SMS envoyé', `SMS envoyé à ${patient.firstname} ${patient.lastname} avec succès`)
+    }
+    
+    // Rediriger vers la page des rendez-vous
+    router.push('/appointments')
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi du SMS:', error)
+    if (window.showNotification) {
+      window.showNotification('error', 'Erreur', 'Une erreur est survenue lors de l\'envoi du SMS')
+    }
+  } finally {
+    isLoading.value = false
   }
-
-  const newSMS = smsService.sendSMS(smsData)
-  
-  // Réinitialiser le formulaire
-  selectedPatient.value = ''
-  selectedTemplate.value = ''
-  messageText.value = ''
-  
-  // Afficher une notification
-  if (window.showNotification) {
-    window.showNotification('success', 'SMS envoyé', `SMS envoyé à ${patient.firstname} ${patient.lastname} avec succès`)
-  }
-}
-
-// Fonctions supplémentaires
-const viewSMS = (sms: SMS) => {
-  if (window.showNotification) {
-    window.showNotification('info', 'Détails SMS', `Affichage des détails pour ${sms.recipientName}`)
-  }
-}
-
-const resendSMS = (sms: SMS) => {
-  const success = smsService.resendSMS(sms.id)
-  if (success && window.showNotification) {
-    window.showNotification('info', 'SMS renvoyé', `SMS renvoyé à ${sms.recipientName}`)
-  }
-}
-
-const deleteSMS = (sms: SMS) => {
-  smsToDelete.value = sms
-  showDeleteModal.value = true
-}
-
-const confirmDeleteSMS = () => {
-  if (smsToDelete.value && window.showNotification) {
-    window.showNotification('success', 'SMS supprimé', `SMS supprimé avec succès`)
-  }
-  showDeleteModal.value = false
-  smsToDelete.value = null
-}
-
-const cancelDeleteSMS = () => {
-  showDeleteModal.value = false
-  smsToDelete.value = null
 }
 
 // Fonctions pour les modèles
@@ -422,33 +275,29 @@ const cancelDeleteTemplate = () => {
   templateToDelete.value = null
 }
 
-// Fonctions pour formater la date et l'heure
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
-}
-
-const formatTime = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleTimeString('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-const exportSMS = () => {
-  if (window.showNotification) {
-    window.showNotification('info', 'Export', 'Export des SMS en cours...')
+// Charger les données du rendez-vous en cours si l'utilisateur vient de la page de rendez-vous
+onMounted(() => {
+  const pendingAppointment = localStorage.getItem('pendingAppointment')
+  if (pendingAppointment) {
+    try {
+      const appointmentData = JSON.parse(pendingAppointment)
+      
+      // Pré-remplir la date et l'heure si disponibles
+      if (appointmentData.appointmentDate) {
+        form.value.sendDate = appointmentData.appointmentDate
+      }
+      if (appointmentData.appointmentTime) {
+        form.value.sendTime = appointmentData.appointmentTime
+      }
+      
+      // Définir le type de message par défaut
+      form.value.messageType = 'Confirmation'
+      
+      // Nettoyer le localStorage
+      localStorage.removeItem('pendingAppointment')
+    } catch (error) {
+      console.error('Erreur lors du chargement des données du rendez-vous:', error)
+    }
   }
-}
-
-const manageTemplates = () => {
-  if (window.showNotification) {
-    window.showNotification('info', 'Gestion modèles', 'Gestion des modèles de SMS...')
-  }
-}
+})
 </script>

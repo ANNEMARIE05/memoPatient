@@ -1,53 +1,36 @@
 <template>
-  <div class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
-    <div class="flex items-center justify-between w-full">
-      <!-- Informations de pagination -->
-      <div class="flex items-center text-sm text-gray-700">
-        <span v-if="!loading">
-          Affichage de 
-          <span class="font-medium">{{ paginationStart }}</span>
-          à 
-          <span class="font-medium">{{ paginationEnd }}</span>
-          sur 
-          <span class="font-medium">{{ pagination.total }}</span>
-          résultats
-        </span>
-        <span v-else class="flex items-center">
-          <font-awesome-icon icon="spinner" class="animate-spin mr-2" />
-          Chargement...
-        </span>
-      </div>
-
-      <!-- Sélecteur de taille de page -->
-      <div class="flex items-center space-x-4">
-        <div class="flex items-center space-x-2">
-          <label for="pageSize" class="text-sm text-gray-700">Éléments par page:</label>
-          <select
-            id="pageSize"
-            :value="pagination.limit"
-            @change="onPageSizeChange"
-            :disabled="loading"
-            class="px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
+  <div class="bg-white border-t border-gray-100">
+    <!-- Pagination principale -->
+    <div class="flex items-center justify-between px-6 py-4">
+      <div class="flex items-center justify-between w-full">
+        <!-- Informations de pagination -->
+        <div class="flex items-center text-sm text-gray-600">
+          <span v-if="!loading">
+            Affichage de 
+            <span class="font-semibold text-gray-900">{{ paginationStart }}</span>
+            à 
+            <span class="font-semibold text-gray-900">{{ paginationEnd }}</span>
+            sur 
+            <span class="font-semibold text-gray-900">{{ pagination.total }}</span>
+            résultats
+          </span>
+          <span v-else class="flex items-center">
+            <font-awesome-icon icon="spinner" class="animate-spin mr-2 text-blue-500" />
+            <span class="text-gray-500">Chargement...</span>
+          </span>
         </div>
 
         <!-- Navigation de pagination -->
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-1">
           <!-- Bouton Précédent -->
           <button
             @click="goToPage(pagination.page - 1)"
             :disabled="!pagination.hasPrev || loading"
             :class="[
-              'relative inline-flex items-center px-3 py-2 text-sm font-medium border border-gray-300 rounded-md transition-colors',
+              'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200',
               pagination.hasPrev && !loading
-                ? 'bg-white text-gray-500 hover:bg-gray-50 cursor-pointer' 
-                : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 cursor-pointer' 
+                : 'text-gray-300 cursor-not-allowed'
             ]"
           >
             <font-awesome-icon icon="chevron-left" class="mr-1" />
@@ -55,7 +38,7 @@
           </button>
 
           <!-- Numéros de page -->
-          <div class="flex space-x-1">
+          <div class="flex items-center space-x-1">
             <!-- Première page -->
             <button
               v-if="showFirstPage"
@@ -67,7 +50,7 @@
             </button>
             
             <!-- Ellipsis après la première page -->
-            <span v-if="showFirstEllipsis" class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">
+            <span v-if="showFirstEllipsis" class="px-3 py-2 text-sm text-gray-400">
               ...
             </span>
 
@@ -83,7 +66,7 @@
             </button>
 
             <!-- Ellipsis avant la dernière page -->
-            <span v-if="showLastEllipsis" class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">
+            <span v-if="showLastEllipsis" class="px-3 py-2 text-sm text-gray-400">
               ...
             </span>
 
@@ -103,10 +86,10 @@
             @click="goToPage(pagination.page + 1)"
             :disabled="!pagination.hasNext || loading"
             :class="[
-              'relative inline-flex items-center px-3 py-2 text-sm font-medium border border-gray-300 rounded-md transition-colors',
+              'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200',
               pagination.hasNext && !loading
-                ? 'bg-white text-gray-500 hover:bg-gray-50 cursor-pointer' 
-                : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 cursor-pointer' 
+                : 'text-gray-300 cursor-not-allowed'
             ]"
           >
             Suivant
@@ -154,8 +137,8 @@ const visiblePages = computed(() => {
   const delta = 2 // Nombre de pages à afficher de chaque côté de la page courante
   
   if (total <= 7) {
-    // Si moins de 7 pages, afficher toutes
-    return Array.from({ length: total }, (_, i) => i + 1)
+    // Si moins de 7 pages, afficher toutes sauf la première et dernière (déjà affichées séparément)
+    return Array.from({ length: total - 2 }, (_, i) => i + 2).filter(page => page < total)
   }
   
   let start = Math.max(2, current - delta)
@@ -170,25 +153,37 @@ const visiblePages = computed(() => {
     start = Math.max(2, total - 2 * delta - 1)
   }
   
+  // S'assurer qu'on n'inclut pas la première ou dernière page
+  start = Math.max(2, start)
+  end = Math.min(total - 1, end)
+  
+  if (start > end) {
+    return []
+  }
+  
   return Array.from({ length: end - start + 1 }, (_, i) => start + i)
 })
 
 // Conditions d'affichage des ellipsis
 const showFirstPage = computed(() => props.pagination.totalPages > 1)
 const showLastPage = computed(() => props.pagination.totalPages > 1)
-const showFirstEllipsis = computed(() => visiblePages.value[0] > 2)
-const showLastEllipsis = computed(() => visiblePages.value[visiblePages.value.length - 1] < props.pagination.totalPages - 1)
+const showFirstEllipsis = computed(() => {
+  return visiblePages.value.length > 0 && visiblePages.value[0] > 2
+})
+const showLastEllipsis = computed(() => {
+  return visiblePages.value.length > 0 && visiblePages.value[visiblePages.value.length - 1] < props.pagination.totalPages - 1
+})
 
 // Classe CSS pour les boutons de page
 const getPageButtonClass = (page: number) => {
   const isActive = page === props.pagination.page
   return [
-    'relative inline-flex items-center px-3 py-2 text-sm font-medium border rounded-md transition-colors',
+    'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200',
     isActive
-      ? 'bg-blue-600 text-white border-blue-600'
+      ? 'bg-blue-500 text-white shadow-sm'
       : props.loading
-        ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-        : 'bg-white text-gray-500 border-gray-300 hover:bg-gray-50'
+        ? 'text-gray-300 cursor-not-allowed'
+        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
   ]
 }
 

@@ -1,33 +1,6 @@
 <template>
   <Layout title="Gestion des profils">
     <div class="space-y-6">
-      <!-- Statistiques -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <MetricCard
-          title="Total profils"
-          :value="profileStats.total.toString()"
-          icon="user-shield"
-          icon-color="blue"
-        />
-        <MetricCard
-          title="Profils actifs"
-          :value="profileStats.active.toString()"
-          icon="shield-alt"
-          icon-color="green"
-        />
-        <MetricCard
-          title="Administrateurs"
-          :value="profileStats.admins.toString()"
-          icon="crown"
-          icon-color="purple"
-        />
-        <MetricCard
-          title="Médecins"
-          :value="profileStats.doctors.toString()"
-          icon="user-md"
-          icon-color="orange"
-        />
-      </div>
 
       <!-- Actions et filtres -->
       <div class="bg-white shadow rounded-lg p-6">
@@ -53,6 +26,27 @@
               />
               <font-awesome-icon icon="search" class="absolute left-2 md:left-3 top-2.5 text-gray-400 text-sm" />
             </div>
+          </div>
+        </div>
+
+        <!-- Sélecteur de taille de page -->
+        <div class="flex justify-end px-6 py-3 border-b border-gray-100">
+          <div class="flex items-center space-x-2">
+            <label for="pageSize" class="text-sm text-gray-600">Afficher</label>
+            <select
+              id="pageSize"
+              :value="pageSize"
+              @change="(event) => onPageSizeChange(parseInt((event.target as HTMLSelectElement).value))"
+              :disabled="loading"
+              class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-sm text-gray-600">éléments</span>
           </div>
         </div>
 
@@ -119,6 +113,15 @@
           </table>
         </div>
 
+        <!-- Pagination -->
+        <PaginationComponent
+          v-if="pagination"
+          :pagination="pagination"
+          :loading="loading"
+          @page-change="onPageChange"
+          @page-size-change="onPageSizeChange"
+        />
+
       </div>
     </div>
 
@@ -127,9 +130,9 @@
 
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
-import MetricCard from '../components/MetricCard.vue'
-import { profileService } from '../services/profileService'
-import type { Profile, ProfileStats } from '../types/global'
+import PaginationComponent from '../components/PaginationComponent.vue'
+import { profileService } from '../services/profileService.ts'
+import type { Profile } from '../types/global'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { PaginationParams, PaginatedResponse } from '../types/global'
@@ -143,10 +146,9 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const searchQuery = ref('')
 const searchTimeout = ref<number | null>(null)
+const loading = ref(false)
 
 
-// Statistiques
-const profileStats = computed(() => profileService.getProfilesStats())
 
 // Fonctions de pagination
 const loadProfiles = () => {
@@ -165,6 +167,12 @@ const loadProfiles = () => {
 
 const onPageChange = (page: number) => {
   currentPage.value = page
+  loadProfiles()
+}
+
+const onPageSizeChange = (newPageSize: number) => {
+  pageSize.value = newPageSize
+  currentPage.value = 1 // Reset à la première page
   loadProfiles()
 }
 

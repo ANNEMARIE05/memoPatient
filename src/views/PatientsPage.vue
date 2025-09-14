@@ -73,6 +73,27 @@
           </div>
         </div>
 
+        <!-- Sélecteur de taille de page -->
+        <div class="flex justify-end px-6 py-3 border-b border-gray-100">
+          <div class="flex items-center space-x-2">
+            <label for="pageSize" class="text-sm text-gray-600">Afficher</label>
+            <select
+              id="pageSize"
+              :value="pageSize"
+              @change="(event) => onPageSizeChange(parseInt((event.target as HTMLSelectElement).value))"
+              :disabled="loading"
+              class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-sm text-gray-600">éléments</span>
+          </div>
+        </div>
+
         <!-- Tableau des patients -->
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
@@ -145,6 +166,15 @@
           </table>
         </div>
 
+        <!-- Pagination -->
+        <PaginationComponent
+          v-if="pagination"
+          :pagination="pagination"
+          :loading="loading"
+          @page-change="onPageChange"
+          @page-size-change="onPageSizeChange"
+        />
+
       </div>
     </div>
   </Layout>
@@ -154,6 +184,7 @@
 import Layout from '../components/Layout.vue'
 import MetricCard from '../components/MetricCard.vue'
 import ActionButtons from '../components/ActionButtons.vue'
+import PaginationComponent from '../components/PaginationComponent.vue'
 import { patientService } from '../services/patientService'
 import type { Patient, PatientStats } from '../types/global'
 import { computed, ref, onMounted, watch } from 'vue'
@@ -201,42 +232,22 @@ const formatDate = (dateString: string): string => {
 const loadPatients = async () => {
   loading.value = true
   try {
-    // Charger tous les patients sans pagination
-    const allPatients = await patientService.getAllPatients()
-    
-    // Appliquer les filtres
-    let filteredPatients = allPatients
-    
-    // Filtre de recherche
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase()
-      filteredPatients = filteredPatients.filter(patient => 
-        patient.firstname.toLowerCase().includes(query) ||
-        patient.lastname.toLowerCase().includes(query) ||
-        patient.email.toLowerCase().includes(query) ||
-        patient.phone1.includes(query)
-      )
+    const params: PaginationParams = {
+      page: currentPage.value,
+      limit: pageSize.value,
+      search: searchQuery.value || undefined,
+      filters: {
+        genre: selectedGenre.value || undefined,
+        dateStart: dateStart.value || undefined,
+        dateEnd: dateEnd.value || undefined
+      },
+      sortBy: 'created_at',
+      sortOrder: 'desc'
     }
     
-    // Filtre par genre
-    if (selectedGenre.value) {
-      filteredPatients = filteredPatients.filter(patient => patient.genre === selectedGenre.value)
-    }
-    
-    // Filtre par date
-    if (dateStart.value) {
-      filteredPatients = filteredPatients.filter(patient => 
-        new Date(patient.created_at) >= new Date(dateStart.value)
-      )
-    }
-    
-    if (dateEnd.value) {
-      filteredPatients = filteredPatients.filter(patient => 
-        new Date(patient.created_at) <= new Date(dateEnd.value)
-      )
-    }
-    
-    patients.value = filteredPatients
+    const response = await patientService.getPatients(params)
+    patients.value = response.data
+    pagination.value = response.pagination
   } catch (error) {
     console.error('Erreur lors du chargement des patients:', error)
     if (window.showNotification) {
@@ -247,6 +258,17 @@ const loadPatients = async () => {
   }
 }
 
+const onPageChange = (page: number) => {
+  currentPage.value = page
+  loadPatients()
+}
+
+const onPageSizeChange = (newPageSize: number) => {
+  pageSize.value = newPageSize
+  currentPage.value = 1 // Reset à la première page
+  loadPatients()
+}
+
 const onSearchChange = () => {
   // Debounce de la recherche
   if (searchTimeout.value) {
@@ -254,6 +276,7 @@ const onSearchChange = () => {
   }
   
   searchTimeout.value = setTimeout(() => {
+    currentPage.value = 1 // Reset à la première page lors de la recherche
     loadPatients()
   }, 500)
 }

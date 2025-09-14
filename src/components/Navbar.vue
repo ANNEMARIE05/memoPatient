@@ -9,9 +9,6 @@
 
       <!-- Actions -->
       <div class="flex items-center space-x-4">
-        <!-- Language Switcher -->
-        <LanguageSwitcher />
-        
         <!-- Notifications -->
         <button class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
           <font-awesome-icon icon="bell" class="text-xl" />
@@ -78,7 +75,7 @@
             <!-- Logout -->
             <div class="py-1">
               <button 
-                @click="showLogoutModal = true"
+                @click="handleLogout"
                 class="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center"
               >
                 <font-awesome-icon icon="sign-out-alt" class="mr-3 text-red-400" />
@@ -125,23 +122,23 @@
       </nav>
     </div>
 
-    <!-- Modal de confirmation de déconnexion -->
-    <ConfirmModal
-      :isVisible="showLogoutModal"
-      title="Confirmer la déconnexion"
-      message="Êtes-vous sûr de vouloir vous déconnecter ?"
-      confirmText="Se déconnecter"
-      cancelText="Annuler"
-      @confirm="confirmLogout"
-      @cancel="cancelLogout"
-    />
   </header>
+
+  <!-- Modal de confirmation de déconnexion -->
+  <ConfirmModal
+    :isVisible="showLogoutModal"
+    title="Confirmer la déconnexion"
+    message="Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à nouveau à l'application."
+    confirmText="Se déconnecter"
+    cancelText="Annuler"
+    @confirm="confirmLogout"
+    @cancel="cancelLogout"
+  />
 </template>
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import LanguageSwitcher from './LanguageSwitcher.vue'
 import ConfirmModal from './ConfirmModal.vue'
 
 interface Tab {
@@ -244,6 +241,7 @@ const confirmLogout = () => {
 const cancelLogout = () => {
   showLogoutModal.value = false
 }
+
 
 // Écouter les clics à l'extérieur pour fermer le menu
 onMounted(() => {

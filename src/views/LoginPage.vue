@@ -1,10 +1,5 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
-    <!-- Language Switcher -->
-    <div class="absolute top-4 right-4">
-      <LanguageSwitcher />
-    </div>
-    
     <div class="w-full max-w-md">
       <!-- Logo and Brand -->
       <div class="text-center mb-8">
@@ -336,7 +331,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 
 const router = useRouter()
 

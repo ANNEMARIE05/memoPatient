@@ -28,9 +28,9 @@
       </div>
 
       <!-- Informations du rendez-vous -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="flex flex-col lg:flex-row gap-6">
         <!-- Informations générales -->
-        <div class="bg-white border border-gray-200 shadow-sm">
+        <div class="flex-1 bg-white border border-gray-200 shadow-sm">
           <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Informations générales</h3>
           </div>
@@ -68,75 +68,29 @@
           </div>
         </div>
 
-        <!-- Actions rapides -->
-        <div class="bg-white border border-gray-200 shadow-sm">
+        <!-- Informations système -->
+        <div class="flex-1 bg-white border border-gray-200 shadow-sm">
           <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Actions rapides</h3>
+            <h3 class="text-lg font-medium text-gray-900">Informations système</h3>
           </div>
           <div class="p-6">
-            <div class="space-y-3">
-              <button
-                v-if="appointment?.statut === 0"
-                @click="updateStatus(1)"
-                class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-              >
-                <font-awesome-icon icon="check" class="mr-2" />
-                Confirmer le rendez-vous
-              </button>
-              
-              
-              <button
-                v-if="appointment?.statut === 2"
-                @click="updateStatus(4)"
-                class="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-              >
-                <font-awesome-icon icon="flag-checkered" class="mr-2" />
-                Marquer comme terminé
-              </button>
-              
-              <button
-                v-if="appointment?.statut !== 3 && appointment?.statut !== 4"
-                @click="updateStatus(3)"
-                class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-              >
-                <font-awesome-icon icon="times" class="mr-2" />
-                Annuler le rendez-vous
-              </button>
-              
-              <router-link
-                :to="`/sms?appointment=${appointment?.uuid}`"
-                class="w-full block px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors text-center"
-              >
-                <font-awesome-icon icon="sms" class="mr-2" />
-                Envoyer un SMS
-              </router-link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Informations système -->
-      <div class="mt-6 bg-white border border-gray-200 shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Informations système</h3>
-        </div>
-        <div class="p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-500">ID du rendez-vous</label>
-              <p class="mt-1 text-sm text-gray-900 font-mono">{{ appointment?.uuid }}</p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-500">Date de création</label>
-              <p class="mt-1 text-sm text-gray-900">{{ formatDate(appointment?.created_at) }}</p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-500">Dernière modification</label>
-              <p class="mt-1 text-sm text-gray-900">{{ formatDate(appointment?.updated_at) }}</p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-500">Créé par</label>
-              <p class="mt-1 text-sm text-gray-900">{{ getDoctorName(appointment?.created_user) }}</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-500">ID du rendez-vous</label>
+                <p class="mt-1 text-sm text-gray-900 font-mono">{{ appointment?.uuid }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Date de création</label>
+                <p class="mt-1 text-sm text-gray-900">{{ formatDate(appointment?.created_at) }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Dernière modification</label>
+                <p class="mt-1 text-sm text-gray-900">{{ formatDate(appointment?.updated_at) }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Créé par</label>
+                <p class="mt-1 text-sm text-gray-900">{{ getDoctorName(appointment?.created_user) }}</p>
+              </div>
             </div>
           </div>
         </div>

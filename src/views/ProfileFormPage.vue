@@ -7,9 +7,31 @@
       <!-- Formulaire -->
       <div class="bg-white border border-gray-200 shadow-sm">
         <div class="px-4 py-3 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">
-            {{ isEdit ? 'Modifier le profil' : 'Nouveau profil' }}
-          </h2>
+          <div class="flex items-center justify-between">
+            <!-- Titre à gauche -->
+            <h2 class="text-lg font-semibold text-gray-900">
+              {{ isEdit ? 'Modifier le profil' : 'Nouveau profil' }}
+            </h2>
+            
+            <!-- Actions à droite -->
+            <div class="flex items-center space-x-3">
+              <router-link
+                to="/profiles"
+                class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center text-sm transition-colors"
+              >
+                <font-awesome-icon icon="arrow-left" class="mr-2" />
+                Retour
+              </router-link>
+              <button
+                @click="handleSubmit"
+                :disabled="loading"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm transition-colors"
+              >
+                <font-awesome-icon v-if="loading" icon="spinner" class="mr-2 animate-spin" />
+                {{ loading ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer') }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <form @submit.prevent="handleSubmit" class="p-4 space-y-4">
@@ -126,22 +148,6 @@
           </div>
 
 
-          <!-- Boutons d'action -->
-          <div class="flex justify-between space-x-3 pt-4 border-t border-gray-200">
-            <router-link
-              to="/profiles"
-              class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm"
-            >
-              Annuler
-            </router-link>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-            >
-              {{ loading ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer') }}
-            </button>
-          </div>
         </form>
       </div>
     </div>

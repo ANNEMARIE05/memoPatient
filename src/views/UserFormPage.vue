@@ -139,13 +139,22 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Mot de passe <span class="text-red-500">*</span>
             </label>
-            <input
-              v-model="form.password"
-              type="password"
-              :required="!isEdit"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-              placeholder="Mot de passe"
-            />
+            <div class="relative">
+              <input
+                v-model="form.password"
+                :type="showPassword ? 'text' : 'password'"
+                :required="!isEdit"
+                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                placeholder="Mot de passe"
+              />
+              <button
+                type="button"
+                @click="showPassword = !showPassword"
+                class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <font-awesome-icon :icon="showPassword ? 'eye-slash' : 'eye'" />
+              </button>
+            </div>
           </div>
         </div>
       </template>
@@ -165,6 +174,7 @@ import type { User } from '../types/global'
 const route = useRoute()
 const router = useRouter()
 const loading = ref(false)
+const showPassword = ref(false)
 
 const isEdit = computed(() => !!route.params.uuid)
 
