@@ -180,7 +180,7 @@
                   placeholder="Tapez votre message ici..."
                 ></textarea>
                 <p class="text-xs text-gray-500 mt-1">
-                  Vous pouvez utiliser des variables comme [nom], [prénom], [téléphone], [email], {{patientName}}, {{appointmentDate}}, {{appointmentTime}}
+                  Vous pouvez utiliser des variables comme [nom], [prénom], [téléphone], [email], &#123;&#123;patientName&#125;&#125;, &#123;&#123;appointmentDate&#125;&#125;, &#123;&#123;appointmentTime&#125;&#125;
                 </p>
               </div>
 
