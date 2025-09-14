@@ -162,6 +162,50 @@ class GeographicLocationService {
       isActive: true,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z'
+    },
+    {
+      id: 'NICE',
+      name: 'Nice',
+      type: 'city',
+      parentId: 'PACA',
+      coordinates: { latitude: 43.7102, longitude: 7.2620 },
+      postalCode: '06000-06300',
+      isActive: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z'
+    },
+    {
+      id: 'BORDEAUX',
+      name: 'Bordeaux',
+      type: 'city',
+      parentId: 'NAQ',
+      coordinates: { latitude: 44.8378, longitude: -0.5792 },
+      postalCode: '33000-33800',
+      isActive: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z'
+    },
+    {
+      id: 'LILLE',
+      name: 'Lille',
+      type: 'city',
+      parentId: 'HDF',
+      coordinates: { latitude: 50.6292, longitude: 3.0573 },
+      postalCode: '59000-59800',
+      isActive: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z'
+    },
+    {
+      id: 'NANTES',
+      name: 'Nantes',
+      type: 'city',
+      parentId: 'PDL',
+      coordinates: { latitude: 47.2184, longitude: -1.5536 },
+      postalCode: '44000-44900',
+      isActive: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z'
     }
   ]
 

@@ -72,38 +72,97 @@
         </div>
       </div>
 
-      <!-- Filtres et recherche -->
-      <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <div class="flex flex-col lg:flex-row gap-4">
-          <!-- Recherche -->
-          <div class="flex-1">
-            <div class="relative">
-              <font-awesome-icon icon="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                v-model="searchQuery"
-                @input="onSearchChange"
-                type="text"
-                placeholder="Rechercher par contenu, numéro ou UUID..."
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+      <!-- Filtres -->
+      <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <div class="space-y-6">
+          <!-- Titre des filtres -->
+          <div class="flex items-center gap-2">
+            <font-awesome-icon icon="filter" class="text-blue-600" />
+            <h3 class="text-lg font-semibold text-gray-900">Filtres</h3>
+          </div>
+
+          <!-- Filtre périodique -->
+          <div class="space-y-3">
+            <h4 class="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <font-awesome-icon icon="calendar-alt" class="text-gray-500" />
+              Période
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-600">Date de début</label>
+                <input
+                  v-model="startDate"
+                  @change="applyDateFilter"
+                  type="datetime-local"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                />
+              </div>
+              <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-600">Date de fin</label>
+                <input
+                  v-model="endDate"
+                  @change="applyDateFilter"
+                  type="datetime-local"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                />
+              </div>
+              <div class="flex items-end">
+                <button
+                  @click="clearDateFilter"
+                  class="w-full px-4 py-2 text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 rounded-lg focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center justify-center gap-2"
+                >
+                  <font-awesome-icon icon="times" />
+                  Effacer les dates
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Filtres -->
-          <div class="flex gap-4">
-            <select v-model="patientFilter" @change="loadMessageHistory" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option value="">Tous les patients</option>
-              <option v-for="patient in patients" :key="patient.uuid" :value="patient.uuid">
-                {{ patient.name }}
-              </option>
-            </select>
+          <!-- Autres filtres -->
+          <div class="space-y-3">
+            <h4 class="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <font-awesome-icon icon="sliders-h" class="text-gray-500" />
+              Autres critères
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-600">Patient</label>
+                <select 
+                  v-model="patientFilter" 
+                  @change="loadMessageHistory" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <option value="">Tous les patients</option>
+                  <option v-for="patient in patients" :key="patient.uuid" :value="patient.uuid">
+                    {{ patient.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-600">Statut</label>
+                <select 
+                  v-model="statusFilter" 
+                  @change="loadMessageHistory" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <option value="">Tous les statuts</option>
+                  <option value="delivered">Livré</option>
+                  <option value="pending">En attente</option>
+                  <option value="failed">Échec</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
-            <select v-model="statusFilter" @change="loadMessageHistory" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option value="">Tous les statuts</option>
-              <option value="delivered">Livré</option>
-              <option value="pending">En attente</option>
-              <option value="failed">Échec</option>
-            </select>
+          <!-- Actions rapides -->
+          <div class="flex justify-end">
+            <button
+              @click="clearAllFilters"
+              class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+            >
+              <font-awesome-icon icon="undo" />
+              Réinitialiser tous les filtres
+            </button>
           </div>
         </div>
       </div>
@@ -256,13 +315,13 @@ const pagination = ref({
   hasPrev: false
 })
 const loading = ref(false)
-const searchQuery = ref('')
 const statusFilter = ref('')
 const patientFilter = ref('')
 const sortField = ref('sentAt')
 const sortOrder = ref<'asc' | 'desc'>('desc')
-const searchTimeout = ref<number | null>(null)
 const patients = ref<Array<{uuid: string, name: string}>>([])
+const startDate = ref('')
+const endDate = ref('')
 
 
 // Configuration des colonnes du tableau
@@ -282,12 +341,13 @@ const loadMessageHistory = async () => {
     const params: PaginationParams = {
       page: pagination.value.page,
       limit: pagination.value.limit,
-      search: searchQuery.value || undefined,
       sortBy: sortField.value,
       sortOrder: sortOrder.value,
       filters: {
         status: statusFilter.value || undefined,
-        patientUuid: patientFilter.value || undefined
+        patientUuid: patientFilter.value || undefined,
+        startDate: startDate.value || undefined,
+        endDate: endDate.value || undefined
       }
     }
 
@@ -318,15 +378,28 @@ const getPatientName = (patientUuid: string | undefined) => {
   return patient ? patient.name : 'Patient inconnu'
 }
 
-// Gestion de la recherche avec debounce
-const onSearchChange = () => {
-  if (searchTimeout.value) {
-    clearTimeout(searchTimeout.value)
-  }
-  searchTimeout.value = window.setTimeout(() => {
-    pagination.value.page = 1
-    loadMessageHistory()
-  }, 500)
+// Gestion du filtre périodique
+const applyDateFilter = () => {
+  pagination.value.page = 1
+  loadMessageHistory()
+}
+
+// Effacer le filtre de date
+const clearDateFilter = () => {
+  startDate.value = ''
+  endDate.value = ''
+  pagination.value.page = 1
+  loadMessageHistory()
+}
+
+// Effacer tous les filtres
+const clearAllFilters = () => {
+  startDate.value = ''
+  endDate.value = ''
+  patientFilter.value = ''
+  statusFilter.value = ''
+  pagination.value.page = 1
+  loadMessageHistory()
 }
 
 

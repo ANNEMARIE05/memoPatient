@@ -35,6 +35,7 @@ export interface Patient {
   phone2: string
   email: string
   adresse: string
+  locationId?: string
   created_at: string
   updated_at: string
   created_user: string

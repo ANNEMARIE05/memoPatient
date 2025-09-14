@@ -121,6 +121,15 @@
           </table>
         </div>
 
+        <!-- Pagination -->
+        <PaginationComponent
+          v-if="pagination"
+          :pagination="pagination"
+          :loading="loading"
+          @page-change="onPageChange"
+          @page-size-change="onPageSizeChange"
+        />
+
       </div>
     </div>
   </Layout>
@@ -129,6 +138,7 @@
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
 import ActionButtons from '../components/ActionButtons.vue'
+import PaginationComponent from '../components/PaginationComponent.vue'
 import { messageTemplateService } from '../services/messageTemplateService'
 import type { MessageTemplate } from '../types/global'
 import { computed, ref, onMounted, watch } from 'vue'

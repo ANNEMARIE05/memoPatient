@@ -113,6 +113,26 @@
               placeholder="123 Rue de la Paix, Paris"
             />
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Localisation</label>
+            <select
+              v-model="form.locationId"
+              :disabled="isLoadingLocations"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            >
+              <option value="">Sélectionner une localisation</option>
+              <option 
+                v-for="location in locations" 
+                :key="location.id" 
+                :value="location.id"
+              >
+                {{ location.name }} ({{ location.type }})
+              </option>
+            </select>
+            <div v-if="isLoadingLocations" class="text-xs text-gray-500 mt-1">
+              Chargement des localisations...
+            </div>
+          </div>
         </div>
       </template>
     </StepForm>
@@ -124,7 +144,8 @@ import Layout from '../components/Layout.vue'
 import StepForm from '../components/StepForm.vue'
 import Breadcrumb from '../components/Breadcrumb.vue'
 import { patientService } from '../services/patientService'
-import type { Patient } from '../types/global'
+import { geographicLocationService } from '../services/geographicLocationService'
+import type { Patient, GeographicLocation } from '../types/global'
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -163,8 +184,13 @@ const form = ref({
   phone1: '',
   phone2: '',
   email: '',
-  adresse: ''
+  adresse: '',
+  locationId: ''
 })
+
+// Localisations disponibles
+const locations = ref<GeographicLocation[]>([])
+const isLoadingLocations = ref(false)
 
 // Fonctions
 const goBack = () => {
@@ -221,14 +247,33 @@ const loadPatient = () => {
         phone1: patient.phone1,
         phone2: patient.phone2,
         email: patient.email,
-        adresse: patient.adresse
+        adresse: patient.adresse,
+        locationId: patient.locationId || ''
       }
     }
+  }
+}
+
+// Charger les localisations disponibles
+const loadLocations = async () => {
+  isLoadingLocations.value = true
+  try {
+    const response = geographicLocationService.getLocations({ limit: 1000 })
+    locations.value = response.data
+  } catch (error) {
+    console.error('Erreur lors du chargement des localisations:', error)
+    if (window.showNotification) {
+      window.showNotification('error', 'Erreur', 'Impossible de charger les localisations')
+    }
+  } finally {
+    isLoadingLocations.value = false
   }
 }
 
 // Lifecycle
 onMounted(() => {
   loadPatient()
+  loadLocations()
 })
 </script>
+
