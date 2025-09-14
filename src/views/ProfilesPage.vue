@@ -131,7 +131,7 @@
 <script setup lang="ts">
 import Layout from '../components/Layout.vue'
 import PaginationComponent from '../components/PaginationComponent.vue'
-import { profileService } from '../services/profileService.js'
+import { profileService } from '../services/profileService.ts'
 import type { Profile } from '../types/global'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'

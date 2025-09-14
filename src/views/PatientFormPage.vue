@@ -258,7 +258,7 @@ const loadPatient = () => {
 const loadLocations = async () => {
   isLoadingLocations.value = true
   try {
-    const response = geographicLocationService.getLocations({ limit: 1000 })
+    const response = geographicLocationService.getLocations({ page: 1, limit: 1000 })
     locations.value = response.data
   } catch (error) {
     console.error('Erreur lors du chargement des localisations:', error)

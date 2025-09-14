@@ -199,20 +199,6 @@ Swal.mixin({
   cancelButtonText: 'Non, annuler'
 })
 
-// Définir la fonction de notification globale
-window.showNotification = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string, duration?: number) => {
-  Swal.fire({
-    icon: type,
-    title: title,
-    text: message,
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: duration || 3000,
-    timerProgressBar: true
-  })
-}
-
 const app = createApp(App)
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(router)

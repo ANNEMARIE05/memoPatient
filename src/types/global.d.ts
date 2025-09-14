@@ -296,4 +296,20 @@ export interface KeyStats {
   total: number
 }
 
+// Types pour la localisation géographique
+export interface GeographicLocation {
+  id: string
+  name: string
+  type: 'country' | 'region' | 'city' | 'district' | 'address'
+  parentId?: string
+  coordinates?: {
+    latitude: number
+    longitude: number
+  }
+  postalCode?: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export {}
